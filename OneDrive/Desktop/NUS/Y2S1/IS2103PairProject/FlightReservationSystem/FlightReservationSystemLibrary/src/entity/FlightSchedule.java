@@ -50,12 +50,13 @@ public class FlightSchedule implements Serializable {
     private Time arrivalTime;
     
     //relationship
+    /*
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private FlightSchedulePlan FlightSchedulePlan;
 
     @ManyToMany(mappedBy = "FlightSchedule")
-    private List<Passenger> passengers = new ArrayList<Passenger>();
+    private List<Passenger> passengers = new ArrayList<Passenger>(); */
 
     public Long getFlightscheduleid() {
         return flightscheduleid;

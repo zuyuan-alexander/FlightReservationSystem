@@ -41,14 +41,14 @@ public class FlightSchedulePlan implements Serializable {
     @Column(nullable = true)
     @NotNull
     private Boolean disabled;
-    
+    /*
     @OneToMany(mappedBy = "FlightSchedulePlan")
     private List<FlightSchedule> flightschedules;
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private Flight flight;
-    
+    */
     
     public Long getFlightscheduleplanid() {
         return flightscheduleplanid;
