@@ -31,10 +31,6 @@ public class Employee implements Serializable {
     @NotNull
     @Size(min = 1, max = 32)
     private String firstName;
-    @Column(nullable = false, length = 32)
-    @NotNull
-    @Size(min = 1, max = 32)
-    private String lastName;
     @Column(nullable = false, length = 32, unique = true)
     @NotNull
     @Size(min = 1, max = 32)
@@ -45,14 +41,16 @@ public class Employee implements Serializable {
     private String password;
     @Enumerated(EnumType.STRING)
     private EmployeeTypeEnum userRole;
-    
-    
-     public Employee(String firstName, String lastName, String username, String password) {
+
+    public Employee(String firstName, String username, String password, EmployeeTypeEnum userRole) {
         this.firstName = firstName;
-        this.lastName = lastName;
         this.username = username;
         this.password = password;
-     }
+        this.userRole = userRole;
+    }
+    
+    
+   
 
     public Long getEmployeeid() {
         return employeeid;
@@ -104,16 +102,7 @@ public class Employee implements Serializable {
     /**
      * @return the lastName
      */
-    public String getLastName() {
-        return lastName;
-    }
-
-    /**
-     * @param lastName the lastName to set
-     */
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+   
 
     /**
      * @return the username
