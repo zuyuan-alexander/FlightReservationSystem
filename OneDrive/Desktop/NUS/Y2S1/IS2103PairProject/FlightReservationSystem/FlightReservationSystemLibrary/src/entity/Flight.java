@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  *
@@ -20,12 +22,18 @@ public class Flight implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightId;
     @Column(nullable=false, unique=true)
     private Integer flightNumber;
 
-    // relationship
+    @ManyToOne(optional=true)
+    @JoinColumn(nullable=true)
+    private FlightRoute flightRoute;
+    
+    @ManyToOne(optional=false)
+    @JoinColumn(nullable=false)
+    private Aircraft aircraft;
 
     public Flight() {
     }
@@ -88,6 +96,34 @@ public class Flight implements Serializable {
      */
     public void setFlightNumber(Integer flightNumber) {
         this.flightNumber = flightNumber;
+    }
+
+    /**
+     * @return the flightRoute
+     */
+    public FlightRoute getFlightRoute() {
+        return flightRoute;
+    }
+
+    /**
+     * @param flightRoute the flightRoute to set
+     */
+    public void setFlightRoute(FlightRoute flightRoute) {
+        this.flightRoute = flightRoute;
+    }
+
+    /**
+     * @return the aircraft
+     */
+    public Aircraft getAircraft() {
+        return aircraft;
+    }
+
+    /**
+     * @param aircraft the aircraft to set
+     */
+    public void setAircraft(Aircraft aircraft) {
+        this.aircraft = aircraft;
     }
     
 }

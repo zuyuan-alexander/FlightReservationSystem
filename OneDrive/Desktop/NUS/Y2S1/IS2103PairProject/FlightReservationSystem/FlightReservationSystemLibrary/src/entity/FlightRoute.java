@@ -5,11 +5,16 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -20,7 +25,7 @@ public class FlightRoute implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightRouteId;
     @Column(nullable=false, length=64)
     private String origin;
@@ -31,9 +36,18 @@ public class FlightRoute implements Serializable {
     @Column(nullable=false)
     private Boolean disabledFlight;
 
-    // relationship
+    @ManyToMany
+    private List<Airport> airports;
+    
+    @OneToMany(mappedBy="flightRoute")
+    private List<Flight> flights;
+    
+    @OneToOne(optional=true)
+    private FlightRoute flightRoute;
 
     public FlightRoute() {
+        this.airports = new ArrayList<>();
+        this.flights = new ArrayList<>();
     }
 
     public FlightRoute(String origin, String destination, Boolean returnFlight, Boolean disabledFlight) {
@@ -140,5 +154,49 @@ public class FlightRoute implements Serializable {
     public void setDisabledFlight(Boolean disabledFlight) {
         this.disabledFlight = disabledFlight;
     }
+
+    /**
+     * @return the airports
+     */
+    public List<Airport> getAirports() {
+        return airports;
+    }
+
+    /**
+     * @param airports the airports to set
+     */
+    public void setAirports(List<Airport> airports) {
+        this.airports = airports;
+    }
+
+    /**
+     * @return the flights
+     */
+    public List<Flight> getFlights() {
+        return flights;
+    }
+
+    /**
+     * @param flights the flights to set
+     */
+    public void setFlights(List<Flight> flights) {
+        this.flights = flights;
+    }
+
+    /**
+     * @return the flightRoute
+     */
+    public FlightRoute getFlightRoute() {
+        return flightRoute;
+    }
+
+    /**
+     * @param flightRoute the flightRoute to set
+     */
+    public void setFlightRoute(FlightRoute flightRoute) {
+        this.flightRoute = flightRoute;
+    }
+    
+    
     
 }
