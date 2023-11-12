@@ -13,9 +13,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+//import javax.validation.constraints.NegativeOrZero.List;
 import javax.validation.constraints.NotNull;
 import util.enumeration.ScheduleTypeEnum;
-
+import java.util.List;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 /**
  *
  * @author alvintjw
@@ -37,7 +41,15 @@ public class FlightSchedulePlan implements Serializable {
     @Column(nullable = true)
     @NotNull
     private Boolean disabled;
+    
+    @OneToMany(mappedBy = "FlightSchedulePlan")
+    private List<FlightSchedule> flightschedules;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private Flight flight;
+    
+    
     public Long getFlightscheduleplanid() {
         return flightscheduleplanid;
     }
