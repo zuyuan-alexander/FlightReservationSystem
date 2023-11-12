@@ -87,7 +87,7 @@ public class MainApp {
         
         if(username.length() > 0 && password.length() > 0)
         {
-            //currentEmployee = employeeSessionBean.employeeLogin(username, password);      
+            currentEmployee = employeeSessionBean.employeeLogin(username, password);      
         }
         else
         {
