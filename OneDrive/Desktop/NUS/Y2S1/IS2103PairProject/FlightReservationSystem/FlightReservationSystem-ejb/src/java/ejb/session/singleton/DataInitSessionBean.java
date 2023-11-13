@@ -30,7 +30,7 @@ public class DataInitSessionBean {
 
     @PostConstruct
     public void postConstruct() {
-        Employee employee = new Employee("Alvin", "alvintjw", "password", EmployeeTypeEnum.SYSTEM_ADMINISTRATOR);
+        Employee employee = new Employee("Alvin", "alvintjw", "password", EmployeeTypeEnum.SCHEDULE_MANAGER);
         em.persist(employee);
         em.flush();
     }
