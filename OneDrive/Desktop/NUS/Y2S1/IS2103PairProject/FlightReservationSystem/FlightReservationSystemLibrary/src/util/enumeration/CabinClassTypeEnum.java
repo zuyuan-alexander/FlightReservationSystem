@@ -9,8 +9,12 @@ package util.enumeration;
  * @author zuyua
  */
 public enum CabinClassTypeEnum {
-    FIRST,
-    BUSINESS,
-    PREMIUM_ECONOMY,
-    ECONOMY
+    // F - First
+    // J - Business
+    // W - Premium Economy
+    // Y - Economy
+    F,
+    J,
+    W,
+    Y
 }

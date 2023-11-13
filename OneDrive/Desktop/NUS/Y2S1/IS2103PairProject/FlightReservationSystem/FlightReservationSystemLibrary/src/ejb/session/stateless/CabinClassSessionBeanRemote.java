@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.CabinClass;
 import javax.ejb.Remote;
 
 /**
@@ -12,5 +13,7 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface CabinClassSessionBeanRemote {
+    
+    public CabinClass createCabinClass(CabinClass cabinClass);
     
 }

@@ -33,7 +33,7 @@ public class Flight implements Serializable {
     
     @ManyToOne(optional=false)
     @JoinColumn(nullable=false)
-    private Aircraft aircraft;
+    private AircraftType aircraft;
 
     public Flight() {
     }
@@ -115,14 +115,14 @@ public class Flight implements Serializable {
     /**
      * @return the aircraft
      */
-    public Aircraft getAircraft() {
+    public AircraftType getAircraft() {
         return aircraft;
     }
 
     /**
      * @param aircraft the aircraft to set
      */
-    public void setAircraft(Aircraft aircraft) {
+    public void setAircraft(AircraftType aircraft) {
         this.aircraft = aircraft;
     }
     
