@@ -55,7 +55,7 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
                 
                 seatSessionBeanLocal.createSeats(seat);
                 
-                //cabinClass.getSeats().add(seat);
+                cabinClass.getSeats().add(seat);
                 seat.setCabinClass(cabinClass);
                 
                 counter++;
