@@ -30,7 +30,7 @@ public class Employee implements Serializable {
     @Column(nullable = false, length = 32)
     @NotNull
     @Size(min = 1, max = 32)
-    private String firstName;
+    private String name;
     @Column(nullable = false, length = 32, unique = true)
     @NotNull
     @Size(min = 1, max = 32)
@@ -42,8 +42,8 @@ public class Employee implements Serializable {
     @Enumerated(EnumType.STRING)
     private EmployeeTypeEnum userRole;
 
-    public Employee(String firstName, String username, String password, EmployeeTypeEnum userRole) {
-        this.firstName = firstName;
+    public Employee(String name, String username, String password, EmployeeTypeEnum userRole) {
+        this.name = name;
         this.username = username;
         this.password = password;
         this.userRole = userRole;
@@ -86,17 +86,17 @@ public class Employee implements Serializable {
     }
 
     /**
-     * @return the firstName
+     * @return the name
      */
-    public String getFirstName() {
-        return firstName;
+    public String getName() {
+        return name;
     }
 
     /**
-     * @param firstName the firstName to set
+     * @param name the name to set
      */
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
