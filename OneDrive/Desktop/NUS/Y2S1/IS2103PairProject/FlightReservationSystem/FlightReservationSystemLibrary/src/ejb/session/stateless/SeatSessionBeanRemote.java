@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Seat;
 import javax.ejb.Remote;
 
 /**
@@ -11,6 +12,8 @@ import javax.ejb.Remote;
  * @author zuyua
  */
 @Remote
-public interface AircraftConfigurationSessionBeanRemote {
+public interface SeatSessionBeanRemote {
+    
+    public Seat createSeats(Seat seat);
     
 }

@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import util.enumeration.SeatStatusEnum;
 
 /**
@@ -31,6 +33,9 @@ public class Seat implements Serializable {
     private SeatStatusEnum seatStatus;
     
     // relationship
+    @ManyToOne(optional=false)
+    @JoinColumn(nullable=false)
+    private CabinClass cabinClass;
 
     public Seat() {
     }
@@ -122,6 +127,20 @@ public class Seat implements Serializable {
      */
     public void setSeatStatus(SeatStatusEnum seatStatus) {
         this.seatStatus = seatStatus;
+    }
+
+    /**
+     * @return the cabinClass
+     */
+    public CabinClass getCabinClass() {
+        return cabinClass;
+    }
+
+    /**
+     * @param cabinClass the cabinClass to set
+     */
+    public void setCabinClass(CabinClass cabinClass) {
+        this.cabinClass = cabinClass;
     }
     
 }

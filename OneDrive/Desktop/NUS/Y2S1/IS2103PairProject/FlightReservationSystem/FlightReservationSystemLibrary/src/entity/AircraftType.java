@@ -22,19 +22,15 @@ import util.enumeration.AircraftTypeEnum;
  * @author zuyua
  */
 @Entity
-public class Aircraft implements Serializable {
+public class AircraftType implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long aircraftId;
-    @Column(nullable=false, length=64, unique=true)
-    //@NotNull
-    //@Size(max=64)
-    private String model;
+    private Long aircraftTypeId;
     @Column(nullable=false)
     //@NotNull
-    private AircraftTypeEnum aircraftTypeName;
+    private String aircraftTypeName;
     @Column(nullable=false)
     //@NotNull
     //@Positive
@@ -43,17 +39,15 @@ public class Aircraft implements Serializable {
 
     // relationship
 
-    public Aircraft() {
+    public AircraftType() {
     }
 
-    public Aircraft(String model, AircraftTypeEnum aircraftTypeName, Integer maxPassengerSeatCapacity) {
+    public AircraftType(String aircraftTypeName, Integer maxPassengerSeatCapacity) {
         this();
-        this.model = model;
         this.aircraftTypeName = aircraftTypeName;
         this.maxPassengerSeatCapacity = maxPassengerSeatCapacity;
     }
-    
-    
+
 
     @Override
     public int hashCode() {
@@ -65,11 +59,11 @@ public class Aircraft implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Aircraft)) {
+        if (!(object instanceof AircraftType)) {
             return false;
         }
-        Aircraft other = (Aircraft) object;
-        if ((this.getAircraftId() == null && other.getAircraftId() != null) || (this.getAircraftId() != null && !this.aircraftId.equals(other.aircraftId))) {
+        AircraftType other = (AircraftType) object;
+        if ((this.getAircraftId() == null && other.getAircraftId() != null) || (this.getAircraftId() != null && !this.aircraftTypeId.equals(other.aircraftTypeId))) {
             return false;
         }
         return true;
@@ -84,42 +78,14 @@ public class Aircraft implements Serializable {
      * @return the aircraftId
      */
     public Long getAircraftId() {
-        return aircraftId;
+        return aircraftTypeId;
     }
 
     /**
      * @param aircraftId the aircraftId to set
      */
-    public void setAircraftId(Long aircraftId) {
-        this.aircraftId = aircraftId;
-    }
-
-    /**
-     * @return the model
-     */
-    public String getModel() {
-        return model;
-    }
-
-    /**
-     * @param model the model to set
-     */
-    public void setModel(String model) {
-        this.model = model;
-    }
-
-    /**
-     * @return the aircraftTypeName
-     */
-    public AircraftTypeEnum getAircraftTypeName() {
-        return aircraftTypeName;
-    }
-
-    /**
-     * @param aircraftTypeName the aircraftTypeName to set
-     */
-    public void setAircraftTypeName(AircraftTypeEnum aircraftTypeName) {
-        this.aircraftTypeName = aircraftTypeName;
+    public void setAircraftId(Long aircraftTypeId) {
+        this.aircraftTypeId = aircraftTypeId;
     }
 
     /**

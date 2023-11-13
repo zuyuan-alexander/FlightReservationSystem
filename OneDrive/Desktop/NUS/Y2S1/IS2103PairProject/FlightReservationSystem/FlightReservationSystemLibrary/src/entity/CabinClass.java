@@ -5,15 +5,15 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import util.enumeration.CabinClassTypeEnum;
 
 /**
@@ -48,6 +48,12 @@ public class CabinClass implements Serializable {
     private String actualSeatConfiguration;
 
     // relationship
+    @ManyToOne(optional=false)
+    @JoinColumn(nullable=false)
+    private AircraftConfiguration aircraftConfiguration;
+    
+    @OneToMany(mappedBy="cabinClass")
+    private List<Seat> seats;
 
     public CabinClass() {
     }
@@ -168,6 +174,34 @@ public class CabinClass implements Serializable {
      */
     public void setActualSeatConfiguration(String actualSeatConfiguration) {
         this.actualSeatConfiguration = actualSeatConfiguration;
+    }
+
+    /**
+     * @return the aircraftConfiguration
+     */
+    public AircraftConfiguration getAircraftConfiguration() {
+        return aircraftConfiguration;
+    }
+
+    /**
+     * @param aircraftConfiguration the aircraftConfiguration to set
+     */
+    public void setAircraftConfiguration(AircraftConfiguration aircraftConfiguration) {
+        this.aircraftConfiguration = aircraftConfiguration;
+    }
+
+    /**
+     * @return the seats
+     */
+    public List<Seat> getSeats() {
+        return seats;
+    }
+
+    /**
+     * @param seats the seats to set
+     */
+    public void setSeats(List<Seat> seats) {
+        this.seats = seats;
     }
     
 }
