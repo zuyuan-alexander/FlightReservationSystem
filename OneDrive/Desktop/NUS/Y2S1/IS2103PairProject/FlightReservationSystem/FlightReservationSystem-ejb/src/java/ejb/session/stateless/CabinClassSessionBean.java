@@ -37,12 +37,15 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         Integer numOfSeatsAbreast = cabinClass.getNumOfSeatsAbreast();
         String actualSeatingConfiguration = cabinClass.getActualSeatConfiguration();
         
-        Integer maximumPassengerSeatCapacity = cabinClass.getAircraftConfiguration().getAircraftType().getMaxPassengerSeatCapacity();
+        Integer maxCapacity = cabinClass.getMaxCapacity();
+        
+        em.persist(cabinClass);
+        em.flush();
         
         // create the seats
         for(int i=1; i<=numOfRows; i++) {
             for (int j=1; j<=numOfSeatsAbreast; j++) {
-                if (counter > maximumPassengerSeatCapacity) {
+                if (counter > maxCapacity) {
                     break;
                 }
                 
@@ -50,18 +53,14 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
                 
                 Seat seat = new Seat(i, seatLetter, SeatStatusEnum.AVAILABLE);
                 
-                cabinClass.getSeats().add(seat);
-                seat.setCabinClass(cabinClass);
-                
                 seatSessionBeanLocal.createSeats(seat);
+                
+                //cabinClass.getSeats().add(seat);
+                seat.setCabinClass(cabinClass);
                 
                 counter++;
             }
         }
-        
-        
-        em.persist(cabinClass);
-        em.flush();
         
         return cabinClass;
     }

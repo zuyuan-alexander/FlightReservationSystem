@@ -4,17 +4,26 @@
  */
 package ejb.session.singleton;
 
+import ejb.session.stateless.AircraftSessionBeanLocal;
 import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.Airport;
+import entity.CabinClass;
 import entity.Employee;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.EmployeeTypeEnum;
+import util.exception.AircraftTypeNotFoundException;
 
 /**
  *
@@ -27,6 +36,9 @@ public class DataInitSessionBean {
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
+    
+    @EJB
+    private AircraftSessionBeanLocal aircraftSessionBeanLocal;
 
     public DataInitSessionBean() {
     }
@@ -48,7 +60,19 @@ public class DataInitSessionBean {
         em.persist(aircraft);
         em.flush();
         
-        //AircraftConfiguration aircraftConfiguration = new AircraftConfiguration();
+        List<CabinClass> cabinClassList = new ArrayList<>();
+        AircraftConfiguration aircraftConfiguration = new AircraftConfiguration("Boeing 737 Three Classes", 3, 180);
+        CabinClass class1 = new CabinClass(CabinClassTypeEnum.F, 1, 5, 2, "1-1", 10);
+        CabinClass class2 = new CabinClass(CabinClassTypeEnum.J, 1, 5, 4, "2-2", 20);
+        CabinClass class3 = new CabinClass(CabinClassTypeEnum.Y, 1, 25, 6, "3-3", 150);
+        cabinClassList.add(class1);
+        cabinClassList.add(class2);
+        cabinClassList.add(class3);
+        try {
+            aircraftSessionBeanLocal.createAircraftConfiguration(aircraftConfiguration, aircraft, cabinClassList);
+        } catch (AircraftTypeNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
         
     }
 

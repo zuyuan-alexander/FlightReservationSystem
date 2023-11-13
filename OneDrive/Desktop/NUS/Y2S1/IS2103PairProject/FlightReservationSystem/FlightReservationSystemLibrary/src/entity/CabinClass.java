@@ -46,6 +46,8 @@ public class CabinClass implements Serializable {
     @Column(nullable=false, length=5)
     //@Size(max=5)
     private String actualSeatConfiguration;
+    @Column(nullable=false)
+    private Integer maxCapacity;
 
     // relationship
     @ManyToOne(optional=false)
@@ -58,13 +60,14 @@ public class CabinClass implements Serializable {
     public CabinClass() {
     }
 
-    public CabinClass(CabinClassTypeEnum cabinClassType, Integer numOfAisles, Integer numOfRows, Integer numOfSeatsAbreast, String actualSeatConfiguration) {
+    public CabinClass(CabinClassTypeEnum cabinClassType, Integer numOfAisles, Integer numOfRows, Integer numOfSeatsAbreast, String actualSeatConfiguration, Integer maxcapacity) {
         this();
         this.cabinClassType = cabinClassType;
         this.numOfAisles = numOfAisles;
         this.numOfRows = numOfRows;
         this.numOfSeatsAbreast = numOfSeatsAbreast;
         this.actualSeatConfiguration = actualSeatConfiguration;
+        this.maxCapacity = maxcapacity;
     }
 
     @Override
@@ -202,6 +205,20 @@ public class CabinClass implements Serializable {
      */
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
+    }
+
+    /**
+     * @return the maxCapacity
+     */
+    public Integer getMaxCapacity() {
+        return maxCapacity;
+    }
+
+    /**
+     * @param maxCapacity the maxCapacity to set
+     */
+    public void setMaxCapacity(Integer maxCapacity) {
+        this.maxCapacity = maxCapacity;
     }
     
 }

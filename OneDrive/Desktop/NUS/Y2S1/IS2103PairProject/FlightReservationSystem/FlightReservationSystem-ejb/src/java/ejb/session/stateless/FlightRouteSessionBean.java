@@ -50,7 +50,9 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
         // if the user wants a complementary return route, create the return route (reverse of the current flight route)
         if (flightRoute.getReturnFlight()) {
             // the user wants a return route
-            FlightRoute returnFlightRoute = new FlightRoute(destinationIATA, originIATA, Boolean.FALSE, Boolean.FALSE);
+            FlightRoute returnFlightRoute = new FlightRoute(destinationIATA, originIATA);
+            
+            flightRoute.setReturnFlightRoute(flightRoute);
             
             returnFlightRoute.getAirports().add(destinationAirport);
             returnFlightRoute.getAirports().add(originAirport);

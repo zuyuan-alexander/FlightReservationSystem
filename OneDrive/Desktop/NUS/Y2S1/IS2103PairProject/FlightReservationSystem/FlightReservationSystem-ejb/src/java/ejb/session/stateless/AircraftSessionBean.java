@@ -39,12 +39,13 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
         em.persist(aircraft);
         em.flush();
         
-        return aircraft.getAircraftId();
+        return aircraft.getAircraftTypeId();
     }
     
-    public AircraftType retrieveAircraftByAircraftTypeName(AircraftType aircraftType) throws AircraftTypeNotFoundException {
+    @Override
+    public AircraftType retrieveAircraftByAircraftTypeName(String aircraftTypeName) throws AircraftTypeNotFoundException {
         Query query = em.createQuery("SELECT at FROM AircraftType at WHERE at.aircraftTypeName = :inAircraftType");
-        query.setParameter("inAircraftType", aircraftType);
+        query.setParameter("inAircraftType", aircraftTypeName);
         
         try
         {
@@ -52,7 +53,7 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
         }
         catch(NoResultException | NonUniqueResultException ex)
         {
-            throw new AircraftTypeNotFoundException("Aircraft Type " + aircraftType + " does not exist!");
+            throw new AircraftTypeNotFoundException("Aircraft Type " + aircraftTypeName + " does not exist!");
         }
     }
     
@@ -72,22 +73,19 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
     
     @Override
     public Long createAircraftConfiguration(AircraftConfiguration aircraftConfiguration, AircraftType aircraftType, List<CabinClass> cabinClassList) throws AircraftTypeNotFoundException {
-        AircraftType aircraft = retrieveAircraftByAircraftTypeName(aircraftType);
+        AircraftType aircraft = retrieveAircraftByAircraftTypeName(aircraftType.getAircraftTypeName());
         
         aircraftConfiguration.setAircraftType(aircraftType);
         
         em.persist(aircraftConfiguration);
+        em.flush();
         
         for(CabinClass cabinClass : cabinClassList) {
-            CabinClass newCabinClass = cabinClassSessionBeanLocal.createCabinClass(cabinClass);
+            aircraftConfiguration.getCabinClasses().add(cabinClass);
+            cabinClass.setAircraftConfiguration(aircraftConfiguration);
             
-            aircraftConfiguration.getCabinClasses().add(newCabinClass);
-            newCabinClass.setAircraftConfiguration(aircraftConfiguration);
-            
-            em.persist(newCabinClass);
+            cabinClassSessionBeanLocal.createCabinClass(cabinClass);
         }
-        
-        em.flush();
         
         return aircraftConfiguration.getAircraftConfigurationId();
     }

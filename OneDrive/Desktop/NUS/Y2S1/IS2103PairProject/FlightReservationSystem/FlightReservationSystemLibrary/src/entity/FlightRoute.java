@@ -43,19 +43,19 @@ public class FlightRoute implements Serializable {
     private List<Flight> flights;
     
     @OneToOne(optional=true)
-    private FlightRoute flightRoute;
+    private FlightRoute returnFlightRoute;
 
     public FlightRoute() {
         this.airports = new ArrayList<>();
         this.flights = new ArrayList<>();
+        this.returnFlight = Boolean.FALSE;
+        this.disabledFlight = Boolean.FALSE;
     }
 
-    public FlightRoute(String origin, String destination, Boolean returnFlight, Boolean disabledFlight) {
+    public FlightRoute(String origin, String destination) {
         this();
         this.origin = origin;
         this.destination = destination;
-        this.returnFlight = returnFlight;
-        this.disabledFlight = disabledFlight;
     }
     
     
@@ -186,15 +186,15 @@ public class FlightRoute implements Serializable {
     /**
      * @return the flightRoute
      */
-    public FlightRoute getFlightRoute() {
-        return flightRoute;
+    public FlightRoute getReturnFlightRoute() {
+        return returnFlightRoute;
     }
 
     /**
      * @param flightRoute the flightRoute to set
      */
-    public void setFlightRoute(FlightRoute flightRoute) {
-        this.flightRoute = flightRoute;
+    public void setReturnFlightRoute(FlightRoute flightRoute) {
+        this.returnFlightRoute = flightRoute;
     }
     
     

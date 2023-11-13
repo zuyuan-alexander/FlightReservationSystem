@@ -20,7 +20,7 @@ public interface AircraftSessionBeanLocal {
 
     public Long createNewAircraftType(AircraftType aircraft);
 
-    public AircraftType retrieveAircraftByAircraftTypeName(AircraftType aircraftType) throws AircraftTypeNotFoundException;
+    public AircraftType retrieveAircraftByAircraftTypeName(String aircraftTypeName) throws AircraftTypeNotFoundException;
 
     public AircraftType retrieveAircraftByAircraftTypeId(Long aircraftTypeId) throws AircraftTypeNotFoundException;
 
