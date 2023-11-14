@@ -5,11 +5,13 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.AircraftSessionBeanLocal;
+import ejb.session.stateless.FlightRouteSessionBeanLocal;
 import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.Airport;
 import entity.CabinClass;
 import entity.Employee;
+import entity.FlightRoute;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -24,6 +26,7 @@ import javax.persistence.PersistenceContext;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.EmployeeTypeEnum;
 import util.exception.AircraftTypeNotFoundException;
+import util.exception.AirportNotFoundException;
 
 /**
  *
@@ -39,6 +42,9 @@ public class DataInitSessionBean {
     
     @EJB
     private AircraftSessionBeanLocal aircraftSessionBeanLocal;
+    
+    @EJB
+    private FlightRouteSessionBeanLocal flightRouteSessionBeanLocal;
 
     public DataInitSessionBean() {
     }
@@ -49,6 +55,14 @@ public class DataInitSessionBean {
         em.persist(employee);
         em.flush();
         
+        employee = new Employee("Employee2", "employee2", "password", EmployeeTypeEnum.ROUTE_MANAGER);
+        em.persist(employee);
+        em.flush();
+        
+        employee = new Employee("Employee3", "employee3", "password", EmployeeTypeEnum.FLEET_MANAGER);
+        em.persist(employee);
+        em.flush();
+        
         Airport airport = new Airport("Changi", "SIN", "Singapore", "Singapore", "Singapore");
         em.persist(airport);
         em.flush();
@@ -56,7 +70,15 @@ public class DataInitSessionBean {
         em.persist(airport);
         em.flush();
         
-        AircraftType aircraft = new AircraftType("Boeing 7737", 200);
+        FlightRoute flightRoute = new FlightRoute("SIN", "HKG");
+        flightRoute.setReturnFlight(Boolean.TRUE);
+        try {
+            flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
+        } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
+        
+        AircraftType aircraft = new AircraftType("Boeing 737", 200);
         em.persist(aircraft);
         em.flush();
         

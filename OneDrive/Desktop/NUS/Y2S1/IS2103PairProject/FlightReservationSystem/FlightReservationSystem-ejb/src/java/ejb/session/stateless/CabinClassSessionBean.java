@@ -6,6 +6,8 @@ package ejb.session.stateless;
 
 import entity.CabinClass;
 import entity.Seat;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -63,5 +65,48 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         }
         
         return cabinClass;
+    }
+    
+    @Override
+    public Integer calculateNumOfAvailabeSeats(CabinClass cabinClass) {
+        List<Seat> seats = cabinClass.getSeats();
+        Integer counter = 0;
+        
+        for (Seat seat : seats) {
+            if (seat.getSeatStatus().equals(SeatStatusEnum.AVAILABLE)) {
+                counter++;
+            }
+        }
+        
+        return counter;
+    }
+    
+    @Override
+    public Integer calculateNumOfReservedSeats(CabinClass cabinClass) {
+        List<Seat> seats = cabinClass.getSeats();
+        Integer counter = 0;
+        
+        for (Seat seat : seats) {
+            if (seat.getSeatStatus().equals(SeatStatusEnum.RESERVED)) {
+                counter++;
+            }
+        }
+        
+        return counter;
+    }
+    
+    @Override
+    public List<Integer> calculateNumOfSeats(CabinClass cabinClass) {
+        List<Integer> answer = new ArrayList<>();
+        Integer numOfAvailableSeats = calculateNumOfAvailabeSeats(cabinClass);
+        answer.add(numOfAvailableSeats);
+        
+        Integer numOfReservedSeats = calculateNumOfReservedSeats(cabinClass);
+        answer.add(numOfReservedSeats);
+        
+        Integer numOfBlanceSeats = cabinClass.getMaxCapacity() - numOfAvailableSeats - numOfReservedSeats;
+        answer.add(numOfAvailableSeats);
+        
+        return answer;
     }
 }

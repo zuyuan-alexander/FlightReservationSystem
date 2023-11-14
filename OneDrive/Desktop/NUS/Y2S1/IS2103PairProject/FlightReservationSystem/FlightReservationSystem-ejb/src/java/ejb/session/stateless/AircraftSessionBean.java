@@ -92,7 +92,7 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
     
     @Override
     public List<AircraftConfiguration> viewAllAircraftConfigurations() {
-        Query query = em.createQuery("SELECT ac FROM Aircraft ac ORDER BY ac.aircraftType ASC, ac.aircraftConfigurationName ASC");
+        Query query = em.createQuery("SELECT ac FROM AircraftConfiguration ac ORDER BY ac.aircraftType ASC, ac.aircraftConfigurationName ASC");
         return query.getResultList();
     }
     
