@@ -40,7 +40,7 @@ public class FlightSchedule implements Serializable {
     private Time estimatedFlightDuration;
     @Column(nullable = true)
     private Date arrivalDate;
-    @Column(nullable = true)
+   
 
     
     
@@ -50,8 +50,7 @@ public class FlightSchedule implements Serializable {
 
     /*
     @ManyToMany(mappedBy = "flightschedule")
-    private List<Passenger> passengers = new ArrayList<Passenger>(); 
-*/
+    private List<Passenger> passengers = new ArrayList<Passenger>(); */
 
     public FlightSchedule() {
     }

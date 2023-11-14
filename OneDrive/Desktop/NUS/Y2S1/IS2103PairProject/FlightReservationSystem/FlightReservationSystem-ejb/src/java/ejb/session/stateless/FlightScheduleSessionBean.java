@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.FlightSchedule;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -20,6 +21,14 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
 
     public void persist(Object object) {
         em.persist(object);
+    }
+    
+    @Override
+    public Long createNewFlightSchedule(FlightSchedule fs)
+    {
+        em.persist(fs);
+        em.flush();
+        return fs.getFlightscheduleid();
     }
 
     // Add business logic below. (Right-click in editor and choose

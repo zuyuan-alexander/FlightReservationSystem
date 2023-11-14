@@ -6,6 +6,7 @@ package ejb.session.stateless;
 
 import entity.FlightSchedule;
 import javax.ejb.Stateless;
+import java.time.LocalDate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.text.ParseException;
@@ -22,9 +23,15 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
 
+    
+
     /*
-    public void createNewFlightSchedulePlan(String input)    
-    { 
+    public void createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS)    
+    {
+        //em.persist(newFSP)
+        newFS.set(newFSP)
+    //newFSP.getFS.add(newFS)
+        //FSsessionbean.createNewFS(newFS)
         
         try {
             FlightSchedule scheduleInfo = parseFlightSchedule(input);
@@ -36,6 +43,25 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
             System.out.println("Flight Duration: " + scheduleInfo.getEstimatedFlightDuration());
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+    }
+    
+    /*
+    private void generateFlightSchedules(FlightSchedulePlan flightSchedulePlan) {
+        // Extract recurrence details from the flight schedule plan
+        // Calculate and create flight schedules accordingly
+
+        // Example: For weekly recurrence, create schedules for 52 weeks
+        for (int i = 0; i < 52; i++) {
+            FlightSchedule flightSchedule = new FlightSchedule();
+            // Set schedule details based on recurrence pattern
+            // ...
+
+            // Link the flight schedule to the flight schedule plan
+            flightSchedule.setFlightSchedulePlan(flightSchedulePlan);
+
+            // Persist the new FlightSchedule to the database
+            entityManager.persist(flightSchedule);
         }
     }
 
