@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import util.enumeration.ScheduleTypeEnum;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 /**
@@ -35,20 +36,36 @@ public class FlightSchedulePlan implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     private ScheduleTypeEnum scheduleType;
-    @Column(nullable = false)
-    @NotNull
-    private Date endDate;        
+    //@Column(nullable = false)
+    //@NotNull
+    //private Date endDate;        
     @Column(nullable = true)
     @NotNull
     private Boolean disabled;
-    /*
-    @OneToMany(mappedBy = "FlightSchedulePlan")
+    @Column(nullable = true, length = 10)
+    private String dayOfWeek;
+    @Column(nullable = true)
+    private int Ndays;
+    @Column(nullable = true)
+    private Date startDate;   
+    @Column(nullable = true)
+    private Date endDate;   
+    
+    @OneToMany(mappedBy = "flightSchedulePlan", cascade = CascadeType.ALL)
     private List<FlightSchedule> flightschedules;
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private Flight flight;
-    */
+
+    public FlightSchedulePlan() {
+    }
+
+    public FlightSchedulePlan(ScheduleTypeEnum scheduleType) {
+        this.scheduleType = scheduleType;
+        this.disabled = false;
+    }
+    
     
     public Long getFlightscheduleplanid() {
         return flightscheduleplanid;
@@ -81,6 +98,118 @@ public class FlightSchedulePlan implements Serializable {
     @Override
     public String toString() {
         return "entity.FlightSchedulePlan[ id=" + flightscheduleplanid + " ]";
+    }
+
+    /**
+     * @return the scheduleType
+     */
+    public ScheduleTypeEnum getScheduleType() {
+        return scheduleType;
+    }
+
+    /**
+     * @param scheduleType the scheduleType to set
+     */
+    public void setScheduleType(ScheduleTypeEnum scheduleType) {
+        this.scheduleType = scheduleType;
+    }
+
+    /**
+     * @return the disabled
+     */
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    /**
+     * @param disabled the disabled to set
+     */
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    /**
+     * @return the dayOfWeek
+     */
+    public String getDayOfWeek() {
+        return dayOfWeek;
+    }
+
+    /**
+     * @param dayOfWeek the dayOfWeek to set
+     */
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    /**
+     * @return the Ndays
+     */
+    public int getNdays() {
+        return Ndays;
+    }
+
+    /**
+     * @param Ndays the Ndays to set
+     */
+    public void setNdays(int Ndays) {
+        this.Ndays = Ndays;
+    }
+
+    /**
+     * @return the startDate
+     */
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    /**
+     * @param startDate the startDate to set
+     */
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    /**
+     * @return the endDate
+     */
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    /**
+     * @param endDate the endDate to set
+     */
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    /**
+     * @return the flightschedules
+     */
+    public List<FlightSchedule> getFlightschedules() {
+        return flightschedules;
+    }
+
+    /**
+     * @param flightschedules the flightschedules to set
+     */
+    public void setFlightschedules(List<FlightSchedule> flightschedules) {
+        this.flightschedules = flightschedules;
+    }
+
+    /**
+     * @return the flight
+     */
+    public Flight getFlight() {
+        return flight;
+    }
+
+    /**
+     * @param flight the flight to set
+     */
+    public void setFlight(Flight flight) {
+        this.flight = flight;
     }
     
 }

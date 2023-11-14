@@ -30,11 +30,7 @@ public class FlightSchedule implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightscheduleid;
-    @Column(nullable = false)
-    @NotNull
-    private Date endDate;   
-    @Column(nullable = false)
-    @NotNull
+    @Column(nullable = true)
     private Date departureDate;
     @Column(nullable = false)
     @NotNull
@@ -42,22 +38,33 @@ public class FlightSchedule implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Time estimatedFlightDuration;
-    @Column(nullable = false)
-    @NotNull
+    @Column(nullable = true)
     private Date arrivalDate;
-    @Column(nullable = false)
-    @NotNull
-    private Time arrivalTime;
+    @Column(nullable = true)
+
     
-    //relationship
-    /*
+    
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
-    private FlightSchedulePlan FlightSchedulePlan;
+    private FlightSchedulePlan flightSchedulePlan;
 
-    @ManyToMany(mappedBy = "FlightSchedule")
-    private List<Passenger> passengers = new ArrayList<Passenger>(); */
+    /*
+    @ManyToMany(mappedBy = "flightschedule")
+    private List<Passenger> passengers = new ArrayList<Passenger>(); 
+*/
 
+    public FlightSchedule() {
+    }
+
+    public FlightSchedule(Date departureDate, Time departureTime, Time estimatedFlightDuration) {
+        this.departureDate = departureDate;
+        this.departureTime = departureTime;
+        this.estimatedFlightDuration = estimatedFlightDuration;
+    }
+    
+    
+
+    
     public Long getFlightscheduleid() {
         return flightscheduleid;
     }
@@ -89,6 +96,77 @@ public class FlightSchedule implements Serializable {
     @Override
     public String toString() {
         return "entity.FlightSchedule[ id=" + flightscheduleid + " ]";
+    }
+
+  
+    /**
+     * @return the departureDate
+     */
+    public Date getDepartureDate() {
+        return departureDate;
+    }
+
+    /**
+     * @param departureDate the departureDate to set
+     */
+    public void setDepartureDate(Date departureDate) {
+        this.departureDate = departureDate;
+    }
+
+    /**
+     * @return the departureTime
+     */
+    public Time getDepartureTime() {
+        return departureTime;
+    }
+
+    /**
+     * @param departureTime the departureTime to set
+     */
+    public void setDepartureTime(Time departureTime) {
+        this.departureTime = departureTime;
+    }
+
+    /**
+     * @return the estimatedFlightDuration
+     */
+    public Time getEstimatedFlightDuration() {
+        return estimatedFlightDuration;
+    }
+
+    /**
+     * @param estimatedFlightDuration the estimatedFlightDuration to set
+     */
+    public void setEstimatedFlightDuration(Time estimatedFlightDuration) {
+        this.estimatedFlightDuration = estimatedFlightDuration;
+    }
+
+    /**
+     * @return the arrivalDate
+     */
+    public Date getArrivalDate() {
+        return arrivalDate;
+    }
+
+    /**
+     * @param arrivalDate the arrivalDate to set
+     */
+    public void setArrivalDate(Date arrivalDate) {
+        this.arrivalDate = arrivalDate;
+    }
+
+    /**
+     * @return the flightSchedulePlan
+     */
+    public FlightSchedulePlan getFlightSchedulePlan() {
+        return flightSchedulePlan;
+    }
+
+    /**
+     * @param flightSchedulePlan the flightSchedulePlan to set
+     */
+    public void setFlightSchedulePlan(FlightSchedulePlan flightSchedulePlan) {
+        this.flightSchedulePlan = flightSchedulePlan;
     }
     
 }
