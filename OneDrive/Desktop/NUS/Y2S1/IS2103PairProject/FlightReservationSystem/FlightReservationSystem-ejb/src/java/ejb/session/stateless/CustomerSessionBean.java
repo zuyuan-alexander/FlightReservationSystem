@@ -68,8 +68,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
             Customer customer = retrieveCustomerByUsername(username);
             
             if(customer.getPassword().equals(password))
-            {
-                //employee.getSaleTransactionEntities().size();                
+            {             
                 return customer;
             }
             else

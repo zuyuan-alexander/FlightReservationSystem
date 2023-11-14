@@ -52,7 +52,7 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
             // the user wants a return route
             FlightRoute returnFlightRoute = new FlightRoute(destinationIATA, originIATA);
             
-            flightRoute.setReturnFlightRoute(flightRoute);
+            flightRoute.setReturnFlightRoute(returnFlightRoute);
             
             returnFlightRoute.getAirports().add(destinationAirport);
             returnFlightRoute.getAirports().add(originAirport);

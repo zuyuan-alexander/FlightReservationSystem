@@ -21,8 +21,6 @@ public interface FlightReservationSessionBeanRemote {
     
     public List<FlightReservation> searchFlight(TripTypeEnum tripType, String departureAirport, String destinationAirport, Date departureDate, Integer numOfPassengers, Boolean directConnectingFlight, Boolean cabinClassPreference);
 
-    public List<FlightReservation> searchFlightWithReturnDate(TripTypeEnum tripType, String departureAirport, String destinationAirport, Date departureDate, Date returnDate, Integer numOfPassengers, Boolean directConnectingFlight, Boolean cabinClassPreference);
-
     public FlightReservation retrieveFlightReservationById(Long flightReservationId) throws FlightReservationNotFoundException;
 
     public List<FlightReservation> viewMyFlightReservations(Customer customer);
