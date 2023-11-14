@@ -11,5 +11,6 @@ package util.enumeration;
 public enum ScheduleTypeEnum {
     SINGLE,
     MULTIPLE,
-    RECURRENT
+    RECURRENTNDAY,
+    RECURRENTWEEKLY
 }

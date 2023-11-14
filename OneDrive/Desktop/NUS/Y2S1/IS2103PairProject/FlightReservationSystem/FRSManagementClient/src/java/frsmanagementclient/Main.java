@@ -6,7 +6,12 @@ package frsmanagementclient;
 
 import ejb.session.stateless.AircraftSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.FlightSchedulePlanSessionBeanRemote;
+import ejb.session.stateless.FlightScheduleSessionBeanRemote;
+
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
+import ejb.session.stateless.FlightSessionBeanRemote;
+
 import javax.ejb.EJB;
 
 /**
@@ -14,6 +19,15 @@ import javax.ejb.EJB;
  * @author zuyua
  */
 public class Main {
+
+    @EJB
+    private static FlightSessionBeanRemote flightSessionBean;
+
+    @EJB
+    private static FlightScheduleSessionBeanRemote flightScheduleSessionBean;
+
+    @EJB
+    private static FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean;
 
     @EJB
     private static EmployeeSessionBeanRemote employeeSessionBean;
@@ -29,7 +43,8 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        MainApp mainApp = new MainApp(employeeSessionBean, aircraftSessionBeanRemote, flightRouteSessionBeanRemote);
+
+        MainApp mainApp = new MainApp(employeeSessionBean,flightScheduleSessionBean, flightSchedulePlanSessionBean,aircraftSessionBeanRemote,  flightRouteSessionBeanRemote, flightSessionBean);
         mainApp.runApp();
     }
     

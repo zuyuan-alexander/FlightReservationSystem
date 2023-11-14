@@ -12,6 +12,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -19,29 +22,108 @@ import javax.persistence.ManyToOne;
  */
 @Entity
 public class Flight implements Serializable {
-
+    
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightId;
-    @Column(nullable=false, unique=true)
-    private Integer flightNumber;
+    @Column(nullable=false, unique=true, length = 6)
+    @NotNull
+    @Size(min = 5, max = 5)
+    private String flightNumber;
 
-    @ManyToOne(optional=true)
-    @JoinColumn(nullable=true)
+    @OneToOne(optional=false)
+    @JoinColumn(nullable=false)
     private FlightRoute flightRoute;
     
     @ManyToOne(optional=false)
     @JoinColumn(nullable=false)
-    private AircraftType aircraft;
+    private AircraftConfiguration AircraftConfiguration;
+    
+    @OneToOne(optional=true)
+    @JoinColumn(nullable=true)
+    private Flight complimentaryFlight;
 
     public Flight() {
     }
 
-    public Flight(Integer flightNumber) {
-        this();
+    public Flight(String flightNumber) {
         this.flightNumber = flightNumber;
     }
+
+    /**
+     * @return the flightId
+     */
+    public Long getFlightId() {
+        return flightId;
+    }
+
+    /**
+     * @param flightId the flightId to set
+     */
+    public void setFlightId(Long flightId) {
+        this.flightId = flightId;
+    }
+
+    /**
+     * @return the flightNumber
+     */
+    public String getFlightNumber() {
+        return flightNumber;
+    }
+
+    /**
+     * @param flightNumber the flightNumber to set
+     */
+    public void setFlightNumber(String flightNumber) {
+        this.flightNumber = flightNumber;
+    }
+
+    /**
+     * @return the flightRoute
+     */
+    public FlightRoute getFlightRoute() {
+        return flightRoute;
+    }
+
+    /**
+     * @param flightRoute the flightRoute to set
+     */
+    public void setFlightRoute(FlightRoute flightRoute) {
+        this.flightRoute = flightRoute;
+    }
+
+    /**
+     * @return the AircraftConfiguration
+     */
+    public AircraftConfiguration getAircraftConfiguration() {
+        return AircraftConfiguration;
+    }
+
+    /**
+     * @param AircraftConfiguration the AircraftConfiguration to set
+     */
+    public void setAircraftConfiguration(AircraftConfiguration AircraftConfiguration) {
+        this.AircraftConfiguration = AircraftConfiguration;
+    }
+
+    /**
+     * @return the complimentaryFlight
+     */
+    public Flight getComplimentaryFlight() {
+        return complimentaryFlight;
+    }
+
+    /**
+     * @param complimentaryFlight the complimentaryFlight to set
+     */
+    public void setComplimentaryFlight(Flight complimentaryFlight) {
+        this.complimentaryFlight = complimentaryFlight;
+    }
+
+   
+
+
 
     
     
@@ -70,60 +152,5 @@ public class Flight implements Serializable {
         return "entity.Flight[ flightId=" + this.getFlightId() + " ]";
     }
 
-    /**
-     * @return the flightId
-     */
-    public Long getFlightId() {
-        return flightId;
-    }
-
-    /**
-     * @param flightId the flightId to set
-     */
-    public void setFlightId(Long flightId) {
-        this.flightId = flightId;
-    }
-
-    /**
-     * @return the flightNumber
-     */
-    public Integer getFlightNumber() {
-        return flightNumber;
-    }
-
-    /**
-     * @param flightNumber the flightNumber to set
-     */
-    public void setFlightNumber(Integer flightNumber) {
-        this.flightNumber = flightNumber;
-    }
-
-    /**
-     * @return the flightRoute
-     */
-    public FlightRoute getFlightRoute() {
-        return flightRoute;
-    }
-
-    /**
-     * @param flightRoute the flightRoute to set
-     */
-    public void setFlightRoute(FlightRoute flightRoute) {
-        this.flightRoute = flightRoute;
-    }
-
-    /**
-     * @return the aircraft
-     */
-    public AircraftType getAircraft() {
-        return aircraft;
-    }
-
-    /**
-     * @param aircraft the aircraft to set
-     */
-    public void setAircraft(AircraftType aircraft) {
-        this.aircraft = aircraft;
-    }
-    
+  
 }

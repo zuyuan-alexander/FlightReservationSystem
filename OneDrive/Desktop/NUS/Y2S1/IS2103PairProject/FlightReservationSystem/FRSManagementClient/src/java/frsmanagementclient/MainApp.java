@@ -6,41 +6,76 @@ package frsmanagementclient;
 
 import ejb.session.stateless.AircraftSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.FlightSchedulePlanSessionBeanRemote;
+import ejb.session.stateless.FlightScheduleSessionBeanRemote;
+import entity.FlightSchedulePlan;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
+import ejb.session.stateless.FlightSessionBeanRemote;
 import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.CabinClass;
 import entity.Employee;
+import entity.Flight;
 import entity.FlightRoute;
+import entity.FlightSchedule;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.EmployeeTypeEnum;
+import util.enumeration.ScheduleTypeEnum;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightNotFoundException;
+import util.exception.FlightNumberExistsException;
 import util.exception.FlightRouteNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
  * @author alvintjw
  */
 public class MainApp {
+   private final ValidatorFactory validatorFactory;
+    private final Validator validator;
     
-    private EmployeeSessionBeanRemote employeeSessionBean;
     private AircraftSessionBeanRemote aircraftSessionBeanRemote;
+    private EmployeeSessionBeanRemote employeeSessionBean;
+    private FlightSessionBeanRemote flightSessionBean;
+    private FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean;
+    private FlightScheduleSessionBeanRemote flightScheduleSessionBean;
     private FlightRouteSessionBeanRemote flightRouteSessionBeanRemote;
     private Employee currentEmployee;
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, AircraftSessionBeanRemote aircraftSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote) {
+    
+    public MainApp() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
+
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, FlightScheduleSessionBeanRemote flightScheduleSessionBean, FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean, AircraftSessionBeanRemote aircraftSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, FlightSessionBeanRemote flightSessionBean) {
+        this();
         this.employeeSessionBean = employeeSessionBean;
+        this.flightSchedulePlanSessionBean = flightSchedulePlanSessionBean;
+        this.flightScheduleSessionBean = flightScheduleSessionBean;
         this.aircraftSessionBeanRemote = aircraftSessionBeanRemote;
         this.flightRouteSessionBeanRemote = flightRouteSessionBeanRemote;
+        this.flightSessionBean = flightSessionBean;
+
     }
       
+    
     public void runApp()
     {
         Scanner scanner = new Scanner(System.in);
@@ -152,21 +187,16 @@ public class MainApp {
                 System.out.print("> ");
 
                 response = scanner.nextInt();
-
+                
                 if(response == 1)
                 {
-                    try
-                    {
-                        doLogin();
-                        System.out.println("Login successful!\n");
+                   
+                    doCreateFlight();
+                    System.out.println("Login successful!\n");
                         
                         
                       
-                    }
-                    catch(InvalidLoginCredentialException ex) 
-                    {
-                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
-                    }
+       
                 }
                 else if (response == 11)
                 {
@@ -328,6 +358,197 @@ public class MainApp {
         }
     }
     
+    
+    private void doCreateFlight()
+    {
+        Flight newFlight = new Flight();
+        FlightRoute fr = new FlightRoute();
+        AircraftConfiguration ac = new AircraftConfiguration();
+        Flight complimentaryFlight = new Flight();
+        
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** FRS Schedule Manager Menu: Create New Flight***\n");
+        System.out.println("Enter Flight Number> ");
+        String flightnumber = sc.nextLine();
+        newFlight.setFlightNumber(flightnumber);
+        System.out.println("Enter Flight Route id> ");
+        Long flightrouteid = sc.nextLong();
+         sc.nextLine();
+        try
+        {
+             fr = flightRouteSessionBeanRemote.retrieveFlightRouteByFlightRouteId(flightrouteid);
+        } catch (FlightRouteNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+        //setting the FR relationship
+        newFlight.setFlightRoute(fr);
+        
+        System.out.println("Enter Aircraft configuration id> ");
+        Long aircraftconfigurationid = sc.nextLong();
+        sc.nextLine();
+        try
+        {
+            ac = aircraftSessionBeanRemote.retrieveAircraftConfigurationById(aircraftconfigurationid);
+        } catch (AircraftTypeNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+        
+        //setting the AC relationship
+        newFlight.setAircraftConfiguration(ac);
+        
+        //setting the complimentary flight 
+        System.out.println("Complimentary Flight> Y/N");
+        String response = sc.nextLine();
+        if(response.equals("Y"))
+        {
+            System.out.println("Enter Complimentary Flight Number> ");
+            String cfFlightNum = sc.nextLine();
+            try
+            {
+                complimentaryFlight = flightSessionBean.retrieveFlightByFlightNumber(cfFlightNum);
+            } catch (FlightNotFoundException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+
+            newFlight.setComplimentaryFlight(complimentaryFlight);
+            
+        }
+        
+        Set<ConstraintViolation<Flight>>constraintViolations = validator.validate(newFlight);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try
+            {
+                if(flightSessionBean == null)
+                {
+                    System.out.println("flightsessionbean is null");
+                }
+                Long newStaffId = flightSessionBean.createNewFlight(newFlight);
+                if(newStaffId == null )
+                {
+                    System.out.println("newstaffId is null!");
+                }
+                System.out.println("New staff created successfully!: " + newStaffId + "\n");
+            }
+            catch(FlightNumberExistsException ex)
+            {
+                System.out.println("An error has occurred while creating the new staff!: The user name already exist\n");
+            }
+            catch(UnknownPersistenceException ex)
+            {
+                System.out.println("An unknown error has occurred while creating the new staff!: " + ex.getMessage() + "\n");
+            }
+            catch(InputDataValidationException ex)
+            {
+                System.out.println(ex.getMessage() + "\n");
+            }
+        }
+        else
+        {
+            showInputDataValidationErrorsForFlight(constraintViolations);
+        }
+
+    } 
+    
+    
+    
+    private void doCreateFlightSchedulePlan()
+    {
+        FlightSchedulePlan newFSP = new FlightSchedulePlan();
+        FlightSchedule newFS = new FlightSchedule();
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** FRS Schedule Manager Menu: Create New Flight Schedule Plan ***\n");
+        System.out.println("Enter Flight Number> ");
+        String flightnumber = sc.nextLine();
+       
+        System.out.println("Select Flight SchedulePlanType (1: Single, 2: Multiple, 3: RecurrentNDay, 4: RecurrentWeekly)> ");
+        Integer response = sc.nextInt();
+        sc.nextLine();
+        if(response == 4)
+        {
+            newFSP.setScheduleType(ScheduleTypeEnum.RECURRENTWEEKLY);
+            System.out.println("Enter Day Of Week> ");
+            String dayOfWeek = sc.nextLine();
+            System.out.println("Enter Departure Time> eg: 9:00 AM");
+            String departureTime = sc.nextLine();
+            System.out.println("Enter Start Date> d MMM yy");
+            String startDateStr = sc.nextLine();
+            System.out.println("Enter End Date> d MMM yy");
+            String endDateStr = sc.nextLine();
+            System.out.println("Enter Flight Duration> HH Hours mm Minutes");
+            String flightDurationStr = sc.nextLine();
+            
+            //set the departureTime and flightDuration of the new FS
+           
+            //call the FS sessionBean to create the FS
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yy");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
+            // Parse dates and FlightDuration
+            try
+            {
+                Date startDate = dateFormat.parse(startDateStr);
+                Date endDate = dateFormat.parse(endDateStr);
+                Date flightDuration = timeFormat.parse(flightDurationStr);
+                newFSP.setDayOfWeek(dayOfWeek);
+                newFSP.setStartDate(startDate);
+                newFSP.setEndDate(endDate);
+                
+                //FSPremote.createNewFSP(newFSP, newFS)
+                
+                //em.persist(newFSP)
+                
+            } catch (ParseException ex)
+            {
+                ex.printStackTrace();
+            }
+        } else if(response == 3)
+        {
+            newFSP.setScheduleType(ScheduleTypeEnum.RECURRENTNDAY);
+            System.out.println("Enter NDay> ");
+            Integer nDay = sc.nextInt();
+            sc.nextLine();
+            System.out.println("Enter Departure Time> eg: 9:00 AM");
+            String departureTime = sc.nextLine();
+            System.out.println("Enter Start Date> d MMM yy");
+            String startDateStr = sc.nextLine();
+            System.out.println("Enter End Date> d MMM yy");
+            String endDateStr = sc.nextLine();
+            System.out.println("Enter Flight Duration> HH Hours mm Minutes");
+            String flightDurationStr = sc.nextLine();
+             SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yy");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
+            // Parse dates and FlightDuration
+            try
+            {
+                Date startDate = dateFormat.parse(startDateStr);
+                Date endDate = dateFormat.parse(endDateStr);
+                Date flightDuration = timeFormat.parse(flightDurationStr);
+
+                newFSP.setStartDate(startDate);
+                newFSP.setEndDate(endDate);
+                               
+            } catch (ParseException ex)
+            {
+                ex.printStackTrace();
+            }
+            
+        } else if(response == 2)
+        {
+            newFSP.setScheduleType(ScheduleTypeEnum.MULTIPLE);
+            
+        }else if(response == 1)
+        {
+            newFSP.setScheduleType(ScheduleTypeEnum.SINGLE);
+            
+        }
+    } 
+       
+        
     public void doCreateAircraftConfiguration() {
         System.out.println("====== Create Aircraft Configuration =====");
         Scanner scanner = new Scanner(System.in);
@@ -423,6 +644,7 @@ public class MainApp {
         } catch (AircraftTypeNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
+
     }
      
     
@@ -473,5 +695,17 @@ public class MainApp {
         } catch (FlightRouteNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
+    }
+    
+    private void showInputDataValidationErrorsForFlight(Set<ConstraintViolation<Flight>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 }
