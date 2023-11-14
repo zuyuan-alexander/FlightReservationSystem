@@ -34,10 +34,10 @@ public class FlightSchedule implements Serializable {
     private Date departureDate;
     @Column(nullable = false)
     @NotNull
-    private Time departureTime;
+    private Date departureTime;
     @Column(nullable = false)
     @NotNull
-    private Time estimatedFlightDuration;
+    private Date estimatedFlightDuration;
     @Column(nullable = true)
     private Date arrivalDate;
    
@@ -55,7 +55,7 @@ public class FlightSchedule implements Serializable {
     public FlightSchedule() {
     }
 
-    public FlightSchedule(Date departureDate, Time departureTime, Time estimatedFlightDuration) {
+    public FlightSchedule(Date departureDate, Date departureTime, Date estimatedFlightDuration) {
         this.departureDate = departureDate;
         this.departureTime = departureTime;
         this.estimatedFlightDuration = estimatedFlightDuration;
@@ -115,28 +115,28 @@ public class FlightSchedule implements Serializable {
     /**
      * @return the departureTime
      */
-    public Time getDepartureTime() {
+    public Date getDepartureTime() {
         return departureTime;
     }
 
     /**
      * @param departureTime the departureTime to set
      */
-    public void setDepartureTime(Time departureTime) {
+    public void setDepartureTime(Date departureTime) {
         this.departureTime = departureTime;
     }
 
     /**
      * @return the estimatedFlightDuration
      */
-    public Time getEstimatedFlightDuration() {
+    public Date getEstimatedFlightDuration() {
         return estimatedFlightDuration;
     }
 
     /**
      * @param estimatedFlightDuration the estimatedFlightDuration to set
      */
-    public void setEstimatedFlightDuration(Time estimatedFlightDuration) {
+    public void setEstimatedFlightDuration(Date estimatedFlightDuration) {
         this.estimatedFlightDuration = estimatedFlightDuration;
     }
 

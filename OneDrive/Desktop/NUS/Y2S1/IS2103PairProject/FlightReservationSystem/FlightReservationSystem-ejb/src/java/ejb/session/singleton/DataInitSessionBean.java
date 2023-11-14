@@ -11,11 +11,10 @@ import entity.AircraftType;
 import entity.Airport;
 import entity.CabinClass;
 import entity.Employee;
+import entity.Flight;
 import entity.FlightRoute;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -96,6 +95,11 @@ public class DataInitSessionBean {
             System.out.println(ex.getMessage() + "\n");
         }
         
+        
+        
+        
+        
+        //Flight testflight = new Flight("IS101");
     }
 
     /*

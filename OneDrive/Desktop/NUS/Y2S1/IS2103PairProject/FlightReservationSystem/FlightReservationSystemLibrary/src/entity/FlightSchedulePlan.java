@@ -19,8 +19,11 @@ import javax.validation.constraints.NotNull;
 import util.enumeration.ScheduleTypeEnum;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 /**
  *
  * @author alvintjw
@@ -36,26 +39,25 @@ public class FlightSchedulePlan implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     private ScheduleTypeEnum scheduleType;
-    //@Column(nullable = false)
-    //@NotNull
-    //private Date endDate;        
+    
     @Column(nullable = true)
-    @NotNull
     private Boolean disabled;
     @Column(nullable = true, length = 10)
     private String dayOfWeek;
     @Column(nullable = true)
     private int Ndays;
     @Column(nullable = true)
+    @Temporal(TemporalType.DATE)
     private Date startDate;   
     @Column(nullable = true)
+    @Temporal(TemporalType.DATE)
     private Date endDate;   
     
     @OneToMany(mappedBy = "flightSchedulePlan", cascade = CascadeType.ALL)
     @JoinColumn
     private List<FlightSchedule> flightschedules;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Flight flight;
 
