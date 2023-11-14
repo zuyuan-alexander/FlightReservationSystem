@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-/*
+
 package frsreservationclient;
 
 import ejb.session.stateless.CustomerSessionBeanRemote;
@@ -18,13 +18,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import util.enumeration.TripTypeEnum;
 import util.exception.FlightReservationNotFoundException;
-*/
+
 /**
  *
  * @author zuyua
  */
 
-/*
+
 public class MainApp {
 
     private CustomerSessionBeanRemote customerSessionBeanRemote;
@@ -119,11 +119,11 @@ public class MainApp {
         }
         
         // implementation
-        List<FlightReservation> flightReservationList;
-        if (tripTypeInt == 1) {
-            flightReservationList = flightReservationSessionBeanRemote.searchFlight(tripType, departureAirport, destinationAirport, departureDate, numOfPassengers, flightPreference, cabinClassPreference);
-        } else if (tripTypeInt == 2) {
-            flightReservationList = flightReservationSessionBeanRemote.searchFlightWithReturnDate(tripType, departureAirport, destinationAirport, departureDate, returnDate, numOfPassengers, flightPreference, cabinClassPreference);
+        List<FlightReservation> flightReservationList = flightReservationSessionBeanRemote.searchFlight(tripType, departureAirport, destinationAirport, departureDate, numOfPassengers, flightPreference, cabinClassPreference);
+        
+        if (tripTypeInt == 2) {
+            // we now change the departure date to return date
+            flightReservationList = flightReservationSessionBeanRemote.searchFlight(tripType, departureAirport, destinationAirport, returnDate, numOfPassengers, flightPreference, cabinClassPreference);
         }
         
         // display the list of reservations
@@ -156,4 +156,3 @@ public class MainApp {
         }
     }
 }
-*/

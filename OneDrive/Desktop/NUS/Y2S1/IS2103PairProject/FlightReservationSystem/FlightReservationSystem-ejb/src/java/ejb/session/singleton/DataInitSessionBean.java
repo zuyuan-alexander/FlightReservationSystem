@@ -34,7 +34,7 @@ import util.exception.AirportNotFoundException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class DataInitSessionBean {
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
@@ -79,6 +79,10 @@ public class DataInitSessionBean {
         }
         
         AircraftType aircraft = new AircraftType("Boeing 737", 200);
+        em.persist(aircraft);
+        em.flush();
+        
+        aircraft = new AircraftType("Boeing 747", 400);
         em.persist(aircraft);
         em.flush();
         
