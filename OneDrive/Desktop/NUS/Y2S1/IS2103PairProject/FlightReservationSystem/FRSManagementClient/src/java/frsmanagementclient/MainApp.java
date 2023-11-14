@@ -433,8 +433,17 @@ public class MainApp {
         String origin = scanner.nextLine().trim();
         System.out.print("Enter Destination IATA Airport Code > ");
         String destination = scanner.nextLine().trim();
+        System.out.print("Do you want to create a complementary return route? (Y: Yes, N: No) > ");
+        String returnRoute = scanner.nextLine().trim();
         
         FlightRoute flightRoute = new FlightRoute(origin, destination);
+        
+        if (returnRoute.equalsIgnoreCase("Y")) {
+            flightRoute.setReturnFlight(Boolean.TRUE);
+        } else if (returnRoute.equalsIgnoreCase("N")) {
+            flightRoute.setReturnFlight(Boolean.FALSE);
+        }
+        
         try {
             Long id = flightRouteSessionBeanRemote.createFlightRoute(flightRoute);
             System.out.println("Flight Route with Flight Route Id " + id + " has been successfully created!");
