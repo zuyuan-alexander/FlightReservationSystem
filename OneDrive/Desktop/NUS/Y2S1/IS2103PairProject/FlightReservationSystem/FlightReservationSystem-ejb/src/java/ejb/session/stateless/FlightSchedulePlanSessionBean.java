@@ -30,15 +30,20 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     @Override
     public void createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS)    
     {
+        // Persist the new FlightSchedulePlan
         newFSP.setFlight(f);
         em.persist(newFSP);
-        //f.getFlightscheduleplans().add(newFSP);
-        //newFS.setFlightSchedulePlan(newFSP);
-        //newFSP.getFlightschedules().add(newFS);
-        //newFSP.setFlight(f);
- 
         
-        //flightScheduleSessionBean.createNewFlightSchedule(newFS);
+        // Update Flight entity with the new FlightSchedulePlan
+        Flight flight = em.find(Flight.class, f.getFlightId());
+        flight.getFlightscheduleplans().add(newFSP);
+           newFS.setFlightSchedulePlan(newFSP);
+           
+           
+        Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS);
+        FlightSchedule newFlightSchedule = em.find(FlightSchedule.class, newFlightScheduleid);
+     
+        newFSP.getFlightschedules().add(newFlightSchedule);
         
     }
     

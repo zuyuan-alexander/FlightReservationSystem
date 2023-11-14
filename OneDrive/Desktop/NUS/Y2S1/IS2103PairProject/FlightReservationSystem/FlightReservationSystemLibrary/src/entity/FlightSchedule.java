@@ -5,18 +5,17 @@
 package entity;
 
 import java.io.Serializable;
-import java.sql.Time;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -32,9 +31,11 @@ public class FlightSchedule implements Serializable {
     private Long flightscheduleid;
     @Column(nullable = true)
     private Date departureDate;
+    @Temporal(TemporalType.TIME)
     @Column(nullable = false)
     @NotNull
     private Date departureTime;
+     @Temporal(TemporalType.TIME)
     @Column(nullable = false)
     @NotNull
     private Date estimatedFlightDuration;
@@ -42,9 +43,7 @@ public class FlightSchedule implements Serializable {
     private Date arrivalDate;
    
 
-    
-    
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(nullable = false)
     private FlightSchedulePlan flightSchedulePlan;
 

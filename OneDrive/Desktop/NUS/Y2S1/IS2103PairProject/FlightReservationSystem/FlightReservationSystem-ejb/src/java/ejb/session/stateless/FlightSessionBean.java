@@ -51,7 +51,9 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         
         try
         {
-            return (Flight)query.getSingleResult();
+            Flight f = (Flight)query.getSingleResult();
+            f.getFlightscheduleplans().size();
+            return f;
         }
         catch(NoResultException | NonUniqueResultException ex)
         {

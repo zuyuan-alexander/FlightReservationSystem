@@ -210,9 +210,10 @@ public class MainApp {
                     doCreateFlightSchedulePlan();
                 } else if(response == 7)
                 {
-                    //doViewAllFlightSchedulePlan();
+                    doViewAllFlightSchedulePlan();
                 } else if(response == 8)
                 {
+                    doViewFlightSchedules();
                     //doViewFlightSchedulePlanDetails();
                 } else if(response == 9)
                 {
@@ -237,6 +238,33 @@ public class MainApp {
             }
         }
     }
+    /*
+    private void doViewFlightSchedules()
+    {
+        Flight f = new Flight();
+        FlightSchedulePlan fsp1 = new FlightSchedulePlan();
+        FlightSchedulePlan fsp2 = new FlightSchedulePlan();
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** FRS Schedule Manager Menu: View All Flight Schedule Plan ***\n");
+        System.out.println("Enter Flight Number> ");
+        String flightnumber = sc.nextLine();
+        try
+        {      
+            f = flightSessionBean.retrieveFlightByFlightNumber(flightnumber);
+            f.getFlightscheduleplans().size();
+        } catch (FlightNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+        
+        fsp1 = f.getFlightscheduleplans().get(0);
+        fsp2 = f.getFlightscheduleplans().get(1);
+        System.out.println("fsp1: " + fsp1.getFlightscheduleplanid()+ fsp1.getDayOfWeek());
+        System.out.println("fsp2: " + fsp2.getFlightscheduleplanid()+ fsp2.getDayOfWeek());
+        System.out.println("fsp1: " + fsp1.getFlightscheduleplanid() + fsp1.getFlightschedules().get(0).getFlightscheduleid());
+        System.out.println("fsp2: " + fsp2.getFlightscheduleplanid() + fsp2.getFlightschedules().get(0).getFlightscheduleid());
+                
+    }*/
     
     
     private void RoutePlannerMenuMain()
@@ -536,8 +564,10 @@ public class MainApp {
                 newFSP.setDayOfWeek(dayOfWeek);
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
+                newFSP.setNdays(7);
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
+               
                 
                 flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 
@@ -591,8 +621,32 @@ public class MainApp {
             
         }
     } 
-       
+    
+    private void doViewAllFlightSchedulePlan()
+    {
+        Flight f = new Flight();
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** FRS Schedule Manager Menu: View All Flight Schedule Plan ***\n");
+        System.out.println("Enter Flight Number> ");
+        String flightnumber = sc.nextLine();
+        try
+        {      
+            f = flightSessionBean.retrieveFlightByFlightNumber(flightnumber);
+            f.getFlightscheduleplans().size();
+        } catch (FlightNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
         
+        for(int i = 0; i < f.getFlightscheduleplans().size(); i++) 
+        {
+            System.out.println("FSP " + f.getFlightscheduleplans().get(i).getFlightscheduleplanid() + ": with dayOfweek: " + f.getFlightscheduleplans().get(i).getDayOfWeek());
+        }
+     
+        
+    }
+        
+    
     public void doCreateAircraftConfiguration() {
         System.out.println("====== Create Aircraft Configuration =====");
         Scanner scanner = new Scanner(System.in);
