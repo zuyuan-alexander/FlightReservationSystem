@@ -57,6 +57,24 @@ public class Customer implements Serializable {
     @Size(min = 8, max = 64)// Adjust the length as needed
     private String password;
 
+    // relationship
+
+    public Customer() {
+    }
+
+    public Customer(String firstName, String lastName, String email, String mobilePhoneNumber, String address, String postalCode, String username, String password) {
+        this();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.mobilePhoneNumber = mobilePhoneNumber;
+        this.address = address;
+        this.postalCode = postalCode;
+        this.username = username;
+        this.password = password;
+    }
+    
+    
 
     public Long getCustomerid() {
         return customerid;
@@ -69,7 +87,7 @@ public class Customer implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (customerid != null ? customerid.hashCode() : 0);
+        hash += (getCustomerid() != null ? getCustomerid().hashCode() : 0);
         return hash;
     }
 
@@ -80,7 +98,7 @@ public class Customer implements Serializable {
             return false;
         }
         Customer other = (Customer) object;
-        if ((this.customerid == null && other.customerid != null) || (this.customerid != null && !this.customerid.equals(other.customerid))) {
+        if ((this.getCustomerid() == null && other.getCustomerid() != null) || (this.getCustomerid() != null && !this.customerid.equals(other.customerid))) {
             return false;
         }
         return true;
@@ -88,7 +106,119 @@ public class Customer implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Customer[ id=" + customerid + " ]";
+        return "entity.Customer[ id=" + getCustomerid() + " ]";
+    }
+
+    /**
+     * @return the firstName
+     */
+    public String getFirstName() {
+        return firstName;
+    }
+
+    /**
+     * @param firstName the firstName to set
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    /**
+     * @return the lastName
+     */
+    public String getLastName() {
+        return lastName;
+    }
+
+    /**
+     * @param lastName the lastName to set
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * @return the mobilePhoneNumber
+     */
+    public String getMobilePhoneNumber() {
+        return mobilePhoneNumber;
+    }
+
+    /**
+     * @param mobilePhoneNumber the mobilePhoneNumber to set
+     */
+    public void setMobilePhoneNumber(String mobilePhoneNumber) {
+        this.mobilePhoneNumber = mobilePhoneNumber;
+    }
+
+    /**
+     * @return the address
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    /**
+     * @param address the address to set
+     */
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    /**
+     * @return the postalCode
+     */
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    /**
+     * @param postalCode the postalCode to set
+     */
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    /**
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * @param username the username to set
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
     }
     
 }

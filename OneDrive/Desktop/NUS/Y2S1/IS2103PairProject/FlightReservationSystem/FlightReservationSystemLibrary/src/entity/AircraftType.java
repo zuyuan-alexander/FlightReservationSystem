@@ -52,7 +52,7 @@ public class AircraftType implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (this.getAircraftId() != null ? this.getAircraftId().hashCode() : 0);
+        hash += (this.getAircraftTypeId() != null ? this.getAircraftTypeId().hashCode() : 0);
         return hash;
     }
 
@@ -63,7 +63,7 @@ public class AircraftType implements Serializable {
             return false;
         }
         AircraftType other = (AircraftType) object;
-        if ((this.getAircraftId() == null && other.getAircraftId() != null) || (this.getAircraftId() != null && !this.aircraftTypeId.equals(other.aircraftTypeId))) {
+        if ((this.getAircraftTypeId() == null && other.getAircraftTypeId() != null) || (this.getAircraftTypeId() != null && !this.aircraftTypeId.equals(other.aircraftTypeId))) {
             return false;
         }
         return true;
@@ -71,21 +71,35 @@ public class AircraftType implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Aircraft[ aircraftId=" + this.getAircraftId() + " ]";
+        return "entity.Aircraft[ aircraftId=" + this.getAircraftTypeId() + " ]";
     }
 
     /**
-     * @return the aircraftId
+     * @return the aircraftTypeId
      */
-    public Long getAircraftId() {
+    public Long getAircraftTypeId() {
         return aircraftTypeId;
     }
 
     /**
-     * @param aircraftId the aircraftId to set
+     * @param aircraftTypeId the aircraftTypeId to set
      */
-    public void setAircraftId(Long aircraftTypeId) {
+    public void setAircraftTypeId(Long aircraftTypeId) {
         this.aircraftTypeId = aircraftTypeId;
+    }
+
+    /**
+     * @return the aircraftTypeName
+     */
+    public String getAircraftTypeName() {
+        return aircraftTypeName;
+    }
+
+    /**
+     * @param aircraftTypeName the aircraftTypeName to set
+     */
+    public void setAircraftTypeName(String aircraftTypeName) {
+        this.aircraftTypeName = aircraftTypeName;
     }
 
     /**
@@ -101,5 +115,7 @@ public class AircraftType implements Serializable {
     public void setMaxPassengerSeatCapacity(Integer maxPassengerSeatCapacity) {
         this.maxPassengerSeatCapacity = maxPassengerSeatCapacity;
     }
+
+    
     
 }

@@ -5,6 +5,7 @@
 package ejb.session.stateless;
 
 import entity.CabinClass;
+import java.util.List;
 import javax.ejb.Remote;
 
 /**
@@ -15,5 +16,11 @@ import javax.ejb.Remote;
 public interface CabinClassSessionBeanRemote {
     
     public CabinClass createCabinClass(CabinClass cabinClass);
+
+    public Integer calculateNumOfReservedSeats(CabinClass cabinClass);
+
+    public Integer calculateNumOfAvailabeSeats(CabinClass cabinClass);
+    
+    public List<Integer> calculateNumOfSeats(CabinClass cabinClass);
     
 }

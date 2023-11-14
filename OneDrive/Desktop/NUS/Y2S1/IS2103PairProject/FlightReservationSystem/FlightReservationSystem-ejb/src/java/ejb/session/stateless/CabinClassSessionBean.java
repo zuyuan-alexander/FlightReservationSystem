@@ -6,6 +6,8 @@ package ejb.session.stateless;
 
 import entity.CabinClass;
 import entity.Seat;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -37,12 +39,15 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         Integer numOfSeatsAbreast = cabinClass.getNumOfSeatsAbreast();
         String actualSeatingConfiguration = cabinClass.getActualSeatConfiguration();
         
-        Integer maximumPassengerSeatCapacity = cabinClass.getAircraftConfiguration().getAircraftType().getMaxPassengerSeatCapacity();
+        Integer maxCapacity = cabinClass.getMaxCapacity();
+        
+        em.persist(cabinClass);
+        em.flush();
         
         // create the seats
         for(int i=1; i<=numOfRows; i++) {
             for (int j=1; j<=numOfSeatsAbreast; j++) {
-                if (counter > maximumPassengerSeatCapacity) {
+                if (counter > maxCapacity) {
                     break;
                 }
                 
@@ -50,19 +55,58 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
                 
                 Seat seat = new Seat(i, seatLetter, SeatStatusEnum.AVAILABLE);
                 
+                seatSessionBeanLocal.createSeats(seat);
+                
                 cabinClass.getSeats().add(seat);
                 seat.setCabinClass(cabinClass);
-                
-                seatSessionBeanLocal.createSeats(seat);
                 
                 counter++;
             }
         }
         
-        
-        em.persist(cabinClass);
-        em.flush();
-        
         return cabinClass;
+    }
+    
+    @Override
+    public Integer calculateNumOfAvailabeSeats(CabinClass cabinClass) {
+        List<Seat> seats = cabinClass.getSeats();
+        Integer counter = 0;
+        
+        for (Seat seat : seats) {
+            if (seat.getSeatStatus().equals(SeatStatusEnum.AVAILABLE)) {
+                counter++;
+            }
+        }
+        
+        return counter;
+    }
+    
+    @Override
+    public Integer calculateNumOfReservedSeats(CabinClass cabinClass) {
+        List<Seat> seats = cabinClass.getSeats();
+        Integer counter = 0;
+        
+        for (Seat seat : seats) {
+            if (seat.getSeatStatus().equals(SeatStatusEnum.RESERVED)) {
+                counter++;
+            }
+        }
+        
+        return counter;
+    }
+    
+    @Override
+    public List<Integer> calculateNumOfSeats(CabinClass cabinClass) {
+        List<Integer> answer = new ArrayList<>();
+        Integer numOfAvailableSeats = calculateNumOfAvailabeSeats(cabinClass);
+        answer.add(numOfAvailableSeats);
+        
+        Integer numOfReservedSeats = calculateNumOfReservedSeats(cabinClass);
+        answer.add(numOfReservedSeats);
+        
+        Integer numOfBlanceSeats = cabinClass.getMaxCapacity() - numOfAvailableSeats - numOfReservedSeats;
+        answer.add(numOfAvailableSeats);
+        
+        return answer;
     }
 }
