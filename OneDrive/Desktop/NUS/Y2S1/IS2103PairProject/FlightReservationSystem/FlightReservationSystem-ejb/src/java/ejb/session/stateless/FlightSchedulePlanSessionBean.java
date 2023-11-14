@@ -4,14 +4,13 @@
  */
 package ejb.session.stateless;
 
+import entity.Flight;
 import entity.FlightSchedule;
+import entity.FlightSchedulePlan;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import java.time.LocalDate;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  *
@@ -20,30 +19,27 @@ import java.util.Date;
 @Stateless
 public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionBeanRemote, FlightSchedulePlanSessionBeanLocal {
 
+    @EJB
+    private FlightScheduleSessionBeanRemote flightScheduleSessionBean;
+
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
 
     
 
-    /*
+    @Override
     public void createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS)    
     {
-        //em.persist(newFSP)
-        newFS.set(newFSP)
-    //newFSP.getFS.add(newFS)
-        //FSsessionbean.createNewFS(newFS)
+        newFSP.setFlight(f);
+        em.persist(newFSP);
+        //f.getFlightscheduleplans().add(newFSP);
+        //newFS.setFlightSchedulePlan(newFSP);
+        //newFSP.getFlightschedules().add(newFS);
+        //newFSP.setFlight(f);
+ 
         
-        try {
-            FlightSchedule scheduleInfo = parseFlightSchedule(input);
-            /*
-            System.out.println("Day of Week: " + scheduleInfo.getDayOfWeek());
-            System.out.println("Departure Time: " + scheduleInfo.getDepartureTime());
-            System.out.println("Start Date: " + scheduleInfo.getStartDate());
-            System.out.println("End Date: " + scheduleInfo.getEndDate());
-            System.out.println("Flight Duration: " + scheduleInfo.getEstimatedFlightDuration());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        //flightScheduleSessionBean.createNewFlightSchedule(newFS);
+        
     }
     
     /*

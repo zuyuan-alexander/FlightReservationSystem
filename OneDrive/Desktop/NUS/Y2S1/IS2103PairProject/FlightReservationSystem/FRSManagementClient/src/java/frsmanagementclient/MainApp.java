@@ -21,6 +21,8 @@ import entity.Employee;
 import entity.Flight;
 import entity.FlightRoute;
 import entity.FlightSchedule;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -190,13 +192,34 @@ public class MainApp {
                 
                 if(response == 1)
                 {
-                   
                     doCreateFlight();
-                    System.out.println("Login successful!\n");
-                        
-                        
-                      
-       
+                } else if(response == 2)
+                {
+                    //doViewAllFlights();
+                } else if(response == 3)
+                {
+                    //doViewFlightDetails();
+                } else if(response == 4)
+                {
+                    //doUpdateFlight();
+                } else if(response == 5)
+                {
+                    //doDeleteFlight();
+                } else if(response == 6)
+                {
+                    doCreateFlightSchedulePlan();
+                } else if(response == 7)
+                {
+                    //doViewAllFlightSchedulePlan();
+                } else if(response == 8)
+                {
+                    //doViewFlightSchedulePlanDetails();
+                } else if(response == 9)
+                {
+                    //doUpdateFlightSchedulePlan();
+                } else if(response == 10)
+                {
+                    //doDeleteFlightSchedulePlan();
                 }
                 else if (response == 11)
                 {
@@ -432,15 +455,15 @@ public class MainApp {
                 {
                     System.out.println("newstaffId is null!");
                 }
-                System.out.println("New staff created successfully!: " + newStaffId + "\n");
+                System.out.println("New Flight created successfully!: " + newStaffId + "\n");
             }
             catch(FlightNumberExistsException ex)
             {
-                System.out.println("An error has occurred while creating the new staff!: The user name already exist\n");
+                System.out.println("An error has occurred while creating the new flight!: The flight number already exist\n");
             }
             catch(UnknownPersistenceException ex)
             {
-                System.out.println("An unknown error has occurred while creating the new staff!: " + ex.getMessage() + "\n");
+                System.out.println("An unknown error has occurred while creating the new flight!: " + ex.getMessage() + "\n");
             }
             catch(InputDataValidationException ex)
             {
@@ -460,24 +483,38 @@ public class MainApp {
     {
         FlightSchedulePlan newFSP = new FlightSchedulePlan();
         FlightSchedule newFS = new FlightSchedule();
+        Flight f = new Flight();
         Scanner sc = new Scanner(System.in);
         System.out.println("*** FRS Schedule Manager Menu: Create New Flight Schedule Plan ***\n");
-        System.out.println("Enter Flight Number> ");
+        System.out.println("Enter Flight Number> ");  
         String flightnumber = sc.nextLine();
-       
+        
+        try
+        {
+           f = flightSessionBean.retrieveFlightByFlightNumber(flightnumber);
+        } catch (FlightNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+
         System.out.println("Select Flight SchedulePlanType (1: Single, 2: Multiple, 3: RecurrentNDay, 4: RecurrentWeekly)> ");
         Integer response = sc.nextInt();
         sc.nextLine();
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
+        SimpleDateFormat departureFormat = new SimpleDateFormat("hh:mm a");
+        
         if(response == 4)
         {
             newFSP.setScheduleType(ScheduleTypeEnum.RECURRENTWEEKLY);
             System.out.println("Enter Day Of Week> ");
             String dayOfWeek = sc.nextLine();
             System.out.println("Enter Departure Time> eg: 9:00 AM");
-            String departureTime = sc.nextLine();
-            System.out.println("Enter Start Date> d MMM yy");
+            String departureTimestr = sc.nextLine();
+            System.out.println("Enter Start Date> dd MMM yy");
             String startDateStr = sc.nextLine();
-            System.out.println("Enter End Date> d MMM yy");
+            System.out.println("Enter End Date> dd MMM yy");
             String endDateStr = sc.nextLine();
             System.out.println("Enter Flight Duration> HH Hours mm Minutes");
             String flightDurationStr = sc.nextLine();
@@ -486,19 +523,23 @@ public class MainApp {
            
             //call the FS sessionBean to create the FS
             
-            SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yy");
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
+      
             // Parse dates and FlightDuration
             try
             {
                 Date startDate = dateFormat.parse(startDateStr);
                 Date endDate = dateFormat.parse(endDateStr);
                 Date flightDuration = timeFormat.parse(flightDurationStr);
+                Date departureTime = departureFormat.parse(departureTimestr);
+
+                
                 newFSP.setDayOfWeek(dayOfWeek);
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
+                newFS.setDepartureTime(departureTime);
+                newFS.setEstimatedFlightDuration(flightDuration);
                 
-                //FSPremote.createNewFSP(newFSP, newFS)
+                flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 
                 //em.persist(newFSP)
                 
@@ -513,24 +554,27 @@ public class MainApp {
             Integer nDay = sc.nextInt();
             sc.nextLine();
             System.out.println("Enter Departure Time> eg: 9:00 AM");
-            String departureTime = sc.nextLine();
-            System.out.println("Enter Start Date> d MMM yy");
+            String departureTimestr = sc.nextLine();
+            System.out.println("Enter Start Date> dd MMM yy");
             String startDateStr = sc.nextLine();
-            System.out.println("Enter End Date> d MMM yy");
+            System.out.println("Enter End Date> dd MMM yy");
             String endDateStr = sc.nextLine();
             System.out.println("Enter Flight Duration> HH Hours mm Minutes");
             String flightDurationStr = sc.nextLine();
-             SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yy");
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
+
+
             // Parse dates and FlightDuration
             try
             {
                 Date startDate = dateFormat.parse(startDateStr);
                 Date endDate = dateFormat.parse(endDateStr);
                 Date flightDuration = timeFormat.parse(flightDurationStr);
+                Date departureTime = departureFormat.parse(departureTimestr);
 
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
+                
+
                                
             } catch (ParseException ex)
             {
