@@ -8,6 +8,7 @@ import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
 import javax.ejb.Remote;
+import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
  *
@@ -16,6 +17,8 @@ import javax.ejb.Remote;
 @Remote
 public interface FlightSchedulePlanSessionBeanRemote {
 
-    public void createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
+    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
+
+    public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException;
     
 }

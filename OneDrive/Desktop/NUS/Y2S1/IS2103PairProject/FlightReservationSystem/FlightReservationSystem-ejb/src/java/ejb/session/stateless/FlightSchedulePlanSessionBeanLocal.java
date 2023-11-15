@@ -8,6 +8,7 @@ import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
 import javax.ejb.Local;
+import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
  *
@@ -15,7 +16,8 @@ import javax.ejb.Local;
  */
 @Local
 public interface FlightSchedulePlanSessionBeanLocal {
-     public void createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
+     public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
+     public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException;
     
     
 }

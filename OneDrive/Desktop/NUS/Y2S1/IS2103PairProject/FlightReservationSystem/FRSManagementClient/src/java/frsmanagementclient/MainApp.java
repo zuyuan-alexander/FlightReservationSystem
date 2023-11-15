@@ -569,8 +569,16 @@ public class MainApp {
                 newFS.setEstimatedFlightDuration(flightDuration);
                
                 
-                flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
-                
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                if(newfspid == null)
+                {
+                    System.out.println("newfspid is null");
+                } else 
+                {
+                    Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                }
+                    
+               
                 //em.persist(newFSP)
                 
             } catch (ParseException ex)

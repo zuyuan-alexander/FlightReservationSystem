@@ -11,6 +11,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
  *
@@ -28,23 +29,39 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     
 
     @Override
-    public void createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS)    
+    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS)    
     {
         // Persist the new FlightSchedulePlan
         newFSP.setFlight(f);
         em.persist(newFSP);
         
-        // Update Flight entity with the new FlightSchedulePlan
+      
         Flight flight = em.find(Flight.class, f.getFlightId());
         flight.getFlightscheduleplans().add(newFSP);
-           newFS.setFlightSchedulePlan(newFSP);
-           
-           
-        Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS);
-        FlightSchedule newFlightSchedule = em.find(FlightSchedule.class, newFlightScheduleid);
-     
-        newFSP.getFlightschedules().add(newFlightSchedule);
         
+        em.flush();
+        return newFSP.getFlightscheduleplanid();
+           
+        //Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newFSP.getFlightscheduleplanid());
+        
+     
+        
+        
+    }
+    
+    @Override
+    public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException
+    {
+        FlightSchedulePlan fsp = em.find(FlightSchedulePlan.class, fspid);
+        
+        if(fsp != null)
+        {
+            return fsp;
+        }
+        else
+        {
+            throw new FlightSchedulePlanNotFoundException("FlightSchedulePlan ID " + fspid + " does not exist!");
+        }
     }
     
     /*
