@@ -35,7 +35,7 @@ public class FlightSchedule implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Date departureTime;
-     @Temporal(TemporalType.TIME)
+    @Temporal(TemporalType.TIME)
     @Column(nullable = false)
     @NotNull
     private Date estimatedFlightDuration;
@@ -43,7 +43,7 @@ public class FlightSchedule implements Serializable {
     private Date arrivalDate;
    
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private FlightSchedulePlan flightSchedulePlan;
 

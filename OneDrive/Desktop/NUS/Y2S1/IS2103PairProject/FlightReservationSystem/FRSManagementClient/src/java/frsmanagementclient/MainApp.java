@@ -213,7 +213,7 @@ public class MainApp {
                     doViewAllFlightSchedulePlan();
                 } else if(response == 8)
                 {
-                    doViewFlightSchedules();
+                    //doViewFlightSchedules();
                     //doViewFlightSchedulePlanDetails();
                 } else if(response == 9)
                 {

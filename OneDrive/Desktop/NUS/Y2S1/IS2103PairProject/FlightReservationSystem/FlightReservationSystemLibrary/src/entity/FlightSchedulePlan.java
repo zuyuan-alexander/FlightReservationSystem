@@ -53,7 +53,7 @@ public class FlightSchedulePlan implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date endDate;   
     
-    @OneToMany(mappedBy = "flightSchedulePlan")
+    @OneToMany(mappedBy = "flightSchedulePlan", cascade = CascadeType.ALL)
     @JoinColumn
     private List<FlightSchedule> flightschedules;
 
