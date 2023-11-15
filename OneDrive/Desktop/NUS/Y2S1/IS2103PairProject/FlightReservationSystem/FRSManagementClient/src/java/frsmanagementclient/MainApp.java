@@ -21,9 +21,8 @@ import entity.Employee;
 import entity.Flight;
 import entity.FlightRoute;
 import entity.FlightSchedule;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -565,19 +564,24 @@ public class MainApp {
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
                 newFSP.setNdays(7);
+                newFS.setDepartureDate(startDate);
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
                
                 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
-                if(newfspid == null)
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                while(newFS.getDepartureDate().before(endDate))
                 {
-                    System.out.println("newfspid is null");
-                } else 
-                {
-                    Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(newFS.getDepartureDate());
+                    calendar.add(Calendar.DAY_OF_MONTH, 7); // Increment by 7 days
+                    newFS.setDepartureDate(calendar.getTime());
+                    newFS.calculateAndSetArrivalDateTime(); 
+                    newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 }
-                    
+                
                
                 //em.persist(newFSP)
                 
@@ -609,11 +613,32 @@ public class MainApp {
                 Date flightDuration = timeFormat.parse(flightDurationStr);
                 Date departureTime = departureFormat.parse(departureTimestr);
 
+                
+                //newFSP.setDayOfWeek(dayOfWeek);
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
+                newFSP.setNdays(nDay);
+                newFS.setDepartureDate(startDate);
+                newFS.setDepartureTime(departureTime);
+                newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
+               
                 
-
-                               
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                while(newFS.getDepartureDate().before(endDate))
+                {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(newFS.getDepartureDate());
+                    calendar.add(Calendar.DAY_OF_MONTH, nDay); // Increment by 7 days
+                    newFS.setDepartureDate(calendar.getTime());
+                    newFS.calculateAndSetArrivalDateTime(); 
+                    newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                }
+                
+               
+                //em.persist(newFSP)
+                
             } catch (ParseException ex)
             {
                 ex.printStackTrace();
@@ -622,10 +647,90 @@ public class MainApp {
         } else if(response == 2)
         {
             newFSP.setScheduleType(ScheduleTypeEnum.MULTIPLE);
+            System.out.println("Enter Number of Flight Schedules> ");
+            Integer numFS = sc.nextInt();
+            sc.nextLine();
+
+            try {
+                Date departureDate;
+                Date departureTime;
+                Date flightDuration;
+
+                // Prompt and create the first flight schedule
+                System.out.println("Enter Departure Date for FlightSchedule 1: (dd MMM yy)");
+                String departuredatestr = sc.nextLine();
+                System.out.println("Enter Departure Time for FlightSchedule 1: (eg: 9:00 AM)");
+                String departureTimestr = sc.nextLine();
+                System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
+                String flightDurationStr = sc.nextLine();
+
+                departureDate = dateFormat.parse(departuredatestr);
+                departureTime = departureFormat.parse(departureTimestr);
+                flightDuration = timeFormat.parse(flightDurationStr);
+
+                newFS.setDepartureDate(departureDate);
+                newFS.setDepartureTime(departureTime);
+                newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
+
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+
+                // Create additional flight schedules based on user input
+                for (int i = 2; i <= numFS; i++) {
+                    System.out.println("Enter Departure Date for FlightSchedule " + i + ": (dd MMM yy)");
+                    departuredatestr = sc.nextLine();
+                    System.out.println("Enter Departure Time for FlightSchedule " + i + ": (eg: 9:00 AM)");
+                    departureTimestr = sc.nextLine();
+                    System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
+                    flightDurationStr = sc.nextLine();
+
+                    departureDate = dateFormat.parse(departuredatestr);
+                    departureTime = departureFormat.parse(departureTimestr);
+                    flightDuration = timeFormat.parse(flightDurationStr);
+
+                    newFS.setDepartureDate(departureDate);
+                    newFS.setDepartureTime(departureTime);
+                    newFS.setEstimatedFlightDuration(flightDuration);
+                    newFS.calculateAndSetArrivalDateTime();
+
+                    newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
             
-        }else if(response == 1)
+        } else if(response == 1)
         {
             newFSP.setScheduleType(ScheduleTypeEnum.SINGLE);
+            try {
+                Date departureDate;
+                Date departureTime;
+                Date flightDuration;
+
+                // Prompt and create the first flight schedule
+                System.out.println("Enter Departure Date for FlightSchedule 1: (dd MMM yy)");
+                String departuredatestr = sc.nextLine();
+                System.out.println("Enter Departure Time for FlightSchedule 1: (eg: 9:00 AM)");
+                String departureTimestr = sc.nextLine();
+                System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
+                String flightDurationStr = sc.nextLine();
+
+                departureDate = dateFormat.parse(departuredatestr);
+                departureTime = departureFormat.parse(departureTimestr);
+                flightDuration = timeFormat.parse(flightDurationStr);
+
+                newFS.setDepartureDate(departureDate);
+                newFS.setDepartureTime(departureTime);
+                newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
+
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+             
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
             
         }
     } 

@@ -24,6 +24,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Future;
 /**
  *
  * @author alvintjw
@@ -48,8 +49,10 @@ public class FlightSchedulePlan implements Serializable {
     private int Ndays;
     @Column(nullable = true)
     @Temporal(TemporalType.DATE)
+    @Future(message = "Start date must be in the future")
     private Date startDate;   
     @Column(nullable = true)
+    @Future(message = "End date must be in the future")
     @Temporal(TemporalType.DATE)
     private Date endDate;   
     
@@ -61,6 +64,7 @@ public class FlightSchedulePlan implements Serializable {
     private Flight flight;
 
     public FlightSchedulePlan() {
+        this.disabled = false;
     }
 
     public FlightSchedulePlan(ScheduleTypeEnum scheduleType) {
@@ -119,7 +123,7 @@ public class FlightSchedulePlan implements Serializable {
     /**
      * @return the disabled
      */
-    public Boolean getDisabled() {
+    public Boolean isDisabled() {
         return disabled;
     }
 
