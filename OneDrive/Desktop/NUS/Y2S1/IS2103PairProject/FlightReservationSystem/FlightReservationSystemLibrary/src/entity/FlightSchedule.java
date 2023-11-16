@@ -5,7 +5,9 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -46,15 +49,20 @@ public class FlightSchedule implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private FlightSchedulePlan flightSchedulePlan;
+    
+    @OneToMany(mappedBy="flightSchedule")
+    private List<Seat> seats;
 
     /*
     @ManyToMany(mappedBy = "flightschedule")
     private List<Passenger> passengers = new ArrayList<Passenger>(); */
 
     public FlightSchedule() {
+        this.seats = new ArrayList<>();
     }
 
     public FlightSchedule(Date departureDate, Date departureTime, Date estimatedFlightDuration) {
+        this();
         this.departureDate = departureDate;
         this.departureTime = departureTime;
         this.estimatedFlightDuration = estimatedFlightDuration;
@@ -165,6 +173,20 @@ public class FlightSchedule implements Serializable {
      */
     public void setFlightSchedulePlan(FlightSchedulePlan flightSchedulePlan) {
         this.flightSchedulePlan = flightSchedulePlan;
+    }
+
+    /**
+     * @return the seats
+     */
+    public List<Seat> getSeats() {
+        return seats;
+    }
+
+    /**
+     * @param seats the seats to set
+     */
+    public void setSeats(List<Seat> seats) {
+        this.seats = seats;
     }
     
 }

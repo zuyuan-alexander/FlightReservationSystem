@@ -82,7 +82,7 @@ public class FlightRoute implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.FlightRoute[ flightRouteId=" + this.getFlightRouteId() + " ]";
+        return origin + " -> " + destination;
     }
 
     /**

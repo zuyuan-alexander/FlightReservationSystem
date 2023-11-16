@@ -9,6 +9,7 @@ import entity.AircraftType;
 import entity.CabinClass;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 
 /**
@@ -31,5 +32,7 @@ public interface AircraftSessionBeanLocal {
     public AircraftConfiguration viewAircraftConfigurationDetails(Long aircraftConfigurationId) throws AircraftTypeNotFoundException;
 
     public AircraftConfiguration retrieveAircraftConfigurationById(Long aircraftConfigurationId) throws AircraftTypeNotFoundException;
+
+    public AircraftConfiguration retrieveAircraftConfigurationByName(String name) throws AircraftConfigurationNotFoundException;
     
 }

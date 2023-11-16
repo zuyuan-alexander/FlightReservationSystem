@@ -24,4 +24,6 @@ public interface FlightRouteSessionBeanLocal {
     public void deleteFlightRoute(Long flightRouteId) throws FlightRouteNotFoundException;
     
     public FlightRoute retrieveFlightRouteByFlightRouteId(Long flightRouteId) throws FlightRouteNotFoundException;
+
+    public FlightRoute retrieveFlightRouteByOriginDestination(String origin, String destination) throws FlightRouteNotFoundException;
 }

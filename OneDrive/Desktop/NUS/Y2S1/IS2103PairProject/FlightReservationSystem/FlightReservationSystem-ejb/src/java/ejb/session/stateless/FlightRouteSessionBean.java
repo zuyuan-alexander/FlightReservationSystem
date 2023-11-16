@@ -10,8 +10,11 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
 import util.exception.FlightRouteNotFoundException;
 
@@ -67,26 +70,40 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     
     @Override
     public List<FlightRoute> viewAllFlightRoutes() {
-        Query query = em.createQuery("SELECT fr FROM FlightRoute fr ORDER BY fr.origin ASC");
-        // have not set the condition for displaying the return flight route immediately below the main route
+        Query query = em.createQuery("SELECT fr FROM FlightRoute fr ORDER BY fr.origin ASC, fr.returnFlightRoute.origin ASC");
         return query.getResultList();
     }
     
     @Override
     public void deleteFlightRoute(Long flightRouteId) throws FlightRouteNotFoundException {
-        FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
+        FlightRoute mainRoute = checkReturnFlightRoute(flightRouteId);
         
+        if (mainRoute != null) {
+            // the flight route we are prompting is actually a complementary return route
+            // we must update the main route before deleting the return route
+            mainRoute.setReturnFlight(Boolean.FALSE);
+            mainRoute.setReturnFlightRoute(null);
+        }
+        
+        FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
+
         // if flight route has at least a flight, we cannot remove it and have to set disabled to TRUE
         // if flight route is not used at all, we can remove it directly
         if (flightRoute.getFlights().isEmpty()) {
             // flight route is not used at all
             flightRoute.getAirports().clear();
-            
-            em.remove(flightRoute);
+
+            em.remove(flightRoute);     
         } else {
             // flight route has at least a lfight, we cannot remove it directly
             flightRoute.setDisabledFlight(Boolean.TRUE);
         }
+    }
+    
+    public FlightRoute checkReturnFlightRoute(Long returhFlightRouteId) {
+        Query query = em.createQuery("SELECT fr FROM FlightRoute fr WHERE fr.returnFlightRoute.flightRouteId = :inReturnFlightRouteId");
+        query.setParameter("inReturnFlightRouteId", returhFlightRouteId);
+        return (FlightRoute) query.getSingleResult();
     }
     
     @Override
@@ -97,6 +114,20 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
             return flightRoute;
         } else {
             throw new FlightRouteNotFoundException("Flight Route with Flight Route Id " + flightRouteId + " does not exist!");
+        }
+    }
+    
+    @Override
+    public FlightRoute retrieveFlightRouteByOriginDestination(String origin, String destination) throws FlightRouteNotFoundException {
+        Query query = em.createQuery("SELECT fr FROM FlightRoute fr WHERE fr.origin = :inOrigin AND fr.destination = :inDestination");
+        query.setParameter("inOrigin", origin).setParameter("inDestination", destination);
+        
+        try {
+            return (FlightRoute) query.getSingleResult();
+        }
+        catch(NoResultException | NonUniqueResultException ex)
+        {
+            throw new FlightRouteNotFoundException("Flight Route with Origin " + origin + " and Destination " + destination + " does not exist!");
         }
     }
     

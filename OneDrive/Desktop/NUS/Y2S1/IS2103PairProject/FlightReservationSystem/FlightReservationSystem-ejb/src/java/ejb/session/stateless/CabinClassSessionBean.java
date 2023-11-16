@@ -5,6 +5,7 @@
 package ejb.session.stateless;
 
 import entity.CabinClass;
+import entity.FlightSchedule;
 import entity.Seat;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,14 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
     
     @Override
     public CabinClass createCabinClass(CabinClass cabinClass) {
+        em.persist(cabinClass);
+        em.flush();
+        
+        return cabinClass;
+    }
+    
+    /*
+    public void seatInit(FlightSchedule flightSchedule, CabinClass cabinClass) {
         Integer counter = 0;
         
         Integer numOfAisles = cabinClass.getNumOfAisles();
@@ -40,9 +49,6 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         String actualSeatingConfiguration = cabinClass.getActualSeatConfiguration();
         
         Integer maxCapacity = cabinClass.getMaxCapacity();
-        
-        em.persist(cabinClass);
-        em.flush();
         
         // create the seats
         for(int i=1; i<=numOfRows; i++) {
@@ -59,12 +65,11 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
                 
                 cabinClass.getSeats().add(seat);
                 seat.setCabinClass(cabinClass);
+                // seat.setFlightSchedule(flighgSchedule);
                 
                 counter++;
             }
         }
-        
-        return cabinClass;
     }
     
     @Override
@@ -109,4 +114,6 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         
         return answer;
     }
+
+    */
 }

@@ -31,14 +31,17 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
 
     @Override
     public List<FlightReservation> searchFlight(TripTypeEnum tripType, String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, Boolean directConnectingFlight, Boolean cabinClassPreference) {
-        List<FlightSchedule> flightSchedulesOnDate;
+        // String jpql = "SELECT fs FROM FlightSchedule fs WHERE fs.flight.departureAirport = :departureAirport " + "AND fs.flight.destinationAirport = :destinationAirport AND fs.departureDate = :departureDate";
+        /*
+        List<FlightSchedule> flightSchedulesOnDate = flightScheduleSessionBeanLocal.retrieveFlightScheduleForReservation(departureAirport, destinationAirport, date);
         List<FlightSchedule> flightSchedulesThreeDaysBeforeDate;
         List<FlightSchedule> flightScheduleThreeDaysAfterDate;
-        
+        */
         // display the flight schedule availability and cabin class availability in the client
         // display the price per passenger and total price for all passenger in the client (retrieve fare from the flight schedule)
         return null;
     }
+  
     
     // reserve flight will create a passenger from customer
     

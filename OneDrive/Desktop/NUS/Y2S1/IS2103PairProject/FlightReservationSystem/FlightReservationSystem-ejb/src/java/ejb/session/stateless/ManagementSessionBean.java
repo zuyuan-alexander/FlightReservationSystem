@@ -33,7 +33,7 @@ public class ManagementSessionBean implements ManagementSessionBeanRemote, Manag
     public ManagementSessionBean() {
     }
     
-
+/*
     public List<List<Integer>> viewSeatInventory(Long flightNumber, FlightSchedule flightSchedule) {
         // Flight flight = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
         // AircraftConfiguration aircraftConfiguration = flight.getAircraft();
@@ -49,7 +49,7 @@ public class ManagementSessionBean implements ManagementSessionBeanRemote, Manag
         // the total number of available, reserved and balance seats can be calculated in the client (when iterating through the list via a for loop)
         return answer;
     }
-    
+    */
     public List<FlightReservation> viewFlightReservations(Long flightNumber, FlightSchedule flightSchedule) {
         return null;
     }

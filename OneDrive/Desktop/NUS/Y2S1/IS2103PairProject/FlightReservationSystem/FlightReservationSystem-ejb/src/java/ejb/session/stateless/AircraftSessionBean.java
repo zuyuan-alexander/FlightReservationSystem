@@ -16,6 +16,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.enumeration.AircraftTypeEnum;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 
 /**
@@ -113,6 +114,21 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
         {
             throw new AircraftTypeNotFoundException("Aicraft Configuration with Aircraft Cnfiguration Id " + aircraftConfigurationId + " does not exist!");
         }               
+    }
+    
+    @Override
+    public AircraftConfiguration retrieveAircraftConfigurationByName(String name) throws AircraftConfigurationNotFoundException {
+        Query query = em.createQuery("SELECT ac FROM AircraftConfiguration ac WHERE ac.aircraftConfigurationName = :inAircraftConfigurationName");
+        query.setParameter("inAircraftConfigurationName", name);
+        
+        try
+        {
+            return (AircraftConfiguration) query.getSingleResult();
+        }
+        catch(NoResultException | NonUniqueResultException ex)
+        {
+            throw new AircraftConfigurationNotFoundException("Aircraft Configuration Name " + name + " does not exist!");
+        }
     }
     
 }

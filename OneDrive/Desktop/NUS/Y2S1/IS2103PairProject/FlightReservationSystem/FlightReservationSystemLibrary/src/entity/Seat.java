@@ -33,10 +33,17 @@ public class Seat implements Serializable {
     private SeatStatusEnum seatStatus;
     
     // relationship
+    /*
     @ManyToOne(optional=false)
     @JoinColumn(nullable=false)
     private CabinClass cabinClass;
-
+    */
+    
+    @ManyToOne(optional=false)
+    @JoinColumn(nullable=false)
+    private FlightSchedule flightSchedule;
+    
+    
     public Seat() {
     }
 
@@ -129,18 +136,28 @@ public class Seat implements Serializable {
         this.seatStatus = seatStatus;
     }
 
-    /**
-     * @return the cabinClass
-     */
+    /*
     public CabinClass getCabinClass() {
         return cabinClass;
     }
 
-    /**
-     * @param cabinClass the cabinClass to set
-     */
     public void setCabinClass(CabinClass cabinClass) {
         this.cabinClass = cabinClass;
+    }
+    */
+
+    /**
+     * @return the flightSchedule
+     */
+    public FlightSchedule getFlightSchedule() {
+        return flightSchedule;
+    }
+
+    /**
+     * @param flightSchedule the flightSchedule to set
+     */
+    public void setFlightSchedule(FlightSchedule flightSchedule) {
+        this.flightSchedule = flightSchedule;
     }
     
 }

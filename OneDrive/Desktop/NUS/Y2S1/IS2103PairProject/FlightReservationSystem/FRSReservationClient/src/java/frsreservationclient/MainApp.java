@@ -118,17 +118,29 @@ public class MainApp {
             return;
         }
         
+        /*
         // implementation
         List<FlightReservation> flightReservationList = flightReservationSessionBeanRemote.searchFlight(tripType, departureAirport, destinationAirport, departureDate, numOfPassengers, flightPreference, cabinClassPreference);
+        searchFlightOneWay();
         
         if (tripTypeInt == 2) {
             // we now change the departure date to return date
             flightReservationList = flightReservationSessionBeanRemote.searchFlight(tripType, departureAirport, destinationAirport, returnDate, numOfPassengers, flightPreference, cabinClassPreference);
+            searchFlightRoundTrip();
         }
-        
+        */
         // display the list of reservations
         
     }
+    
+    public void searchFlightOneWay() {
+        // on departure date
+        
+        // three days before departure date
+        // three days after departure date
+    }
+    
+    public void searchFlightRoundTrip() {}
     
     public void doViewMyFlightReservations() {
         System.out.println("===== View My Flight Reservations =====");

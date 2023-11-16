@@ -81,7 +81,7 @@ public class AircraftConfiguration implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.AircraftConfiguration[ aircraftConfigurationId=" + this.getAircraftConfigurationId() + " ]";
+        return this.aircraftConfigurationName;
     }
 
     /**

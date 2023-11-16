@@ -54,9 +54,11 @@ public class CabinClass implements Serializable {
     @JoinColumn(nullable=false)
     private AircraftConfiguration aircraftConfiguration;
     
+    /*
     @OneToMany(mappedBy="cabinClass")
     private List<Seat> seats;
-
+    */
+    
     public CabinClass() {
     }
 
@@ -193,19 +195,15 @@ public class CabinClass implements Serializable {
         this.aircraftConfiguration = aircraftConfiguration;
     }
 
-    /**
-     * @return the seats
-     */
+    /*
     public List<Seat> getSeats() {
         return seats;
     }
 
-    /**
-     * @param seats the seats to set
-     */
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
     }
+    */
 
     /**
      * @return the maxCapacity

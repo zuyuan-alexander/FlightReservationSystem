@@ -16,11 +16,11 @@ import javax.ejb.Remote;
 public interface CabinClassSessionBeanRemote {
     
     public CabinClass createCabinClass(CabinClass cabinClass);
-
+/*
     public Integer calculateNumOfReservedSeats(CabinClass cabinClass);
 
     public Integer calculateNumOfAvailabeSeats(CabinClass cabinClass);
     
     public List<Integer> calculateNumOfSeats(CabinClass cabinClass);
-    
+  */  
 }

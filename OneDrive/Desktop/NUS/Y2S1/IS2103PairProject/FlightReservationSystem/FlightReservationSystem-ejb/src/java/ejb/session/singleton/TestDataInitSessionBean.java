@@ -6,11 +6,13 @@ package ejb.session.singleton;
 
 import ejb.session.stateless.AircraftSessionBeanLocal;
 import ejb.session.stateless.FlightRouteSessionBeanLocal;
+import ejb.session.stateless.FlightSessionBeanLocal;
 import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.Airport;
 import entity.CabinClass;
 import entity.Employee;
+import entity.Flight;
 import entity.FlightRoute;
 import entity.Partner;
 import java.util.ArrayList;
@@ -24,8 +26,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.EmployeeTypeEnum;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightNotFoundException;
+import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
+import util.exception.UpdateFlightException;
 
 /**
  *
@@ -36,6 +45,9 @@ import util.exception.AirportNotFoundException;
 @Startup
 public class TestDataInitSessionBean {
 
+    @EJB
+    private FlightSessionBeanLocal flightSessionBean;
+
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
     
@@ -44,7 +56,8 @@ public class TestDataInitSessionBean {
     
     @EJB
     private FlightRouteSessionBeanLocal flightRouteSessionBeanLocal;
-
+    
+    
     public TestDataInitSessionBean() {
     }
     
@@ -56,6 +69,7 @@ public class TestDataInitSessionBean {
         initAircraftType();
         initAircraftConfiguration();
         initFlightRoute();
+        initFlight();
     }
     
     public void initEmployee() {
@@ -234,6 +248,35 @@ public class TestDataInitSessionBean {
         try {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
+    }
+    
+    public void initFlight() {
+        try {
+            Flight flight = new Flight("ML111");
+            FlightRoute flightRoute = flightRouteSessionBeanLocal.retrieveFlightRouteByOriginDestination("SIN", "HKG");
+            AircraftConfiguration acn = aircraftSessionBeanLocal.retrieveAircraftConfigurationByName("Boeing 737 Three Classes");
+            flight.setFlightRoute(flightRoute);
+            flight.setAircraftConfiguration(acn);
+            
+            flightSessionBean.createNewFlight(flight);
+            
+            flightSessionBean.createComplementaryFlight(flight, "ML112");
+            
+        } catch (FlightRouteNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (AircraftConfigurationNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightNumberExistsException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UpdateFlightException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
     }
