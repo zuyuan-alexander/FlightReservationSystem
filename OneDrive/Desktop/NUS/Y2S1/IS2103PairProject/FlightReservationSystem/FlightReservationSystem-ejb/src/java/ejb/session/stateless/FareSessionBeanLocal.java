@@ -4,10 +4,8 @@
  */
 package ejb.session.stateless;
 
-import entity.CabinClass;
-import entity.FlightSchedule;
-import entity.Passenger;
-import java.util.List;
+import entity.Fare;
+import entity.FlightSchedulePlan;
 import javax.ejb.Local;
 
 /**
@@ -15,8 +13,8 @@ import javax.ejb.Local;
  * @author zuyua
  */
 @Local
-public interface ManagementSessionBeanLocal {
+public interface FareSessionBeanLocal {
     
-    public List<Passenger> viewSeatsInventory(CabinClass cabinClass, FlightSchedule flightSchedule);
+    public Long createNewFare(Fare fare, FlightSchedulePlan fsp);
     
 }

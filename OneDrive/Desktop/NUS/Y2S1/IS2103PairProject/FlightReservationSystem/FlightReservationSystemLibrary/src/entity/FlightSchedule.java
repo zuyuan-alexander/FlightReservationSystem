@@ -6,6 +6,8 @@ package entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.sql.Time;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -32,6 +34,7 @@ public class FlightSchedule implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightscheduleid;
+    @Temporal(TemporalType.DATE)
     @Column(nullable = true)
     private Date departureDate;
     @Temporal(TemporalType.TIME)
@@ -43,22 +46,29 @@ public class FlightSchedule implements Serializable {
     @NotNull
     private Date estimatedFlightDuration;
     @Column(nullable = true)
+    @Temporal(TemporalType.DATE)
     private Date arrivalDate;
+    @Temporal(TemporalType.TIME)
+    @Column(nullable = false)
+    @NotNull
+    private Date arrivalTime;
    
 
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private FlightSchedulePlan flightSchedulePlan;
     
+    /*
     @OneToMany(mappedBy="flightSchedule")
     private List<Seat> seats;
-
-    /*
-    @ManyToMany(mappedBy = "flightschedule")
-    private List<Passenger> passengers = new ArrayList<Passenger>(); */
+    */
+    
+    @OneToMany(mappedBy="flightSchedule")
+    private List<Passenger> passengers;
 
     public FlightSchedule() {
-        this.seats = new ArrayList<>();
+        //this.seats = new ArrayList<>();
+        this.passengers = new ArrayList<>();
     }
 
     public FlightSchedule(Date departureDate, Date departureTime, Date estimatedFlightDuration) {
@@ -66,7 +76,8 @@ public class FlightSchedule implements Serializable {
         this.departureDate = departureDate;
         this.departureTime = departureTime;
         this.estimatedFlightDuration = estimatedFlightDuration;
-    }
+        calculateAndSetArrivalDateTime();
+     }
     
     
 
@@ -175,18 +186,63 @@ public class FlightSchedule implements Serializable {
         this.flightSchedulePlan = flightSchedulePlan;
     }
 
-    /**
-     * @return the seats
-     */
+    /*
     public List<Seat> getSeats() {
         return seats;
     }
 
-    /**
-     * @param seats the seats to set
-     */
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
     }
+    */
+    
+  public void calculateAndSetArrivalDateTime() {
+    if (departureDate != null && departureTime != null && estimatedFlightDuration != null) {
+        Calendar departureDateTime = Calendar.getInstance();
+        departureDateTime.setTime(departureDate);
+
+        Calendar departureTimeCalendar = Calendar.getInstance();
+        departureTimeCalendar.setTime(departureTime);
+        departureDateTime.set(Calendar.HOUR_OF_DAY, departureTimeCalendar.get(Calendar.HOUR_OF_DAY));
+        departureDateTime.set(Calendar.MINUTE, departureTimeCalendar.get(Calendar.MINUTE));
+        departureDateTime.set(Calendar.SECOND, departureTimeCalendar.get(Calendar.SECOND));
+
+        long estimatedFlightDurationInMillis = estimatedFlightDuration.getTime();
+
+        long arrivalDateTimeInMillis = departureDateTime.getTimeInMillis() + estimatedFlightDurationInMillis;
+        Date arrivalDateTime = new Date(arrivalDateTimeInMillis);
+
+        // Break down arrivalDateTime into arrivalDate and arrivalTime
+        Calendar arrivalCal = Calendar.getInstance();
+        arrivalCal.setTime(arrivalDateTime);
+        
+        this.arrivalDate = new Date(arrivalCal.getTimeInMillis() - (arrivalCal.get(Calendar.HOUR_OF_DAY) * 60 * 60 * 1000)
+                                - (arrivalCal.get(Calendar.MINUTE) * 60 * 1000)
+                                - (arrivalCal.get(Calendar.SECOND) * 1000)
+                                - (arrivalCal.get(Calendar.MILLISECOND)));
+        
+        this.arrivalTime = new Time(arrivalDateTime.getTime() - this.arrivalDate.getTime());
+    }
+}
+
+    /**
+     * @return the passengers
+     */
+    public List<Passenger> getPassengers() {
+        return passengers;
+    }
+
+    /**
+     * @param passengers the passengers to set
+     */
+    public void setPassengers(List<Passenger> passengers) {
+        this.passengers = passengers;
+    }
+
+
+    
+    
+    
     
 }
+    

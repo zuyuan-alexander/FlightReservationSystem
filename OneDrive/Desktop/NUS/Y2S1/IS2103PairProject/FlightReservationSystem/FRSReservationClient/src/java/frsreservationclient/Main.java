@@ -18,14 +18,14 @@ import javax.ejb.EJB;
 public class Main {
 
     
-    //@EJB
-    //private CustomerSessionBeanRemote customerSessionBeanRemote;
+    @EJB
+    private static CustomerSessionBeanRemote customerSessionBeanRemote;
     
-    //@EJB
-    //private FlightReservationSessionBeanRemote flightReservationSessionBeanRemote;
+    @EJB
+    private static FlightReservationSessionBeanRemote flightReservationSessionBeanRemote;
     
     public static void main(String[] args) {
-        MainApp mainApp = new MainApp();
+        MainApp mainApp = new MainApp(customerSessionBeanRemote, flightReservationSessionBeanRemote);
         mainApp.runApp();
     }
     

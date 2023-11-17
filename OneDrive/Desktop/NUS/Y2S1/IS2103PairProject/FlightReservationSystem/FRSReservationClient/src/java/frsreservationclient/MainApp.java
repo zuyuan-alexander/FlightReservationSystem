@@ -17,7 +17,10 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import util.enumeration.TripTypeEnum;
+import util.exception.CustomerCredentialExistException;
 import util.exception.FlightReservationNotFoundException;
+import util.exception.InvalidLoginCredentialException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -29,7 +32,7 @@ public class MainApp {
 
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private FlightReservationSessionBeanRemote flightReservationSessionBeanRemote;
-    private Customer customer;
+    private Customer currentCustomer;
     
     public MainApp() {
     }
@@ -40,10 +43,149 @@ public class MainApp {
     }
     
     public void runApp() {
+        Scanner scanner = new Scanner(System.in);
+        Integer response = 0;
+        
+        while(true)
+        {
+            System.out.println("*** Welcome to FRS Mangagement System***\n");
+            System.out.println("1: Login");
+            System.out.println("2: Register As Customer");
+            System.out.println("3: Search Flight");
+            System.out.println("4: Exit\n");
+            response = 0;
+            
+            while(response < 1 || response > 2)
+            {
+                System.out.print("> ");
+
+                response = scanner.nextInt();
+
+                if(response == 1)
+                {
+                    try
+                    {
+                        doLogin();
+                        System.out.println("Login successful!\n");
+                        mainMenu();
+                    }
+                    catch(InvalidLoginCredentialException ex) 
+                    {
+                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
+                    }
+                } else if (response == 2) {
+                    doRegisterAsCustomer();
+                } else if (response == 3) {
+                    doSearchFlight();
+                } else if (response == 4)
+                {
+                    break;
+                }
+                else
+                {
+                    System.out.println("Invalid option, please try again!\n");                
+                }
+            }
+            
+            if(response == 4)
+            {
+                break;
+            }
+        }
         
     }
     
-    public void doSearhFlight() {
+    private void doLogin() throws InvalidLoginCredentialException
+    {
+        Scanner scanner = new Scanner(System.in);
+        String username = "";
+        String password = "";
+        
+        System.out.println("*** FRS Reservation System :: Login ***\n");
+        System.out.print("Enter username> ");
+        username = scanner.nextLine().trim();
+        System.out.print("Enter password> ");
+        password = scanner.nextLine().trim();
+        
+        if(username.length() > 0 && password.length() > 0)
+        {
+            currentCustomer = customerSessionBeanRemote.customerLogin(username, password); 
+        }
+        else
+        {
+            throw new InvalidLoginCredentialException("Missing login credential!");
+        }
+    }
+    
+    public void doRegisterAsCustomer() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("===== Register As Customer =====");
+        System.out.print("Enter first name > ");
+        String firstName = sc.nextLine().trim();
+        System.out.print("Enter last name > ");
+        String lastName = sc.nextLine().trim();
+        System.out.print("Enter email > ");
+        String email = sc.nextLine().trim();
+        System.out.print("Enter mobile phone number > ");
+        String mobilePhoneNumber = sc.nextLine().trim();
+        System.out.print("Enter address > ");
+        String address = sc.nextLine().trim();
+        System.out.print("Enter postalCode > ");
+        String postalCode = sc.nextLine().trim();
+        System.out.print("Enter username > ");
+        String username = sc.nextLine().trim();
+        System.out.print("Enter password > ");
+        String password = sc.nextLine().trim();
+        
+        Customer newCustomer = new Customer(firstName, lastName, email, mobilePhoneNumber, address, postalCode, username, password);
+        try {
+            Long newCustomerId = customerSessionBeanRemote.registerAsCustomer(newCustomer);
+            System.out.println("Customer with Customer Id " + newCustomerId + " has been successfully created!");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (CustomerCredentialExistException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
+    }
+    
+    public void mainMenu() {
+        Scanner sc = new Scanner(System.in);
+        Integer response = 0;
+        
+        while(true) {
+            System.out.println("*** Welcome to Main Menu ***");
+            System.out.println("1: Search Flight");
+            System.out.println("2: Reserve Flight");
+            System.out.println("3: View My Flight Reservation");
+            System.out.println("4: View My Flight Reservation Details");
+            System.out.println("5: Exit\n");
+            
+            while(response < 1 || response > 5) {
+                System.out.print("> ");
+                response = sc.nextInt();
+                
+                if (response == 1) {
+                    doSearchFlight();
+                } else if (response == 2) {
+                    doReserveFlight();
+                } else if (response == 3) {
+                    doViewMyFlightReservations();
+                } else if (response == 4) {
+                    doViewMyFlightReservationDetails();
+                } else if (response == 5) {
+                    break;
+                } else {
+                    System.out.println("Invalid option, please try again!\n");
+                }
+            }
+            
+            if (response == 5) {
+                break;
+            }
+        }
+    }
+    
+    public void doSearchFlight() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("===== Search Flight =====");
         System.out.print("Enter trip type (1: One-way, 2: Round-trip) > ");
@@ -142,10 +284,16 @@ public class MainApp {
     
     public void searchFlightRoundTrip() {}
     
+    public void doReserveFlight() {
+        System.out.print("Enter flight schedule id > ");
+        System.out.print("Enter number of passengers > ");
+        
+    }
+    
     public void doViewMyFlightReservations() {
         System.out.println("===== View My Flight Reservations =====");
-        List<FlightReservation> flightReservations = flightReservationSessionBeanRemote.viewMyFlightReservations(customer);
-        System.out.println("For Customer (" + customer.getUsername() + "), ");
+        List<FlightReservation> flightReservations = flightReservationSessionBeanRemote.viewMyFlightReservations(currentCustomer);
+        System.out.println("For Customer (" + currentCustomer.getUsername() + "), ");
         for (FlightReservation fr : flightReservations) {
             System.out.println("Flight Reservation Id: " + fr.getFlightreservationid() + "; Trip Type: " + fr.getTripTypeEnum());
         }
@@ -160,7 +308,7 @@ public class MainApp {
         try {
             FlightReservation fr = flightReservationSessionBeanRemote.retrieveFlightReservationById(id);
             System.out.println("Flight Reservation Id: " + id);
-            System.out.println("Customer: " + customer.getFirstName() + " " + customer.getLastName());
+            System.out.println("Customer: " + currentCustomer.getFirstName() + " " + currentCustomer.getLastName());
             System.out.println("Flight Schedule: ");
             System.out.println("Seat Number: " + "\n");
         } catch (FlightReservationNotFoundException ex) {

@@ -9,6 +9,7 @@ import entity.CabinClass;
 import entity.Flight;
 import entity.FlightReservation;
 import entity.FlightSchedule;
+import entity.Passenger;
 import entity.Seat;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,9 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import util.enumeration.SeatStatusEnum;
+import util.exception.FlightNotFoundException;
 
 /**
  *
@@ -29,6 +33,9 @@ public class ManagementSessionBean implements ManagementSessionBeanRemote, Manag
     
     @EJB
     private CabinClassSessionBeanLocal cabinClassSessionBeanLocal;
+    
+    @EJB
+    private FlightSessionBeanLocal flightSessionBeanLocal;
 
     public ManagementSessionBean() {
     }
@@ -50,8 +57,65 @@ public class ManagementSessionBean implements ManagementSessionBeanRemote, Manag
         return answer;
     }
     */
-    public List<FlightReservation> viewFlightReservations(Long flightNumber, FlightSchedule flightSchedule) {
-        return null;
+    
+    public List<Passenger> viewSeatsInventory(CabinClass cabinClass, FlightSchedule flightSchedule) {
+        // this part may have some error, need to check with the jpql lab first
+        Query query = em.createQuery("SELECT p FROM Passenger p WHERE p.seat.cabinClass.cabinClassId = :inCabinClassId AND p.flightSchedule.flightscheduleid = :inFlightScheduleId");
+        query.setParameter("inCabinClassId", cabinClass.getCabinClassId()).setParameter("inFlightScheduleId", flightSchedule.getFlightscheduleid());
+        
+        return query.getResultList();
     }
-
+    
+    public List<Passenger> viewFlightReservations(CabinClass cabinClass, FlightSchedule flightSchedule) {
+        Query query = em.createQuery("SELECT p FROM Passenger p WHERE p.seat.cabinClass.cabinClassId = :inCabinClassId AND p.flightSchedule.flightscheduleid = :inFlightScheduleId");
+        query.setParameter("inCabinClassId", cabinClass.getCabinClassId()).setParameter("inFlightScheduleId", flightSchedule.getFlightscheduleid());
+        
+        return query.getResultList();
+    }
+    
+    /*
+    public Integer calculateNumOfAvailabeSeats(String flightNumber, FlightSchedule flightSchedule) throws FlightNotFoundException {
+        Flight flight = flightSessionBeanLocal.retrieveFlightByFlightNumber(flightNumber);
+        List<CabinClass> cabinClassList = flight.getAircraftConfiguration().getCabinClasses();
+        List<Seat> seats = flightSchedule.getSeats();
+        Integer counter = 0;
+        
+        for (CabinClass cabinClass : cabinClassList) {
+            for (Seat seat : seats) {
+                if (seat.getSeatStatus().equals(SeatStatusEnum.AVAILABLE) && seat.getCabinClassType().equals(this)) {
+                    counter++;
+                }
+            }
+        }
+        
+        return counter;
+    }
+    
+    public Integer calculateNumOfReservedSeats(CabinClass cabinClass) {
+        List<Seat> seats = cabinClass.getSeats();
+        Integer counter = 0;
+        
+        for (Seat seat : seats) {
+            if (seat.getSeatStatus().equals(SeatStatusEnum.RESERVED)) {
+                counter++;
+            }
+        }
+        
+        return counter;
+    }
+    
+    public List<Integer> calculateNumOfSeats(CabinClass cabinClass) {
+        List<Integer> answer = new ArrayList<>();
+        Integer numOfAvailableSeats = calculateNumOfAvailabeSeats(cabinClass);
+        answer.add(numOfAvailableSeats);
+        
+        Integer numOfReservedSeats = calculateNumOfReservedSeats(cabinClass);
+        answer.add(numOfReservedSeats);
+        
+        Integer numOfBlanceSeats = cabinClass.getMaxCapacity() - numOfAvailableSeats - numOfReservedSeats;
+        answer.add(numOfAvailableSeats);
+        
+        return answer;
+    }
+    */
 }

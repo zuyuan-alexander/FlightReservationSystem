@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import ejb.session.stateless.FlightRouteSessionBeanRemote;
 import ejb.session.stateless.FlightSessionBeanRemote;
+import ejb.session.stateless.ManagementSessionBeanRemote;
 import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.CabinClass;
@@ -21,9 +22,9 @@ import entity.Employee;
 import entity.Flight;
 import entity.FlightRoute;
 import entity.FlightSchedule;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import entity.Passenger;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -42,6 +43,7 @@ import util.exception.AirportNotFoundException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
 import util.exception.FlightRouteNotFoundException;
+import util.exception.FlightScheduleNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
@@ -61,6 +63,7 @@ public class MainApp {
     private FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean;
     private FlightScheduleSessionBeanRemote flightScheduleSessionBean;
     private FlightRouteSessionBeanRemote flightRouteSessionBeanRemote;
+    private ManagementSessionBeanRemote managementSessionBeanRemote;
     private Employee currentEmployee;
 
     
@@ -70,7 +73,7 @@ public class MainApp {
     }
     
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, FlightScheduleSessionBeanRemote flightScheduleSessionBean, FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean, AircraftSessionBeanRemote aircraftSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, FlightSessionBeanRemote flightSessionBean) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, FlightScheduleSessionBeanRemote flightScheduleSessionBean, FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean, AircraftSessionBeanRemote aircraftSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, FlightSessionBeanRemote flightSessionBean, ManagementSessionBeanRemote managementSessionBeanRemote) {
         this();
         this.employeeSessionBean = employeeSessionBean;
         this.flightSchedulePlanSessionBean = flightSchedulePlanSessionBean;
@@ -78,6 +81,7 @@ public class MainApp {
         this.aircraftSessionBeanRemote = aircraftSessionBeanRemote;
         this.flightRouteSessionBeanRemote = flightRouteSessionBeanRemote;
         this.flightSessionBean = flightSessionBean;
+        this.managementSessionBeanRemote = managementSessionBeanRemote;
 
     }
       
@@ -132,7 +136,7 @@ public class MainApp {
         }
     }
      
-     private void doLogin() throws InvalidLoginCredentialException
+    private void doLogin() throws InvalidLoginCredentialException
     {
         Scanner scanner = new Scanner(System.in);
         String username = "";
@@ -383,18 +387,11 @@ public class MainApp {
 
                 if(response == 1)
                 {
-                    try
-                    {
-                        doLogin();
-                        System.out.println("Login successful!\n");
-                        
-                        
-                      
-                    }
-                    catch(InvalidLoginCredentialException ex) 
-                    {
-                        System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
-                    }
+                    doViewSeatsInventory();
+                } 
+                else if (response == 2) 
+                {
+                    doViewFlightReservations();
                 }
                 else if (response == 3)
                 {
@@ -467,48 +464,6 @@ public class MainApp {
         } catch (UpdateFlightException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
-        
-        /*
-        try
-        {
-            Flight flight = new Flight(flightNumber);
-            FlightRoute flightRoute = flightRouteSessionBeanRemote.retrieveFlightRouteByOriginDestination(origin, destination);
-            AircraftConfiguration acn = aircraftSessionBeanRemote.retrieveAircraftConfigurationByName(aircraftConfigurationName);
-            
-            flight.setFlightRoute(flightRoute);
-            flight.setAircraftConfiguration(acn);
-
-            Long flightId = flightSessionBean.createNewFlight(flight);
-            
-            //setting the complimentary flight 
-            System.out.print("Complimentary Flight (Y:Yes, N:No) > ");
-            String response = sc.nextLine().trim();
-
-            if(response.equals("Y"))
-            {
-                System.out.print("Enter Complimentary Flight Number > ");
-                String cfFlightNum = sc.nextLine().trim();
-                Long complementaryFlightId = flightSessionBean.createComplementaryFlight(flight, cfFlightNum);
-
-                System.out.println("Flight with Flight Id " + flight.getFlightId() + " has been successfully created");
-                System.out.println("Flight with Flight Id " + complementaryFlightId + " has been successfully created");
-            } else {
-                System.out.println("Flight with Flight Id " + flight.getFlightId() + " has been successfully created");
-            }
-            
-        } catch (FlightNumberExistsException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        } catch (FlightRouteNotFoundException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        } catch (AircraftConfigurationNotFoundException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        } catch (UnknownPersistenceException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        } catch (InputDataValidationException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        }
-        
-        */
         
     } 
     
@@ -644,19 +599,24 @@ public class MainApp {
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
                 newFSP.setNdays(7);
+                newFS.setDepartureDate(startDate);
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
                
                 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
-                if(newfspid == null)
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                while(newFS.getDepartureDate().before(endDate))
                 {
-                    System.out.println("newfspid is null");
-                } else 
-                {
-                    Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(newFS.getDepartureDate());
+                    calendar.add(Calendar.DAY_OF_MONTH, 7); // Increment by 7 days
+                    newFS.setDepartureDate(calendar.getTime());
+                    newFS.calculateAndSetArrivalDateTime(); 
+                    newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 }
-                    
+                
                
                 //em.persist(newFSP)
                 
@@ -688,11 +648,32 @@ public class MainApp {
                 Date flightDuration = timeFormat.parse(flightDurationStr);
                 Date departureTime = departureFormat.parse(departureTimestr);
 
+                
+                //newFSP.setDayOfWeek(dayOfWeek);
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
+                newFSP.setNdays(nDay);
+                newFS.setDepartureDate(startDate);
+                newFS.setDepartureTime(departureTime);
+                newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
+               
                 
-
-                               
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                while(newFS.getDepartureDate().before(endDate))
+                {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(newFS.getDepartureDate());
+                    calendar.add(Calendar.DAY_OF_MONTH, nDay); // Increment by 7 days
+                    newFS.setDepartureDate(calendar.getTime());
+                    newFS.calculateAndSetArrivalDateTime(); 
+                    newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                }
+                
+               
+                //em.persist(newFSP)
+                
             } catch (ParseException ex)
             {
                 ex.printStackTrace();
@@ -701,10 +682,90 @@ public class MainApp {
         } else if(response == 2)
         {
             newFSP.setScheduleType(ScheduleTypeEnum.MULTIPLE);
+            System.out.println("Enter Number of Flight Schedules> ");
+            Integer numFS = sc.nextInt();
+            sc.nextLine();
+
+            try {
+                Date departureDate;
+                Date departureTime;
+                Date flightDuration;
+
+                // Prompt and create the first flight schedule
+                System.out.println("Enter Departure Date for FlightSchedule 1: (dd MMM yy)");
+                String departuredatestr = sc.nextLine();
+                System.out.println("Enter Departure Time for FlightSchedule 1: (eg: 9:00 AM)");
+                String departureTimestr = sc.nextLine();
+                System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
+                String flightDurationStr = sc.nextLine();
+
+                departureDate = dateFormat.parse(departuredatestr);
+                departureTime = departureFormat.parse(departureTimestr);
+                flightDuration = timeFormat.parse(flightDurationStr);
+
+                newFS.setDepartureDate(departureDate);
+                newFS.setDepartureTime(departureTime);
+                newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
+
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+
+                // Create additional flight schedules based on user input
+                for (int i = 2; i <= numFS; i++) {
+                    System.out.println("Enter Departure Date for FlightSchedule " + i + ": (dd MMM yy)");
+                    departuredatestr = sc.nextLine();
+                    System.out.println("Enter Departure Time for FlightSchedule " + i + ": (eg: 9:00 AM)");
+                    departureTimestr = sc.nextLine();
+                    System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
+                    flightDurationStr = sc.nextLine();
+
+                    departureDate = dateFormat.parse(departuredatestr);
+                    departureTime = departureFormat.parse(departureTimestr);
+                    flightDuration = timeFormat.parse(flightDurationStr);
+
+                    newFS.setDepartureDate(departureDate);
+                    newFS.setDepartureTime(departureTime);
+                    newFS.setEstimatedFlightDuration(flightDuration);
+                    newFS.calculateAndSetArrivalDateTime();
+
+                    newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                }
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
             
-        }else if(response == 1)
+        } else if(response == 1)
         {
             newFSP.setScheduleType(ScheduleTypeEnum.SINGLE);
+            try {
+                Date departureDate;
+                Date departureTime;
+                Date flightDuration;
+
+                // Prompt and create the first flight schedule
+                System.out.println("Enter Departure Date for FlightSchedule 1: (dd MMM yy)");
+                String departuredatestr = sc.nextLine();
+                System.out.println("Enter Departure Time for FlightSchedule 1: (eg: 9:00 AM)");
+                String departureTimestr = sc.nextLine();
+                System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
+                String flightDurationStr = sc.nextLine();
+
+                departureDate = dateFormat.parse(departuredatestr);
+                departureTime = departureFormat.parse(departureTimestr);
+                flightDuration = timeFormat.parse(flightDurationStr);
+
+                newFS.setDepartureDate(departureDate);
+                newFS.setDepartureTime(departureTime);
+                newFS.setEstimatedFlightDuration(flightDuration);
+                newFS.calculateAndSetArrivalDateTime();
+
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+             
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+            }
             
         }
     } 
@@ -892,5 +953,82 @@ public class MainApp {
         }
 
         System.out.println("\nPlease try again......\n");
+    }
+    
+    public void doViewSeatsInventory() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("===== View Flight Reservations =====");
+        System.out.print("Enter flight number > ");
+        String flightNumber = sc.nextLine().trim();
+        System.out.print("Enter flight schedule id > ");
+        Long flightScheduleId = sc.nextLong();
+        sc.nextLine();
+        
+        try {
+            Flight flight = flightSessionBean.retrieveFlightByFlightNumber(flightNumber);
+            FlightSchedule flightSchedule = flightScheduleSessionBean.retrieveFlightScheduleById(flightScheduleId);
+            List<CabinClass> ccList = flight.getAircraftConfiguration().getCabinClasses();
+            Integer totalNumOfReservedSeats = 0;
+            Integer totalNumOfAvailableSeats = 0;
+            Integer totalNumOfBalanceSeats = 0;
+
+            for (CabinClass cabinClass : ccList) {
+                System.out.println("For Cabin Class: " + cabinClass.getCabinClassType());
+
+                Integer numOfReservedSeats = managementSessionBeanRemote.viewSeatsInventory(cabinClass, flightSchedule).size();
+                totalNumOfReservedSeats += numOfReservedSeats;
+
+                Integer numOfAvailableSeats = (cabinClass.getNumOfRows() * cabinClass.getNumOfSeatsAbreast()) - numOfReservedSeats;
+                totalNumOfAvailableSeats += numOfAvailableSeats;
+
+                Integer numOfBalanceSeats = numOfAvailableSeats - numOfReservedSeats;
+                totalNumOfBalanceSeats += numOfBalanceSeats;
+
+                System.out.println("Number of Reserved Seats: " + numOfReservedSeats + "; Number of Available Seats: " + numOfAvailableSeats + "; Number of Balance Seats: " + numOfBalanceSeats);
+
+                System.out.println();
+            }
+
+            System.out.println("Total Number of Reserved Seats: " + totalNumOfReservedSeats + "; Total Number of Available Seats: " + totalNumOfAvailableSeats + "; Total Number of Balance Seats: " + totalNumOfBalanceSeats + "\n");
+        } catch (FlightNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightScheduleNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
+    }
+    
+    public void doViewFlightReservations() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("===== View Flight Reservations =====");
+        System.out.print("Enter flight number > ");
+        String flightNumber = sc.nextLine().trim();
+        System.out.print("Enter flight schedule id > ");
+        Long flightScheduleId = sc.nextLong();
+        sc.nextLine();
+        
+        try {
+            Flight flight = flightSessionBean.retrieveFlightByFlightNumber(flightNumber);
+            FlightSchedule flightSchedule = flightScheduleSessionBean.retrieveFlightScheduleById(flightScheduleId);
+            List<CabinClass> ccList = flight.getAircraftConfiguration().getCabinClasses();
+
+            for (CabinClass cabinClass : ccList) {
+                System.out.println("For Cabin Class: " + cabinClass.getCabinClassType());
+                List<Passenger> passengers = managementSessionBeanRemote.viewSeatsInventory(cabinClass, flightSchedule);
+                
+                if (passengers.size() == 0) {
+                    System.out.println("Passenger List is empty!");
+                }
+                
+                for (Passenger passenger : passengers) {
+                    System.out.println("Seat Number: " + passenger.getSeat().toString() + "; Passenger: " + passenger.toString() + "; Fare basis code: ");
+                }
+                System.out.println();
+            }
+            
+        } catch (FlightNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightScheduleNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
     }
 }

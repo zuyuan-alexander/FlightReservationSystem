@@ -4,10 +4,8 @@
  */
 package ejb.session.stateless;
 
-import entity.CabinClass;
-import entity.FlightSchedule;
-import entity.Passenger;
-import java.util.List;
+import entity.Fare;
+import entity.FlightSchedulePlan;
 import javax.ejb.Remote;
 
 /**
@@ -15,8 +13,8 @@ import javax.ejb.Remote;
  * @author zuyua
  */
 @Remote
-public interface ManagementSessionBeanRemote {
+public interface FareSessionBeanRemote {
     
-    public List<Passenger> viewSeatsInventory(CabinClass cabinClass, FlightSchedule flightSchedule);
+    public Long createNewFare(Fare fare, FlightSchedulePlan fsp);
     
 }

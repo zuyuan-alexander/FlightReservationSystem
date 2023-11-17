@@ -5,6 +5,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -54,12 +55,12 @@ public class CabinClass implements Serializable {
     @JoinColumn(nullable=false)
     private AircraftConfiguration aircraftConfiguration;
     
-    /*
     @OneToMany(mappedBy="cabinClass")
     private List<Seat> seats;
-    */
+    
     
     public CabinClass() {
+        this.seats = new ArrayList<>();
     }
 
     public CabinClass(CabinClassTypeEnum cabinClassType, Integer numOfAisles, Integer numOfRows, Integer numOfSeatsAbreast, String actualSeatConfiguration, Integer maxcapacity) {
@@ -195,7 +196,7 @@ public class CabinClass implements Serializable {
         this.aircraftConfiguration = aircraftConfiguration;
     }
 
-    /*
+    
     public List<Seat> getSeats() {
         return seats;
     }
@@ -203,7 +204,7 @@ public class CabinClass implements Serializable {
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
     }
-    */
+    
 
     /**
      * @return the maxCapacity

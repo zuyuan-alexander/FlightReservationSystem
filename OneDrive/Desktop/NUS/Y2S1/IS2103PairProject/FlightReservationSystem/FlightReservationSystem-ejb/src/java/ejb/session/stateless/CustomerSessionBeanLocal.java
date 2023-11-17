@@ -18,9 +18,9 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface CustomerSessionBeanLocal {
 
-    public Long createNewCustomer(Customer customer) throws UnknownPersistenceException, CustomerCredentialExistException;
+    public Long registerAsCustomer(Customer customer) throws UnknownPersistenceException, CustomerCredentialExistException;
 
-    public Customer CustomerLogin(String username, String password) throws InvalidLoginCredentialException;
+    public Customer customerLogin(String username, String password) throws InvalidLoginCredentialException;
 
     public Customer retrieveCustomerByUsername(String username) throws CustomerNotFoundException;
     
