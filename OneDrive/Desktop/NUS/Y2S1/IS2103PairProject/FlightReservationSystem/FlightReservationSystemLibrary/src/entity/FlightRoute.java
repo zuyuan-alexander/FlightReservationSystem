@@ -7,8 +7,10 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,6 +33,8 @@ public class FlightRoute implements Serializable {
     private String origin;
     @Column(nullable=false, length=64)
     private String destination;
+    @Column(nullable=false, length=64, unique=true)
+    private String originToDestination;
     @Column(nullable=false)
     private Boolean returnFlight;
     @Column(nullable=false)
@@ -39,7 +43,7 @@ public class FlightRoute implements Serializable {
     @ManyToMany
     private List<Airport> airports;
     
-    @OneToMany(mappedBy="flightRoute")
+    @OneToMany(mappedBy="flightRoute", fetch=FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Flight> flights;
     
     @OneToOne(optional=true)
@@ -56,6 +60,7 @@ public class FlightRoute implements Serializable {
         this();
         this.origin = origin;
         this.destination = destination;
+        this.originToDestination = this.origin + "-" + this.destination;
     }
     
     
@@ -111,6 +116,7 @@ public class FlightRoute implements Serializable {
      */
     public void setOrigin(String origin) {
         this.origin = origin;
+        this.originToDestination = origin + "-" + this.destination;
     }
 
     /**
@@ -125,6 +131,7 @@ public class FlightRoute implements Serializable {
      */
     public void setDestination(String destination) {
         this.destination = destination;
+        this.originToDestination = this.origin + "-" + destination;
     }
 
     /**
@@ -195,6 +202,20 @@ public class FlightRoute implements Serializable {
      */
     public void setReturnFlightRoute(FlightRoute flightRoute) {
         this.returnFlightRoute = flightRoute;
+    }
+
+    /**
+     * @return the originToDestination
+     */
+    public String getOriginToDestination() {
+        return originToDestination;
+    }
+
+    /**
+     * @param originToDestination the originToDestination to set
+     */
+    public void setOriginToDestination(String originToDestination) {
+        this.originToDestination = originToDestination;
     }
     
     

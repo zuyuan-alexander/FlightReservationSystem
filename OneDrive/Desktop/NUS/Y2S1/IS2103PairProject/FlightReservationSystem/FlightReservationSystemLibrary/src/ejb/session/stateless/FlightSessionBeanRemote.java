@@ -7,6 +7,7 @@ package ejb.session.stateless;
 import entity.Flight;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
 import util.exception.InputDataValidationException;
@@ -29,5 +30,5 @@ public interface FlightSessionBeanRemote {
     public Long updateFlight(Flight flight) throws FlightNotFoundException, InputDataValidationException, UpdateFlightException;
     public void deleteFlight(Long flightId) throws FlightNotFoundException;
     
-    public Long createComplementaryFlight(Flight mainFlight, String complementaryFlightNumber) throws FlightNotFoundException, InputDataValidationException, UpdateFlightException ;
+    public Long createComplementaryFlight(Flight mainFlight, String complementaryFlightNumber, String aircraftConfigurationName) throws FlightNotFoundException, InputDataValidationException, UpdateFlightException, AircraftConfigurationNotFoundException;
 }

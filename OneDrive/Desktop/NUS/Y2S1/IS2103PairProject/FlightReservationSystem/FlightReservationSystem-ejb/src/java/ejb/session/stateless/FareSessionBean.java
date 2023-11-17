@@ -4,9 +4,11 @@
  */
 package ejb.session.stateless;
 
+import entity.CabinClass;
 import entity.Fare;
 import entity.FlightSchedulePlan;
 import java.math.BigDecimal;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -41,6 +43,16 @@ public class FareSessionBean implements FareSessionBeanRemote, FareSessionBeanLo
         em.flush();
         
         return fare.getFareid();
+    }
+    
+    @Override
+    public BigDecimal retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass) {
+        for (Fare fare : fares) {
+            if (fare.getCabinClassType().equals(cabinClass.getCabinClassType())) {
+                return fare.getFareAmount();
+            }
+        }
+        return BigDecimal.ZERO;
     }
     
 }

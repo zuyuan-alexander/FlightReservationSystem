@@ -6,6 +6,7 @@ package frsmanagementclient;
 
 import ejb.session.stateless.AircraftSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.FareSessionBeanRemote;
 import ejb.session.stateless.FlightSchedulePlanSessionBeanRemote;
 import ejb.session.stateless.FlightScheduleSessionBeanRemote;
 import entity.FlightSchedulePlan;
@@ -19,10 +20,12 @@ import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.CabinClass;
 import entity.Employee;
+import entity.Fare;
 import entity.Flight;
 import entity.FlightRoute;
 import entity.FlightSchedule;
 import entity.Passenger;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -48,6 +51,7 @@ import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateFlightException;
+import util.exception.UpdateFlightRouteException;
 
 /**
  *
@@ -63,6 +67,7 @@ public class MainApp {
     private FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean;
     private FlightScheduleSessionBeanRemote flightScheduleSessionBean;
     private FlightRouteSessionBeanRemote flightRouteSessionBeanRemote;
+    private FareSessionBeanRemote fareSessionBeanRemote;
     private ManagementSessionBeanRemote managementSessionBeanRemote;
     private Employee currentEmployee;
 
@@ -73,7 +78,7 @@ public class MainApp {
     }
     
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, FlightScheduleSessionBeanRemote flightScheduleSessionBean, FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean, AircraftSessionBeanRemote aircraftSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, FlightSessionBeanRemote flightSessionBean, ManagementSessionBeanRemote managementSessionBeanRemote) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, FlightScheduleSessionBeanRemote flightScheduleSessionBean, FlightSchedulePlanSessionBeanRemote flightSchedulePlanSessionBean, AircraftSessionBeanRemote aircraftSessionBeanRemote, FlightRouteSessionBeanRemote flightRouteSessionBeanRemote, FlightSessionBeanRemote flightSessionBean, ManagementSessionBeanRemote managementSessionBeanRemote, FareSessionBeanRemote fareSessionBeanRemote) {
         this();
         this.employeeSessionBean = employeeSessionBean;
         this.flightSchedulePlanSessionBean = flightSchedulePlanSessionBean;
@@ -82,6 +87,7 @@ public class MainApp {
         this.flightRouteSessionBeanRemote = flightRouteSessionBeanRemote;
         this.flightSessionBean = flightSessionBean;
         this.managementSessionBeanRemote = managementSessionBeanRemote;
+        this.fareSessionBeanRemote = fareSessionBeanRemote;
 
     }
       
@@ -189,7 +195,7 @@ public class MainApp {
             System.out.println("8: View Flight Schedule Plan Details");
             System.out.println("9: Update Flight Schedule Plan");
             System.out.println("10: Delete Flight Schedule Plan");
-            System.out.println("11: Exit\n");
+            System.out.println("11: Logout\n");
             response = 0;
             
             while(response < 1 || response > 11)
@@ -286,7 +292,7 @@ public class MainApp {
             System.out.println("1: Create Flight Route");
             System.out.println("2: View All Flight Routes");
             System.out.println("3: Delete Flight Route");
-            System.out.println("4: Exit\n");
+            System.out.println("4: Logout\n");
             response = 0;
             
             while(response < 1 || response > 4)
@@ -335,7 +341,7 @@ public class MainApp {
             System.out.println("1: Create Aircraft Configuration");
             System.out.println("2: View All Aircraft Configuration");
             System.out.println("3: View Aircraft Configuration Details");
-            System.out.println("4: Exit\n");
+            System.out.println("4: Logout\n");
             response = 0;
             
             while(response < 1 || response > 4)
@@ -376,7 +382,7 @@ public class MainApp {
             System.out.println("*** Welcome to FRS Sales Manager Menu***\n");
             System.out.println("1: View Seats Inventory");
             System.out.println("2: View Flight Reservations");
-            System.out.println("3: Exit\n");
+            System.out.println("3: Logout\n");
             response = 0;
             
             while(response < 1 || response > 3)
@@ -431,17 +437,21 @@ public class MainApp {
             FlightRoute flightRoute = flightRouteSessionBeanRemote.retrieveFlightRouteByOriginDestination(origin, destination);
             AircraftConfiguration acn = aircraftSessionBeanRemote.retrieveAircraftConfigurationByName(aircraftConfigurationName);
             flight.setFlightRoute(flightRoute);
+            flightRoute.getFlights().add(flight);
             flight.setAircraftConfiguration(acn);
             
+            flightRouteSessionBeanRemote.updateFlightRoute(flightRoute);
             Long flightId = flightSessionBean.createNewFlight(flight);
             
             if (response.equalsIgnoreCase("Y")) {
                 System.out.print("Enter complementary flight number > ");
                 String cFlightNumber = sc.nextLine().trim();
+                System.out.print("Enter aircraft configuration name > ");
+                String complementaryACN = sc.nextLine().trim();
                 
                 Flight f = flightSessionBean.retrieveFlightByFlightId(flightId);
                 
-                Long cFlightId = flightSessionBean.createComplementaryFlight(f, cFlightNumber);
+                Long cFlightId = flightSessionBean.createComplementaryFlight(f, cFlightNumber, complementaryACN);
                 
                 System.out.println("Flight with Flight Id " + flightId + " has been successfully created!");
                 System.out.println("Flight with Flight Id " + cFlightId + " has been successfully created!");
@@ -462,6 +472,8 @@ public class MainApp {
         } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage() + "\n");
         } catch (UpdateFlightException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UpdateFlightRouteException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
         
@@ -603,9 +615,9 @@ public class MainApp {
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
-               
                 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 while(newFS.getDepartureDate().before(endDate))
                 {
@@ -616,8 +628,15 @@ public class MainApp {
                     newFS.calculateAndSetArrivalDateTime(); 
                     newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 }
-                
-               
+                /*
+                for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                    System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
+                    BigDecimal fareAmount = sc.nextBigDecimal();
+                    sc.nextLine();
+                    Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
+                    fareSessionBeanRemote.createNewFare(fare, newFSP);
+                }
+               */
                 //em.persist(newFSP)
                 
             } catch (ParseException ex)
@@ -877,17 +896,16 @@ public class MainApp {
     public void doViewAircraftConfigurationDetails() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("====== View Aircraft Configuration Details =====");
-        System.out.print("Enter aircraft configuration id > ");
-        Long id = scanner.nextLong();
-        scanner.nextLine();
+        System.out.print("Enter aircraft configuration name > ");
+        String acn = scanner.nextLine().trim();
         
         try {
-            AircraftConfiguration ac = aircraftSessionBeanRemote.viewAircraftConfigurationDetails(id);
+            AircraftConfiguration ac = aircraftSessionBeanRemote.retrieveAircraftConfigurationByName(acn);
             System.out.println("Aircraft Configuration Id : " + ac.getAircraftConfigurationId());
             System.out.println("Aircraft Configuration Name : " + ac.getAircraftConfigurationName());
             System.out.println("Number of Cabin Classes : " + ac.getNumOfCabinClass());
             System.out.println("Maximum Capacity : " + ac.getMaximumCapacity());
-        } catch (AircraftTypeNotFoundException ex) {
+        } catch (AircraftConfigurationNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
 
@@ -936,6 +954,7 @@ public class MainApp {
         Long id = scanner.nextLong();
         
         try {
+            System.out.println("test: "+ flightRouteSessionBeanRemote.retrieveFlightRouteByFlightRouteId(id).getFlights().size());
             flightRouteSessionBeanRemote.deleteFlightRoute(id);
             System.out.println("Flight Route with Id " + id + " has been successfully deleted!");
         } catch (FlightRouteNotFoundException ex) {

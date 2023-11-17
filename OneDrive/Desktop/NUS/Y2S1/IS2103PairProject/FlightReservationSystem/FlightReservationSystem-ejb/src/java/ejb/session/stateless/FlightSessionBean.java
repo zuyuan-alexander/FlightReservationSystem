@@ -9,6 +9,7 @@ import entity.Flight;
 import entity.FlightRoute;
 import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -20,6 +21,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
 import util.exception.InputDataValidationException;
@@ -46,6 +48,9 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
+    
+    @EJB
+    private AircraftSessionBeanLocal aircraftSessionBeanLocal;
 
     @Override
     public Flight retrieveFlightByFlightNumber(String flightnumber) throws FlightNotFoundException
@@ -120,9 +125,10 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     }
     
     @Override
-    public Long createComplementaryFlight(Flight mainFlight, String complementaryFlightNumber) throws FlightNotFoundException, InputDataValidationException, UpdateFlightException  {
+    public Long createComplementaryFlight(Flight mainFlight, String complementaryFlightNumber, String aircraftConfigurationName) throws FlightNotFoundException, InputDataValidationException, UpdateFlightException, AircraftConfigurationNotFoundException  {
         Flight complementaryFlight = new Flight(complementaryFlightNumber);
-        complementaryFlight.setAircraftConfiguration(mainFlight.getAircraftConfiguration());
+        AircraftConfiguration complementaryAircraftConfiguration = aircraftSessionBeanLocal.retrieveAircraftConfigurationByName(aircraftConfigurationName);
+        complementaryFlight.setAircraftConfiguration(complementaryAircraftConfiguration);
         complementaryFlight.setFlightRoute(mainFlight.getFlightRoute().getReturnFlightRoute());
         
         mainFlight.setReturnFlight(Boolean.TRUE);

@@ -97,13 +97,8 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
         return query.getResultList();
     }
     
-    public AircraftConfiguration viewAircraftConfigurationDetails(Long aircraftConfigurationId) throws AircraftTypeNotFoundException {
-        // the details (each attribute) is printed in the client
-        return retrieveAircraftConfigurationById(aircraftConfigurationId);
-    }
-    
     @Override
-    public AircraftConfiguration retrieveAircraftConfigurationById(Long aircraftConfigurationId) throws AircraftTypeNotFoundException {
+    public AircraftConfiguration retrieveAircraftConfigurationById(Long aircraftConfigurationId) throws AircraftConfigurationNotFoundException {
         AircraftConfiguration aircraftConfiguration = em.find(AircraftConfiguration.class, aircraftConfigurationId);
         
         if(aircraftConfiguration != null)
@@ -112,7 +107,7 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
         }
         else
         {
-            throw new AircraftTypeNotFoundException("Aicraft Configuration with Aircraft Cnfiguration Id " + aircraftConfigurationId + " does not exist!");
+            throw new AircraftConfigurationNotFoundException("Aicraft Configuration with Aircraft Cnfiguration Id " + aircraftConfigurationId + " does not exist!");
         }               
     }
     

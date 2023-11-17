@@ -8,11 +8,13 @@ import entity.CabinClass;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
 import entity.Seat;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.SeatStatusEnum;
 import util.exception.FlightScheduleNotFoundException;
 
@@ -69,6 +71,22 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
             throw new FlightScheduleNotFoundException("Staff ID " + flightScheduleid + " does not exist!");
         }
     }
+    
+    @Override
+    public List<FlightSchedule> checkFlightScheduleWithPreferedCabinClass(List<FlightSchedule> fsList, CabinClassTypeEnum cabinClassType) {
+        List<FlightSchedule> answer = new ArrayList<>();
+        
+        for (FlightSchedule fs : fsList) {
+            for (CabinClass cabinClass : fs.getFlightSchedulePlan().getFlight().getAircraftConfiguration().getCabinClasses()) {
+                // if the list of cabin class for the flight schedule contains the prefered cabin class, add into the answer list
+                if (cabinClass.getCabinClassType().equals(cabinClassType)) {
+                    answer.add(fs);
+                }
+            }
+        }
+        return answer;
+    }
+    
 
     /*
     public void seatInit(FlightSchedule flightSchedule, CabinClass cabinClass) {

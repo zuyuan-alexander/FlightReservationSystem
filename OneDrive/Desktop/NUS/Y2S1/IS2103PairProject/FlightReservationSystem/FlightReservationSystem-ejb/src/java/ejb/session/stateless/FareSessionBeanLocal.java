@@ -4,8 +4,11 @@
  */
 package ejb.session.stateless;
 
+import entity.CabinClass;
 import entity.Fare;
 import entity.FlightSchedulePlan;
+import java.math.BigDecimal;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -16,5 +19,7 @@ import javax.ejb.Local;
 public interface FareSessionBeanLocal {
     
     public Long createNewFare(Fare fare, FlightSchedulePlan fsp);
+    
+    public BigDecimal retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass);
     
 }

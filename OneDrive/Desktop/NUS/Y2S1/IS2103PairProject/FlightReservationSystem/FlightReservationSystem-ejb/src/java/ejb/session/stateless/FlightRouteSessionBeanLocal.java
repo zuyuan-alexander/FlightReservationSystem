@@ -4,11 +4,14 @@
  */
 package ejb.session.stateless;
 
+import entity.Flight;
 import entity.FlightRoute;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.AirportNotFoundException;
 import util.exception.FlightRouteNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.UpdateFlightRouteException;
 
 /**
  *
@@ -26,4 +29,8 @@ public interface FlightRouteSessionBeanLocal {
     public FlightRoute retrieveFlightRouteByFlightRouteId(Long flightRouteId) throws FlightRouteNotFoundException;
 
     public FlightRoute retrieveFlightRouteByOriginDestination(String origin, String destination) throws FlightRouteNotFoundException;
+
+    public Long updateFlightRoute(FlightRoute flightRoute) throws UpdateFlightRouteException, FlightRouteNotFoundException, InputDataValidationException;
+
+    public void addFlight(FlightRoute flightRoute, Flight flight);
 }

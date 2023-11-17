@@ -7,6 +7,7 @@ package entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -54,7 +55,7 @@ public class Flight implements Serializable {
     @Column(nullable=false)
     private Boolean disabledFlight;
 
-    @OneToOne(optional=false)
+    @OneToOne(optional=false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(nullable=false)
     private FlightRoute flightRoute;
     

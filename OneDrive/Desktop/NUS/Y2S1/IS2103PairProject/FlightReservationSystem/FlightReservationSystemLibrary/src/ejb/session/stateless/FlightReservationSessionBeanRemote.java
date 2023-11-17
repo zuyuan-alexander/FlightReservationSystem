@@ -4,11 +4,14 @@
  */
 package ejb.session.stateless;
 
+import entity.CabinClass;
 import entity.Customer;
 import entity.FlightReservation;
+import entity.FlightSchedule;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.TripTypeEnum;
 import util.exception.FlightReservationNotFoundException;
 
@@ -19,10 +22,12 @@ import util.exception.FlightReservationNotFoundException;
 @Remote
 public interface FlightReservationSessionBeanRemote {
     
-    public List<FlightReservation> searchFlight(TripTypeEnum tripType, String departureAirport, String destinationAirport, Date departureDate, Integer numOfPassengers, Boolean directConnectingFlight, Boolean cabinClassPreference);
-
     public FlightReservation retrieveFlightReservationById(Long flightReservationId) throws FlightReservationNotFoundException;
 
     public List<FlightReservation> viewMyFlightReservations(Customer customer);
+    
+    public List<FlightSchedule> searchFlightDirectFlight(String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType);
+
+    public List<FlightSchedule> searchFlightConnectingFlight(String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType);
     
 }

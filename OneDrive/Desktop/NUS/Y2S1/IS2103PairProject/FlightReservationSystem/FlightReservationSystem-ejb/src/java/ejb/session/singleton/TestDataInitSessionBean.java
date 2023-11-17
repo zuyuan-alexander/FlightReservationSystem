@@ -47,6 +47,7 @@ import util.exception.FlightRouteNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateFlightException;
+import util.exception.UpdateFlightRouteException;
 
 /**
  *
@@ -280,11 +281,14 @@ public class TestDataInitSessionBean {
             FlightRoute flightRoute = flightRouteSessionBeanLocal.retrieveFlightRouteByOriginDestination("SIN", "HKG");
             AircraftConfiguration acn = aircraftSessionBeanLocal.retrieveAircraftConfigurationByName("Boeing 737 Three Classes");
             flight.setFlightRoute(flightRoute);
+            flightRoute.getFlights().add(flight);
             flight.setAircraftConfiguration(acn);
             
             flightSessionBean.createNewFlight(flight);
+            flightRouteSessionBeanLocal.addFlight(flightRoute, flight);
+            flightRouteSessionBeanLocal.updateFlightRoute(flightRoute);
             
-            flightSessionBean.createComplementaryFlight(flight, "ML112");
+            flightSessionBean.createComplementaryFlight(flight, "ML112", "Boeing 737 Three Classes");
             
         } catch (FlightRouteNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
@@ -300,7 +304,9 @@ public class TestDataInitSessionBean {
             System.out.println(ex.getMessage() + "\n");
         } catch (UpdateFlightException ex) {
             System.out.println(ex.getMessage() + "\n");
-        }
+        } catch (UpdateFlightRouteException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } 
     }
     
     public void initFlightSchedulePlan() {
@@ -365,6 +371,13 @@ public class TestDataInitSessionBean {
             Integer counter = 0;
             
             Long newfspid = flightSchedulePlanSessionBeanLocal.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+            
+            for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                Fare fare = new Fare("farebc", fareAmountList.get(counter), cabinClass.getCabinClassType());
+                fareSessionBeanLocal.createNewFare(fare, newFSP);
+                counter++;
+            }
+            
             Long newfsid = flightScheduleSessionBeanLocal.createNewFlightSchedule(newFS, newfspid);
             while(newFS.getDepartureDate().before(endDate))
             {
@@ -375,13 +388,6 @@ public class TestDataInitSessionBean {
                 newFS.calculateAndSetArrivalDateTime(); 
                 newfsid = flightScheduleSessionBeanLocal.createNewFlightSchedule(newFS, newfspid);
             }
-            
-            for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
-                Fare fare = new Fare("farebc", fareAmountList.get(counter), cabinClass.getCabinClassType());
-                fareSessionBeanLocal.createNewFare(fare, newFSP);
-                counter++;
-            }
-
 
             //em.persist(newFSP)
 

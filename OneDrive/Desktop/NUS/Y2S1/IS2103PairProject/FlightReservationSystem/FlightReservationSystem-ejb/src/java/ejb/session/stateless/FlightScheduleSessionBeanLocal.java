@@ -4,8 +4,11 @@
  */
 package ejb.session.stateless;
 
+import entity.CabinClass;
 import entity.FlightSchedule;
+import java.util.List;
 import javax.ejb.Local;
+import util.enumeration.CabinClassTypeEnum;
 import util.exception.FlightScheduleNotFoundException;
 
 /**
@@ -16,4 +19,6 @@ import util.exception.FlightScheduleNotFoundException;
 public interface FlightScheduleSessionBeanLocal {
     public Long createNewFlightSchedule(FlightSchedule fs, Long newFSPid);
      public FlightSchedule retrieveFlightScheduleById(Long flightScheduleid) throws FlightScheduleNotFoundException;
+
+    public List<FlightSchedule> checkFlightScheduleWithPreferedCabinClass(List<FlightSchedule> fsList, CabinClassTypeEnum cabinClassType);
 }
