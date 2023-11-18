@@ -5,6 +5,7 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.AircraftSessionBeanLocal;
+import ejb.session.stateless.DeploymentSessionBeanLocal;
 import ejb.session.stateless.FareSessionBeanLocal;
 import ejb.session.stateless.FlightRouteSessionBeanLocal;
 import ejb.session.stateless.FlightSchedulePlanSessionBeanLocal;
@@ -55,7 +56,7 @@ import util.exception.UpdateFlightRouteException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class TestDataInitSessionBean {
 
     @EJB
@@ -78,6 +79,9 @@ public class TestDataInitSessionBean {
     
     @EJB
     private FareSessionBeanLocal fareSessionBeanLocal;
+    
+    @EJB
+    private DeploymentSessionBeanLocal deploymentSessionBeanLocal;
     
     
     public TestDataInitSessionBean() {
@@ -280,16 +284,13 @@ public class TestDataInitSessionBean {
             Flight flight = new Flight("ML111");
             FlightRoute flightRoute = flightRouteSessionBeanLocal.retrieveFlightRouteByOriginDestination("SIN", "HKG");
             AircraftConfiguration acn = aircraftSessionBeanLocal.retrieveAircraftConfigurationByName("Boeing 737 Three Classes");
-            flight.setFlightRoute(flightRoute);
-            flightRoute.getFlights().add(flight);
-            flight.setAircraftConfiguration(acn);
             
-            flightSessionBean.createNewFlight(flight);
-            flightRouteSessionBeanLocal.addFlight(flightRoute, flight);
-            flightRouteSessionBeanLocal.updateFlightRoute(flightRoute);
+            Long flightId = flightSessionBean.createNewFlight(flight, flightRoute.getFlightRouteId(), acn.getAircraftConfigurationId());
             
-            flightSessionBean.createComplementaryFlight(flight, "ML112", "Boeing 737 Three Classes");
+            flightSessionBean.createComplementaryFlight(flightId , "ML112", "Boeing 737 Three Classes");
             
+        } catch (FlightNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
         } catch (FlightRouteNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
         } catch (AircraftConfigurationNotFoundException ex) {
@@ -300,17 +301,18 @@ public class TestDataInitSessionBean {
             System.out.println(ex.getMessage() + "\n");
         } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage() + "\n");
-        } catch (FlightNotFoundException ex) {
-            System.out.println(ex.getMessage() + "\n");
         } catch (UpdateFlightException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        } catch (UpdateFlightRouteException ex) {
             System.out.println(ex.getMessage() + "\n");
         } 
     }
     
     public void initFlightSchedulePlan() {
-       // Parse dates and FlightDuration
+       deployFS();
+       //deploymentSessionBeanLocal.deployFS();
+    }
+    
+    public void deployFS() {
+        // Parse dates and FlightDuration
         FlightSchedulePlan newFSP = new FlightSchedulePlan();
         FlightSchedule newFS = new FlightSchedule();
         Flight f = new Flight();
@@ -379,14 +381,20 @@ public class TestDataInitSessionBean {
             }
             
             Long newfsid = flightScheduleSessionBeanLocal.createNewFlightSchedule(newFS, newfspid);
+            System.out.println("Main Id " + newfsid);
+            System.out.println("Main Date " + newFS.getDepartureDate());
             while(newFS.getDepartureDate().before(endDate))
             {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(newFS.getDepartureDate());
                 calendar.add(Calendar.DAY_OF_MONTH, 7); // Increment by 7 days
-                newFS.setDepartureDate(calendar.getTime());
-                newFS.calculateAndSetArrivalDateTime(); 
-                newfsid = flightScheduleSessionBeanLocal.createNewFlightSchedule(newFS, newfspid);
+                Date newDate = calendar.getTime();
+                System.out.println("Testing date " + newDate);
+                FlightSchedule fs = newFS;
+                fs.setDepartureDate(newDate);
+                fs.calculateAndSetArrivalDateTime(); 
+                newfsid = flightScheduleSessionBeanLocal.createNewFlightSchedule(fs, newfspid);
+                System.out.println("Created new fs " + newfsid);
             }
 
             //em.persist(newFSP)

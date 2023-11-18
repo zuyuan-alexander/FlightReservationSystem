@@ -37,6 +37,7 @@ public class FareSessionBean implements FareSessionBeanRemote, FareSessionBeanLo
         //FlightSchedulePlan fsp = flightSchedulePlanSessionBeanLocal.retrieveStaffByStaffId(fspId);
         
         fare.setFlightSchedulePlan(newFSP);
+        newFSP.getFares().size();
         newFSP.getFares().add(fare);
         
         em.persist(fare);
