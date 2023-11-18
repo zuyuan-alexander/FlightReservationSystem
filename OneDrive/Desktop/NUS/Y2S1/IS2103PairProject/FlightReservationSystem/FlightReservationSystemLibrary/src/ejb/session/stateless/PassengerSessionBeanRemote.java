@@ -4,10 +4,6 @@
  */
 package ejb.session.stateless;
 
-import entity.CabinClass;
-import entity.FlightSchedule;
-import entity.Passenger;
-import java.util.List;
 import javax.ejb.Remote;
 
 /**
@@ -15,8 +11,6 @@ import javax.ejb.Remote;
  * @author zuyua
  */
 @Remote
-public interface ManagementSessionBeanRemote {
-    
-    public List<Passenger> viewSeatsInventory(CabinClass cabinClass, FlightSchedule flightSchedule);
+public interface PassengerSessionBeanRemote {
     
 }

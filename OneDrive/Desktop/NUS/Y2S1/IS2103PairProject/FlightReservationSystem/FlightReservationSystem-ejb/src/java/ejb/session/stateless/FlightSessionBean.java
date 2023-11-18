@@ -4,8 +4,12 @@
  */
 package ejb.session.stateless;
 
+import entity.AircraftConfiguration;
 import entity.Flight;
+import entity.FlightRoute;
+import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -17,10 +21,12 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateFlightException;
 
 /**
  *
@@ -42,6 +48,9 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
+    
+    @EJB
+    private AircraftSessionBeanLocal aircraftSessionBeanLocal;
 
     @Override
     public Flight retrieveFlightByFlightNumber(String flightnumber) throws FlightNotFoundException
@@ -53,11 +62,26 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         {
             Flight f = (Flight)query.getSingleResult();
             f.getFlightscheduleplans().size();
+            f.getAircraftConfiguration().getCabinClasses().size();
             return f;
         }
         catch(NoResultException | NonUniqueResultException ex)
         {
             throw new FlightNotFoundException("Flight number: " + flightnumber + " does not exist!");
+        }
+    }
+    
+    @Override
+    public Flight retrieveFlightByFlightId(Long flightId) throws FlightNotFoundException {
+        Flight flight = em.find(Flight.class, flightId);
+        
+        if(flight != null)
+        {
+            return flight;
+        }
+        else
+        {
+            throw new FlightNotFoundException("Flight with Flight ID " + flightId + " does not exist!");
         }
     }
     
@@ -98,6 +122,108 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
+    }
+    
+    @Override
+    public Long createComplementaryFlight(Flight mainFlight, String complementaryFlightNumber, String aircraftConfigurationName) throws FlightNotFoundException, InputDataValidationException, UpdateFlightException, AircraftConfigurationNotFoundException  {
+        Flight complementaryFlight = new Flight(complementaryFlightNumber);
+        AircraftConfiguration complementaryAircraftConfiguration = aircraftSessionBeanLocal.retrieveAircraftConfigurationByName(aircraftConfigurationName);
+        complementaryFlight.setAircraftConfiguration(complementaryAircraftConfiguration);
+        complementaryFlight.setFlightRoute(mainFlight.getFlightRoute().getReturnFlightRoute());
+        
+        mainFlight.setReturnFlight(Boolean.TRUE);
+        mainFlight.setComplimentaryFlight(complementaryFlight);
+            
+        updateFlight(mainFlight);
+        em.persist(complementaryFlight);
+        em.flush();
+        
+        return complementaryFlight.getFlightId();
+    }
+    
+    @Override
+    public List<Flight> viewAllFlight() {
+        Query query = em.createQuery("SELECT f FROM Flight f ORDER BY f.flightNumber ASC, f.complimentaryFlight DESC");
+        return query.getResultList();
+    }
+    
+    @Override
+    public Long updateFlight(Flight flight) throws FlightNotFoundException, InputDataValidationException, UpdateFlightException {
+        if(flight != null && flight.getFlightId() != null)
+        {
+            Set<ConstraintViolation<Flight>>constraintViolations = validator.validate(flight);
+        
+            if(constraintViolations.isEmpty())
+            {
+                Flight flightToUpdate = retrieveFlightByFlightId(flight.getFlightId());
+
+                if(flightToUpdate.getFlightNumber().equals(flight.getFlightNumber()))
+                {
+                    flightToUpdate.setFlightRoute(flight.getFlightRoute());
+                    flightToUpdate.setAircraftConfiguration(flight.getAircraftConfiguration());
+                    //flightToUpdate.setReturnFlight(Boolean.FALSE);
+                    //flightToUpdate.setComplimentaryFlight(null);
+                    return flightToUpdate.getFlightId();
+                }
+                else
+                {
+                    throw new UpdateFlightException("Flight Number of flight record to be updated does not match the existing record");
+                }
+            }
+            else
+            {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        }
+        else
+        {
+            throw new FlightNotFoundException("Flight ID not provided for flight to be updated");
+        }
+    }
+    
+    @Override
+    public void deleteFlight(Long flightId) throws FlightNotFoundException {
+        // the flight id you input is actually a return flight
+        try {
+            Flight mainFlight = checkReturnFlight(flightId);
+
+            if (mainFlight != null) {
+                mainFlight.setReturnFlight(Boolean.FALSE);
+                mainFlight.setComplimentaryFlight(null);
+            }
+            
+            Flight flight = retrieveFlightByFlightId(flightId);
+
+            if (flight.getFlightscheduleplans().isEmpty()) {
+                // flight route is not used at all
+                //flight.setAircraftConfiguration(new AircraftConfiguration());
+                //flight.setFlightRoute(new FlightRoute());
+
+                em.remove(flight);     
+            } else {
+                // flight route has at least a lfight, we cannot remove it directly
+                flight.setDisabledFlight(Boolean.TRUE);
+            }
+        } catch (NoResultException ex) {
+            Flight flight = retrieveFlightByFlightId(flightId);
+
+            if (flight.getFlightscheduleplans().isEmpty()) {
+                // flight route is not used at all
+                //flight.setAircraftConfiguration(new AircraftConfiguration());
+                //flight.setFlightRoute(new FlightRoute());
+
+                em.remove(flight);     
+            } else {
+                // flight route has at least a lfight, we cannot remove it directly
+                flight.setDisabledFlight(Boolean.TRUE);
+            }
+        }
+    }
+    
+    public Flight checkReturnFlight(Long returnFlightId) {
+        Query query = em.createQuery("SELECT f FROM Flight f WHERE f.complimentaryFlight.flightId = :inReturnFlightId");
+        query.setParameter("inReturnFlightId", returnFlightId);
+        return (Flight) query.getSingleResult();
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Flight>>constraintViolations)

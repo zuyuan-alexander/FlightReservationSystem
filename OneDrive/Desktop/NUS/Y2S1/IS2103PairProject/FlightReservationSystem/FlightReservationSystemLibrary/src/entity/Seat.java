@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.SeatStatusEnum;
 
 /**
@@ -32,11 +33,17 @@ public class Seat implements Serializable {
     @Column(nullable=false)
     private SeatStatusEnum seatStatus;
     
-    // relationship
+    // relationship 
     @ManyToOne(optional=false)
     @JoinColumn(nullable=false)
     private CabinClass cabinClass;
-
+    
+    /*
+    @ManyToOne(optional=false)
+    @JoinColumn(nullable=false)
+    private FlightSchedule flightSchedule;
+    */
+    
     public Seat() {
     }
 
@@ -70,7 +77,7 @@ public class Seat implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Seat[ seatId=" + this.getSeatId() + " ]";
+        return this.seatLetter + this.rowNumber + "";
     }
 
     /**
@@ -129,18 +136,33 @@ public class Seat implements Serializable {
         this.seatStatus = seatStatus;
     }
 
-    /**
-     * @return the cabinClass
-     */
+    
     public CabinClass getCabinClass() {
         return cabinClass;
     }
 
-    /**
-     * @param cabinClass the cabinClass to set
-     */
     public void setCabinClass(CabinClass cabinClass) {
         this.cabinClass = cabinClass;
     }
     
+
+    /*
+    public FlightSchedule getFlightSchedule() {
+        return flightSchedule;
+    }
+
+    public void setFlightSchedule(FlightSchedule flightSchedule) {
+        this.flightSchedule = flightSchedule;
+    }
+    */
+
+    /*
+    public CabinClassTypeEnum getCabinClassType() {
+        return cabinClassType;
+    }
+
+    public void setCabinClassType(CabinClassTypeEnum cabinClassType) {
+        this.cabinClassType = cabinClassType;
+    }
+    */
 }

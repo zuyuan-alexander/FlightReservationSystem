@@ -8,12 +8,12 @@ package util.exception;
  *
  * @author zuyua
  */
-public class AicraftConfigurationNotFoundException extends Exception {
+public class AircraftConfigurationNotFoundException extends Exception {
 
-    public AicraftConfigurationNotFoundException() {
+    public AircraftConfigurationNotFoundException() {
     }
 
-    public AicraftConfigurationNotFoundException(String string) {
+    public AircraftConfigurationNotFoundException(String string) {
         super(string);
     }
     

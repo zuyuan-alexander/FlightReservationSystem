@@ -5,6 +5,9 @@
 package ejb.session.stateless;
 
 import entity.CabinClass;
+import entity.Fare;
+import entity.FlightSchedulePlan;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.ejb.Remote;
 
@@ -13,14 +16,10 @@ import javax.ejb.Remote;
  * @author zuyua
  */
 @Remote
-public interface CabinClassSessionBeanRemote {
+public interface FareSessionBeanRemote {
     
-    public CabinClass createCabinClass(CabinClass cabinClass);
-/*
-    public Integer calculateNumOfReservedSeats(CabinClass cabinClass);
-
-    public Integer calculateNumOfAvailabeSeats(CabinClass cabinClass);
+    public Long createNewFare(Fare fare, FlightSchedulePlan fsp);
     
-    public List<Integer> calculateNumOfSeats(CabinClass cabinClass);
-  */  
+    public BigDecimal retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass);
+    
 }

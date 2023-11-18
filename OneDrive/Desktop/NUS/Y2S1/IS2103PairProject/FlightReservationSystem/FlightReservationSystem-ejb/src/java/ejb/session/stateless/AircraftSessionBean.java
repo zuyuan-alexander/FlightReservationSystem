@@ -16,6 +16,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import util.enumeration.AircraftTypeEnum;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 
 /**
@@ -96,13 +97,8 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
         return query.getResultList();
     }
     
-    public AircraftConfiguration viewAircraftConfigurationDetails(Long aircraftConfigurationId) throws AircraftTypeNotFoundException {
-        // the details (each attribute) is printed in the client
-        return retrieveAircraftConfigurationById(aircraftConfigurationId);
-    }
-    
     @Override
-    public AircraftConfiguration retrieveAircraftConfigurationById(Long aircraftConfigurationId) throws AircraftTypeNotFoundException {
+    public AircraftConfiguration retrieveAircraftConfigurationById(Long aircraftConfigurationId) throws AircraftConfigurationNotFoundException {
         AircraftConfiguration aircraftConfiguration = em.find(AircraftConfiguration.class, aircraftConfigurationId);
         
         if(aircraftConfiguration != null)
@@ -111,8 +107,23 @@ public class AircraftSessionBean implements AircraftSessionBeanRemote, AircraftS
         }
         else
         {
-            throw new AircraftTypeNotFoundException("Aicraft Configuration with Aircraft Cnfiguration Id " + aircraftConfigurationId + " does not exist!");
+            throw new AircraftConfigurationNotFoundException("Aicraft Configuration with Aircraft Cnfiguration Id " + aircraftConfigurationId + " does not exist!");
         }               
+    }
+    
+    @Override
+    public AircraftConfiguration retrieveAircraftConfigurationByName(String name) throws AircraftConfigurationNotFoundException {
+        Query query = em.createQuery("SELECT ac FROM AircraftConfiguration ac WHERE ac.aircraftConfigurationName = :inAircraftConfigurationName");
+        query.setParameter("inAircraftConfigurationName", name);
+        
+        try
+        {
+            return (AircraftConfiguration) query.getSingleResult();
+        }
+        catch(NoResultException | NonUniqueResultException ex)
+        {
+            throw new AircraftConfigurationNotFoundException("Aircraft Configuration Name " + name + " does not exist!");
+        }
     }
     
 }

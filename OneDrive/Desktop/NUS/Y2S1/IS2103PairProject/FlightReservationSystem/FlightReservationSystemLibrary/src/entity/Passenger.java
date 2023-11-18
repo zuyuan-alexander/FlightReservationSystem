@@ -10,6 +10,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -36,20 +39,29 @@ public class Passenger implements Serializable {
     @NotNull
     @Size(min = 16, max = 16)
     private String passportNumber;
+    
+    @ManyToOne(optional=false)
+    @JoinColumn(nullable=false)
+    private FlightSchedule flightSchedule;
+    
+    @OneToOne(optional=false)
+    private Seat seat;
 
-
-    public Long getPassengerid() {
-        return passengerid;
+    public Passenger() {
     }
 
-    public void setPassengerid(Long passengerid) {
-        this.passengerid = passengerid;
+    public Passenger(String firstName, String lastName, String passportNumber) {
+        this();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.passportNumber = passportNumber;
     }
+    
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (passengerid != null ? passengerid.hashCode() : 0);
+        hash += (getPassengerid() != null ? getPassengerid().hashCode() : 0);
         return hash;
     }
 
@@ -60,7 +72,7 @@ public class Passenger implements Serializable {
             return false;
         }
         Passenger other = (Passenger) object;
-        if ((this.passengerid == null && other.passengerid != null) || (this.passengerid != null && !this.passengerid.equals(other.passengerid))) {
+        if ((this.getPassengerid() == null && other.getPassengerid() != null) || (this.getPassengerid() != null && !this.passengerid.equals(other.passengerid))) {
             return false;
         }
         return true;
@@ -68,7 +80,93 @@ public class Passenger implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Passenger[ id=" + passengerid + " ]";
+        return this.firstName + " " + this.lastName;
     }
+
+    /**
+     * @return the passengerid
+     */
+    public Long getPassengerid() {
+        return passengerid;
+    }
+
+    /**
+     * @param passengerid the passengerid to set
+     */
+    public void setPassengerid(Long passengerid) {
+        this.passengerid = passengerid;
+    }
+
+    /**
+     * @return the firstName
+     */
+    public String getFirstName() {
+        return firstName;
+    }
+
+    /**
+     * @param firstName the firstName to set
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    /**
+     * @return the lastName
+     */
+    public String getLastName() {
+        return lastName;
+    }
+
+    /**
+     * @param lastName the lastName to set
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    /**
+     * @return the passportNumber
+     */
+    public String getPassportNumber() {
+        return passportNumber;
+    }
+
+    /**
+     * @param passportNumber the passportNumber to set
+     */
+    public void setPassportNumber(String passportNumber) {
+        this.passportNumber = passportNumber;
+    }
+
+    /**
+     * @return the flightSchedule
+     */
+    public FlightSchedule getFlightSchedule() {
+        return flightSchedule;
+    }
+
+    /**
+     * @param flightSchedule the flightSchedule to set
+     */
+    public void setFlightSchedule(FlightSchedule flightSchedule) {
+        this.flightSchedule = flightSchedule;
+    }
+
+    /**
+     * @return the seat
+     */
+    public Seat getSeat() {
+        return seat;
+    }
+
+    /**
+     * @param seat the seat to set
+     */
+    public void setSeat(Seat seat) {
+        this.seat = seat;
+    }
+    
+    
     
 }

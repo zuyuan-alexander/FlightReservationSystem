@@ -5,7 +5,9 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -48,8 +50,12 @@ public class Flight implements Serializable {
     @NotNull
     @Size(min = 5, max = 5)
     private String flightNumber;
+    @Column(nullable=false)
+    private Boolean returnFlight;
+    @Column(nullable=false)
+    private Boolean disabledFlight;
 
-    @OneToOne(optional=false)
+    @OneToOne(optional=false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(nullable=false)
     private FlightRoute flightRoute;
     
@@ -66,9 +72,13 @@ public class Flight implements Serializable {
     private List<FlightSchedulePlan> flightscheduleplans;
 
     public Flight() {
+        this.flightscheduleplans = new ArrayList<>();
+        this.returnFlight = Boolean.FALSE;
+        this.disabledFlight = Boolean.FALSE;
     }
 
     public Flight(String flightNumber) {
+        this();
         this.flightNumber = flightNumber;
     }
 
@@ -142,10 +152,33 @@ public class Flight implements Serializable {
         this.complimentaryFlight = complimentaryFlight;
     }
 
-   
+    /**
+     * @return the returnFlight
+     */
+    public Boolean getReturnFlight() {
+        return returnFlight;
+    }
 
+    /**
+     * @param returnFlight the returnFlight to set
+     */
+    public void setReturnFlight(Boolean returnFlight) {
+        this.returnFlight = returnFlight;
+    }
 
+    /**
+     * @return the disabledFlight
+     */
+    public Boolean getDisabledFlight() {
+        return disabledFlight;
+    }
 
+    /**
+     * @param disabledFlight the disabledFlight to set
+     */
+    public void setDisabledFlight(Boolean disabledFlight) {
+        this.disabledFlight = disabledFlight;
+    }
     
     
     @Override

@@ -4,10 +4,6 @@
  */
 package ejb.session.stateless;
 
-import entity.CabinClass;
-import entity.FlightSchedule;
-import entity.Passenger;
-import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -15,8 +11,6 @@ import javax.ejb.Local;
  * @author zuyua
  */
 @Local
-public interface ManagementSessionBeanLocal {
-    
-    public List<Passenger> viewSeatsInventory(CabinClass cabinClass, FlightSchedule flightSchedule);
+public interface PassengerSessionBeanLocal {
     
 }

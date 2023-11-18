@@ -11,8 +11,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.enumeration.CabinClassTypeEnum;
 
 /**
  *
@@ -30,19 +33,30 @@ public class Fare implements Serializable {
     @Size(min = 3, max = 7)
     private String fareBasicCode;
     private BigDecimal fareAmount;
+    @Column(nullable=false)
+    private CabinClassTypeEnum cabinClassType;
 
-    public Long getFareid() {
-        return fareid;
+    // relationship
+    @ManyToOne(optional=false)
+    @JoinColumn(nullable=false)
+    private FlightSchedulePlan flightSchedulePlan;
+
+    public Fare() {
     }
 
-    public void setFareid(Long fareid) {
-        this.fareid = fareid;
+    public Fare(String fareBasicCode, BigDecimal fareAmount, CabinClassTypeEnum cabinClassType) {
+        this();
+        this.fareBasicCode = fareBasicCode;
+        this.fareAmount = fareAmount;
+        this.cabinClassType = cabinClassType;
     }
 
+    
+    
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (fareid != null ? fareid.hashCode() : 0);
+        hash += (getFareid() != null ? getFareid().hashCode() : 0);
         return hash;
     }
 
@@ -53,7 +67,7 @@ public class Fare implements Serializable {
             return false;
         }
         Fare other = (Fare) object;
-        if ((this.fareid == null && other.fareid != null) || (this.fareid != null && !this.fareid.equals(other.fareid))) {
+        if ((this.getFareid() == null && other.getFareid() != null) || (this.getFareid() != null && !this.fareid.equals(other.fareid))) {
             return false;
         }
         return true;
@@ -61,7 +75,77 @@ public class Fare implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.Fare[ id=" + fareid + " ]";
+        return "entity.Fare[ id=" + getFareid() + " ]";
+    }
+
+    /**
+     * @return the fareid
+     */
+    public Long getFareid() {
+        return fareid;
+    }
+
+    /**
+     * @param fareid the fareid to set
+     */
+    public void setFareid(Long fareid) {
+        this.fareid = fareid;
+    }
+
+    /**
+     * @return the fareBasicCode
+     */
+    public String getFareBasicCode() {
+        return fareBasicCode;
+    }
+
+    /**
+     * @param fareBasicCode the fareBasicCode to set
+     */
+    public void setFareBasicCode(String fareBasicCode) {
+        this.fareBasicCode = fareBasicCode;
+    }
+
+    /**
+     * @return the fareAmount
+     */
+    public BigDecimal getFareAmount() {
+        return fareAmount;
+    }
+
+    /**
+     * @param fareAmount the fareAmount to set
+     */
+    public void setFareAmount(BigDecimal fareAmount) {
+        this.fareAmount = fareAmount;
+    }
+
+    /**
+     * @return the cabinClassType
+     */
+    public CabinClassTypeEnum getCabinClassType() {
+        return cabinClassType;
+    }
+
+    /**
+     * @param cabinClassType the cabinClassType to set
+     */
+    public void setCabinClassType(CabinClassTypeEnum cabinClassType) {
+        this.cabinClassType = cabinClassType;
+    }
+
+    /**
+     * @return the flightSchedulePlan
+     */
+    public FlightSchedulePlan getFlightSchedulePlan() {
+        return flightSchedulePlan;
+    }
+
+    /**
+     * @param flightSchedulePlan the flightSchedulePlan to set
+     */
+    public void setFlightSchedulePlan(FlightSchedulePlan flightSchedulePlan) {
+        this.flightSchedulePlan = flightSchedulePlan;
     }
     
 }

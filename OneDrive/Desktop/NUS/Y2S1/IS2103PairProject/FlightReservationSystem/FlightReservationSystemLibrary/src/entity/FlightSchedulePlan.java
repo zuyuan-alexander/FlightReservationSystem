@@ -22,6 +22,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Future;
@@ -62,6 +63,9 @@ public class FlightSchedulePlan implements Serializable {
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Flight flight;
+    
+    @OneToMany(mappedBy="flightSchedulePlan")
+    private List<Fare> fares;
 
     public FlightSchedulePlan() {
         this.disabled = false;
@@ -217,5 +221,20 @@ public class FlightSchedulePlan implements Serializable {
     public void setFlight(Flight flight) {
         this.flight = flight;
     }
+
+    /**
+     * @return the fares
+     */
+    public List<Fare> getFares() {
+        return fares;
+    }
+
+    /**
+     * @param fares the fares to set
+     */
+    public void setFares(List<Fare> fares) {
+        this.fares = fares;
+    }
+
     
 }

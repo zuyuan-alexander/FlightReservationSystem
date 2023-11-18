@@ -5,9 +5,12 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +18,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -53,15 +57,22 @@ public class FlightSchedule implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private FlightSchedulePlan flightSchedulePlan;
-
+    
     /*
-    @ManyToMany(mappedBy = "flightschedule")
-    private List<Passenger> passengers = new ArrayList<Passenger>(); */
+    @OneToMany(mappedBy="flightSchedule")
+    private List<Seat> seats;
+    */
+    
+    @OneToMany(mappedBy="flightSchedule")
+    private List<Passenger> passengers;
 
     public FlightSchedule() {
+        //this.seats = new ArrayList<>();
+        this.passengers = new ArrayList<>();
     }
 
     public FlightSchedule(Date departureDate, Date departureTime, Date estimatedFlightDuration) {
+        this();
         this.departureDate = departureDate;
         this.departureTime = departureTime;
         this.estimatedFlightDuration = estimatedFlightDuration;
@@ -174,6 +185,16 @@ public class FlightSchedule implements Serializable {
     public void setFlightSchedulePlan(FlightSchedulePlan flightSchedulePlan) {
         this.flightSchedulePlan = flightSchedulePlan;
     }
+
+    /*
+    public List<Seat> getSeats() {
+        return seats;
+    }
+
+    public void setSeats(List<Seat> seats) {
+        this.seats = seats;
+    }
+    */
     
   public void calculateAndSetArrivalDateTime() {
     if (departureDate != null && departureTime != null && estimatedFlightDuration != null) {
@@ -203,6 +224,20 @@ public class FlightSchedule implements Serializable {
         this.arrivalTime = new Time(arrivalDateTime.getTime() - this.arrivalDate.getTime());
     }
 }
+
+    /**
+     * @return the passengers
+     */
+    public List<Passenger> getPassengers() {
+        return passengers;
+    }
+
+    /**
+     * @param passengers the passengers to set
+     */
+    public void setPassengers(List<Passenger> passengers) {
+        this.passengers = passengers;
+    }
 
 
     

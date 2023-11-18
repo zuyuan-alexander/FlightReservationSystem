@@ -32,7 +32,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
     }
 
     @Override
-    public Long createNewCustomer(Customer customer) throws UnknownPersistenceException, CustomerCredentialExistException {
+    public Long registerAsCustomer(Customer customer) throws UnknownPersistenceException, CustomerCredentialExistException {
         try
         {
             em.persist(customer);
@@ -61,7 +61,7 @@ public class CustomerSessionBean implements CustomerSessionBeanRemote, CustomerS
     }
     
     @Override
-    public Customer CustomerLogin(String username, String password) throws InvalidLoginCredentialException
+    public Customer customerLogin(String username, String password) throws InvalidLoginCredentialException
     {
         try
         {

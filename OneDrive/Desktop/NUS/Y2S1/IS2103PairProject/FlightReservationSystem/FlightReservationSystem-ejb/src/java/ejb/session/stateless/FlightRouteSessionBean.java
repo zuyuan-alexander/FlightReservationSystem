@@ -5,15 +5,26 @@
 package ejb.session.stateless;
 
 import entity.Airport;
+import entity.Flight;
 import entity.FlightRoute;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
 import util.exception.FlightRouteNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.UpdateFlightRouteException;
 
 /**
  *
@@ -27,8 +38,13 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     
     @EJB
     private AirportSessionBeanLocal airportSessionBeanLocal;
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
 
     public FlightRouteSessionBean() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
     
     @Override
@@ -67,26 +83,78 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     
     @Override
     public List<FlightRoute> viewAllFlightRoutes() {
-        Query query = em.createQuery("SELECT fr FROM FlightRoute fr ORDER BY fr.origin ASC");
-        // have not set the condition for displaying the return flight route immediately below the main route
+        Query query = em.createQuery("SELECT fr FROM FlightRoute fr ORDER BY fr.origin ASC, fr.returnFlightRoute.origin ASC");
         return query.getResultList();
     }
     
     @Override
     public void deleteFlightRoute(Long flightRouteId) throws FlightRouteNotFoundException {
-        FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
+        /*
+        FlightRoute mainRoute = checkReturnFlightRoute(flightRouteId);
         
+        if (mainRoute != null) {
+            // the flight route we are prompting is actually a complementary return route
+            // we must update the main route before deleting the return route
+            mainRoute.setReturnFlight(Boolean.FALSE);
+            mainRoute.setReturnFlightRoute(null);
+        }
+        
+        FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
+
         // if flight route has at least a flight, we cannot remove it and have to set disabled to TRUE
         // if flight route is not used at all, we can remove it directly
         if (flightRoute.getFlights().isEmpty()) {
             // flight route is not used at all
             flightRoute.getAirports().clear();
-            
-            em.remove(flightRoute);
+
+            em.remove(flightRoute);     
         } else {
             // flight route has at least a lfight, we cannot remove it directly
             flightRoute.setDisabledFlight(Boolean.TRUE);
         }
+        */
+        // the flight id you input is actually a return flight
+        try {
+            FlightRoute mainFR = checkReturnFlightRoute(flightRouteId);
+
+            if (mainFR != null) {
+                mainFR.setReturnFlight(Boolean.FALSE);
+                mainFR.setReturnFlightRoute(null);
+            }
+            
+            FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
+
+            System.out.println("test: " + flightRoute.getFlights().isEmpty());
+            if (flightRoute.getFlights().isEmpty()) {
+                // flight route is not used at all
+                //flight.setAircraftConfiguration(new AircraftConfiguration());
+                //flight.setFlightRoute(new FlightRoute());
+
+                em.remove(flightRoute);     
+            } else {
+                // flight route has at least a lfight, we cannot remove it directly
+                flightRoute.setDisabledFlight(Boolean.TRUE);
+            }
+        } catch (NoResultException ex) {
+            FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
+
+            if (flightRoute.getFlights().isEmpty()) {
+                // flight route is not used at all
+                //flight.setAircraftConfiguration(new AircraftConfiguration());
+                //flight.setFlightRoute(new FlightRoute());
+
+                em.remove(flightRoute);     
+            } else {
+                // flight route has at least a lfight, we cannot remove it directly
+                flightRoute.setDisabledFlight(Boolean.TRUE);
+            }
+        }
+    }
+    
+    public FlightRoute checkReturnFlightRoute(Long returhFlightRouteId) {
+        Query query = em.createQuery("SELECT fr FROM FlightRoute fr WHERE fr.returnFlightRoute.flightRouteId = :inReturnFlightRouteId");
+        query.setParameter("inReturnFlightRouteId", returhFlightRouteId);
+        return (FlightRoute) query.getSingleResult();
     }
     
     @Override
@@ -98,6 +166,73 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
         } else {
             throw new FlightRouteNotFoundException("Flight Route with Flight Route Id " + flightRouteId + " does not exist!");
         }
+    }
+    
+    @Override
+    public FlightRoute retrieveFlightRouteByOriginDestination(String origin, String destination) throws FlightRouteNotFoundException {
+        Query query = em.createQuery("SELECT fr FROM FlightRoute fr WHERE fr.origin = :inOrigin AND fr.destination = :inDestination");
+        query.setParameter("inOrigin", origin).setParameter("inDestination", destination);
+        
+        try {
+            return (FlightRoute) query.getSingleResult();
+        }
+        catch(NoResultException | NonUniqueResultException ex)
+        {
+            throw new FlightRouteNotFoundException("Flight Route with Origin " + origin + " and Destination " + destination + " does not exist!");
+        }
+    }
+    
+    @Override
+    public Long updateFlightRoute(FlightRoute flightRoute) throws UpdateFlightRouteException, FlightRouteNotFoundException, InputDataValidationException {
+        if(flightRoute != null && flightRoute.getFlightRouteId()!= null)
+        {
+            Set<ConstraintViolation<FlightRoute>>constraintViolations = validator.validate(flightRoute);
+        
+            if(constraintViolations.isEmpty())
+            {
+                FlightRoute flightRouteToUpdate = retrieveFlightRouteByFlightRouteId(flightRoute.getFlightRouteId());
+
+                if(flightRouteToUpdate.getOriginToDestination().equals(flightRouteToUpdate.getOriginToDestination()))
+                {
+                    flightRouteToUpdate.setAirports(flightRoute.getAirports());
+                    flightRouteToUpdate.setFlights(flightRoute.getFlights());
+                    flightRouteToUpdate.setReturnFlightRoute(flightRoute.getReturnFlightRoute());
+                    flightRouteToUpdate.setReturnFlight(flightRoute.getReturnFlight());
+                    flightRouteToUpdate.setDisabledFlight(flightRoute.getDisabledFlight());
+                    return flightRouteToUpdate.getFlightRouteId();
+                }
+                else
+                {
+                    throw new UpdateFlightRouteException("Flight Number of flight record to be updated does not match the existing record");
+                }
+            }
+            else
+            {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        }
+        else
+        {
+            throw new FlightRouteNotFoundException("Flight Route ID not provided for flight route to be updated");
+        }
+    }
+    
+    @Override
+    public void addFlight(FlightRoute flightRoute, Flight flight) {
+        flightRoute.getFlights().size();
+        flightRoute.getFlights().add(flight);
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<FlightRoute>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
     
 }

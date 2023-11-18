@@ -5,15 +5,28 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.AircraftSessionBeanLocal;
+import ejb.session.stateless.FareSessionBeanLocal;
 import ejb.session.stateless.FlightRouteSessionBeanLocal;
+import ejb.session.stateless.FlightSchedulePlanSessionBeanLocal;
+import ejb.session.stateless.FlightScheduleSessionBeanLocal;
+import ejb.session.stateless.FlightSessionBeanLocal;
 import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.Airport;
 import entity.CabinClass;
 import entity.Employee;
+import entity.Fare;
+import entity.Flight;
 import entity.FlightRoute;
+import entity.FlightSchedule;
+import entity.FlightSchedulePlan;
 import entity.Partner;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -24,8 +37,17 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.EmployeeTypeEnum;
+import util.enumeration.ScheduleTypeEnum;
+import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightNotFoundException;
+import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
+import util.exception.UpdateFlightException;
+import util.exception.UpdateFlightRouteException;
 
 /**
  *
@@ -36,6 +58,9 @@ import util.exception.AirportNotFoundException;
 @Startup
 public class TestDataInitSessionBean {
 
+    @EJB
+    private FlightSessionBeanLocal flightSessionBean;
+
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
     
@@ -44,7 +69,17 @@ public class TestDataInitSessionBean {
     
     @EJB
     private FlightRouteSessionBeanLocal flightRouteSessionBeanLocal;
-
+    
+    @EJB
+    private FlightSchedulePlanSessionBeanLocal flightSchedulePlanSessionBeanLocal;
+    
+    @EJB
+    private FlightScheduleSessionBeanLocal flightScheduleSessionBeanLocal;
+    
+    @EJB
+    private FareSessionBeanLocal fareSessionBeanLocal;
+    
+    
     public TestDataInitSessionBean() {
     }
     
@@ -56,6 +91,8 @@ public class TestDataInitSessionBean {
         initAircraftType();
         initAircraftConfiguration();
         initFlightRoute();
+        initFlight();
+        initFlightSchedulePlan();
     }
     
     public void initEmployee() {
@@ -235,6 +272,128 @@ public class TestDataInitSessionBean {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
+        }
+    }
+    
+    public void initFlight() {
+        try {
+            Flight flight = new Flight("ML111");
+            FlightRoute flightRoute = flightRouteSessionBeanLocal.retrieveFlightRouteByOriginDestination("SIN", "HKG");
+            AircraftConfiguration acn = aircraftSessionBeanLocal.retrieveAircraftConfigurationByName("Boeing 737 Three Classes");
+            flight.setFlightRoute(flightRoute);
+            flightRoute.getFlights().add(flight);
+            flight.setAircraftConfiguration(acn);
+            
+            flightSessionBean.createNewFlight(flight);
+            flightRouteSessionBeanLocal.addFlight(flightRoute, flight);
+            flightRouteSessionBeanLocal.updateFlightRoute(flightRoute);
+            
+            flightSessionBean.createComplementaryFlight(flight, "ML112", "Boeing 737 Three Classes");
+            
+        } catch (FlightRouteNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (AircraftConfigurationNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightNumberExistsException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UpdateFlightException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UpdateFlightRouteException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } 
+    }
+    
+    public void initFlightSchedulePlan() {
+       // Parse dates and FlightDuration
+        FlightSchedulePlan newFSP = new FlightSchedulePlan();
+        FlightSchedule newFS = new FlightSchedule();
+        Flight f = new Flight();
+        String flightnumber = "ML111";
+        
+        try
+        {
+           f = flightSessionBean.retrieveFlightByFlightNumber(flightnumber);
+        } catch (FlightNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
+        SimpleDateFormat departureFormat = new SimpleDateFormat("hh:mm a");
+        
+        newFSP.setScheduleType(ScheduleTypeEnum.RECURRENTWEEKLY);
+        //System.out.println("Enter Day Of Week> ");
+        String dayOfWeek = "Monday";
+        //System.out.println("Enter Departure Time> eg: 9:00 AM");
+        String departureTimestr = "9:00 AM";
+        //System.out.println("Enter Start Date> dd MMM yy");
+        String startDateStr = "01 Dec 2023";
+        //System.out.println("Enter End Date> dd MMM yy");
+        String endDateStr = "30 Dec 2023";
+        //System.out.println("Enter Flight Duration> HH Hours mm Minutes");
+        String flightDurationStr = "14 Hours 30 Minutes";
+
+        //set the departureTime and flightDuration of the new FS
+
+        //call the FS sessionBean to create the FS
+
+
+        // Parse dates and FlightDuration
+        try
+        {
+            Date startDate = dateFormat.parse(startDateStr);
+            Date endDate = dateFormat.parse(endDateStr);
+            Date flightDuration = timeFormat.parse(flightDurationStr);
+            Date departureTime = departureFormat.parse(departureTimestr);
+
+
+            newFSP.setDayOfWeek(dayOfWeek);
+            newFSP.setStartDate(startDate);
+            newFSP.setEndDate(endDate);
+            newFSP.setNdays(7);
+            newFS.setDepartureDate(startDate);
+            newFS.setDepartureTime(departureTime);
+            newFS.setEstimatedFlightDuration(flightDuration);
+            newFS.calculateAndSetArrivalDateTime();
+            
+            List<Fare> fares = new ArrayList<>();
+            List<BigDecimal> fareAmountList = new ArrayList<>();
+            fareAmountList.add(BigDecimal.valueOf(6000));
+            fareAmountList.add(BigDecimal.valueOf(3000));
+            fareAmountList.add(BigDecimal.valueOf(1000));
+            Integer counter = 0;
+            
+            Long newfspid = flightSchedulePlanSessionBeanLocal.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+            
+            for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                Fare fare = new Fare("farebc", fareAmountList.get(counter), cabinClass.getCabinClassType());
+                fareSessionBeanLocal.createNewFare(fare, newFSP);
+                counter++;
+            }
+            
+            Long newfsid = flightScheduleSessionBeanLocal.createNewFlightSchedule(newFS, newfspid);
+            while(newFS.getDepartureDate().before(endDate))
+            {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(newFS.getDepartureDate());
+                calendar.add(Calendar.DAY_OF_MONTH, 7); // Increment by 7 days
+                newFS.setDepartureDate(calendar.getTime());
+                newFS.calculateAndSetArrivalDateTime(); 
+                newfsid = flightScheduleSessionBeanLocal.createNewFlightSchedule(newFS, newfspid);
+            }
+
+            //em.persist(newFSP)
+
+        } catch (ParseException ex)
+        {
+            ex.printStackTrace();
         }
     }
 }

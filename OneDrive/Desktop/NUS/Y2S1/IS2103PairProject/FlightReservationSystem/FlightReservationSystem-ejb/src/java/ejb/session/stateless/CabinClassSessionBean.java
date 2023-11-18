@@ -67,6 +67,7 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         return cabinClass;
     }
     
+    /*
     @Override
     public Integer calculateNumOfAvailabeSeats(CabinClass cabinClass) {
         List<Seat> seats = cabinClass.getSeats();
@@ -109,4 +110,5 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         
         return answer;
     }
+    */
 }
