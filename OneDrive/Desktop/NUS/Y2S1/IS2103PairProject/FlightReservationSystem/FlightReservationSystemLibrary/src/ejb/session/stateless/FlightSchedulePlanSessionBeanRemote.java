@@ -21,7 +21,7 @@ public interface FlightSchedulePlanSessionBeanRemote {
 
     public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
 
-    public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException;
+   public FlightSchedulePlan retrieveFSPfByFSPId(Long fspid) throws FlightSchedulePlanNotFoundException;
 
     public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan();
 
@@ -29,8 +29,8 @@ public interface FlightSchedulePlanSessionBeanRemote {
     
     public FlightSchedulePlan retrieveFlightSchedulePlanByFlightNumber(String flightNumber);
 
-    public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException;
+    //public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException;
     
-    public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException;
+    //public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException;
     
 }

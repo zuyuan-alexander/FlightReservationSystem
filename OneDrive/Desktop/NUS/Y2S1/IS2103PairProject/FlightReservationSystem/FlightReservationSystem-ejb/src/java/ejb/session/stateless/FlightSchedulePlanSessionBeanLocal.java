@@ -19,15 +19,15 @@ import util.exception.FlightSchedulePlanNotFoundException;
 @Local
 public interface FlightSchedulePlanSessionBeanLocal {
      public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
-     public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException;
+     public FlightSchedulePlan retrieveFSPfByFSPId(Long fspid) throws FlightSchedulePlanNotFoundException;
      public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan();
      public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId);
 
     public FlightSchedulePlan retrieveFlightSchedulePlanByFlightNumber(String flightNumber);
 
-    public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException;
+    //public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException;
 
-    public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException;
+    //public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException;
     
     
 }

@@ -561,6 +561,7 @@ public class MainApp {
         System.out.println("Enter Flight Number> ");  
         String flightnumber = sc.nextLine();
         
+        
         try
         {
            f = flightSessionBean.retrieveFlightByFlightNumber(flightnumber);
@@ -575,13 +576,14 @@ public class MainApp {
         for(FlightSchedulePlan fsp: currfsps)
         {
             currfs = flightScheduleSessionBean.retrieveAllFlightSchedulesWithFSPid(fsp.getFlightscheduleplanid());
+            /*
             if(currfs.isEmpty())
             {
                 System.out.println("sad face :(");
             }else
             {
                 System.out.println("happy face :)");
-            }
+            } */
             for(FlightSchedule fs : currfs)
             {
                 ongoingfs.add(fs);
@@ -669,8 +671,8 @@ public class MainApp {
                 }
                 
                 for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
-                    FlightSchedulePlan flightSchedulePlan = flightSchedulePlanSessionBean.retrieveStaffByStaffId(newfspid);
-                    System.out.println("FSP id " + newfspid);
+                    FlightSchedulePlan flightSchedulePlan = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(newfspid);
+                    //System.out.println("FSP id " + newfspid);
                     System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
                     BigDecimal fareAmount = sc.nextBigDecimal();
                     sc.nextLine();
@@ -932,36 +934,65 @@ public class MainApp {
     }
     
     public void doViewFlightSchedulePlanDetails() {
-        try {
+         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
             System.out.println("\n\n*** View Flight Schedule Plan Details *** \n");
             Scanner sc = new Scanner(System.in);
             System.out.print("Enter flight number > ");
             String flightNumber = sc.nextLine().trim();
-            FlightSchedulePlan fsp = flightSchedulePlanSessionBean.retrieveFlightSchedulePlanByFlightNumber(flightNumber);
-            List<FlightSchedule> fsList = flightSchedulePlanSessionBean.retrieveFlightScheduleByFSP(fsp.getFlightscheduleplanid());
-            Flight f = flightSessionBean.retrieveFlightByFlightNumber(flightNumber);
-            System.out.println("Flight Schedule Plan Id: " + fsp.getFlightscheduleplanid());
-            System.out.println("FLight Schedule Plan Type: " + fsp.getScheduleType());
+            Flight f = new Flight();
+            try
+            {
+               f = flightSessionBean.retrieveFlightByFlightNumber(flightNumber);
+            } catch(FlightNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+            }
+           
+            List<FlightSchedulePlan> fsplist = f.getFlightscheduleplans();
+            
+            
+            
             System.out.println("Flight Aircraft Configuration: " + f.getAircraftConfiguration());
             System.out.println("Flight Route: " + f.getFlightRoute().getOrigin() + " -> " + f.getFlightRoute().getDestination());
             System.out.println();
+            for(FlightSchedulePlan fsp : fsplist )
+            {
+                System.out.println("Flight Schedule Plan Id: " + fsp.getFlightscheduleplanid());
+                System.out.println("FLight Schedule Plan Type: " + fsp.getScheduleType());
+                System.out.println();
+            }
+            
+            System.out.println();
+            System.out.println("Enter Flight Schedule Plan Id to view: ");
+            Long chosenfspid = sc.nextLong();
+            sc.nextLine();
+            FlightSchedulePlan chosenfsp = new FlightSchedulePlan();
+            try
+            {
+                chosenfsp = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(chosenfspid);
+            } catch (FlightSchedulePlanNotFoundException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+          
+            List<FlightSchedule> fsList = chosenfsp.getFlightschedules();
+            List<Fare> fares = chosenfsp.getFares();
+            
             
             for (FlightSchedule fs : fsList) {
-                System.out.println("Flight Schedule Id: " + fs.getFlightscheduleid() + "; Departure Date: " + fs.getDepartureDate() + 
-                        "; Departure Time: " + fs.getDepartureTime() + "; Flight Duration: " + fs.getEstimatedFlightDuration());
+                System.out.println("Flight Schedule Id: " + fs.getFlightscheduleid() + "; Departure Date: " + dateFormat.format(fs.getDepartureDate()) + 
+                        "; Departure Time: " + timeFormat.format(fs.getDepartureTime()) + "; Flight Duration: " + timeFormat.format(fs.getEstimatedFlightDuration()));
             }
+            
+            //System.out.println(fsList.size());
             System.out.println();
             // print layout
             
-            List<Fare> fares = flightSchedulePlanSessionBean.retrieveFareByFSPId(fsp.getFlightscheduleplanid());
+            
             for (Fare fare : fares) {
                 System.out.println("Cabin Class Type: " + fare.getCabinClassType() + "; Fare basis code: " + fare.getFareBasicCode() + "; Fare Amount: " + fare.getFareAmount());
             }
-        } catch (FlightSchedulePlanNotFoundException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        } catch(FlightNotFoundException ex) {
-            System.out.println(ex.getMessage() + "\n");
-        }
+     
     }
 
     public boolean checkOverlap(FlightSchedule schedule1, FlightSchedule schedule2) {

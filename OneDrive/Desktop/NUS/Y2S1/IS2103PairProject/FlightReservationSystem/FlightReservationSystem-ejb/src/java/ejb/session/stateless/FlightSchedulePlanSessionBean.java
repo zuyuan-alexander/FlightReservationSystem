@@ -54,12 +54,14 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     }
     
     @Override
-    public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException
+    public FlightSchedulePlan retrieveFSPfByFSPId(Long fspid) throws FlightSchedulePlanNotFoundException
     {
         FlightSchedulePlan fsp = em.find(FlightSchedulePlan.class, fspid);
         
         if(fsp != null)
         {
+            fsp.getFlightschedules().size();
+            fsp.getFares().size();
             return fsp;
         }
         else
@@ -95,11 +97,12 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         return (FlightSchedulePlan) query.getSingleResult();
     }
     
+    /*
     @Override
     public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException {
         FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
         fsp.getFlightschedules().size();
-        fsp.getFares().size();
+        fsp.getFares().size();  
         return fsp.getFlightschedules();
     }
     
@@ -108,7 +111,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
         fsp.getFares().size();
         return fsp.getFares();
-    }
+    }*/
 }
 
 
