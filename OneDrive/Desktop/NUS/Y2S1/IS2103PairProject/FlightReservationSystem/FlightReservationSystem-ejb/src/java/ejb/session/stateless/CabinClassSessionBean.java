@@ -6,7 +6,6 @@ package ejb.session.stateless;
 
 import entity.CabinClass;
 import entity.Seat;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -14,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.SeatStatusEnum;
+import util.exception.CabinClassNotFoundException;
 
 /**
  *
@@ -76,6 +76,21 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
             }
         }
         return null;
+    }
+    
+    @Override
+    public CabinClass retrieveCabinClassByID(Long ccid) throws CabinClassNotFoundException
+    {
+        CabinClass cc = em.find(CabinClass.class, ccid);
+        if(cc != null)
+        {
+          cc.getSeats().size();
+          return cc;
+        }
+        else
+        {
+            throw new CabinClassNotFoundException("Cabin Class ID " + ccid + " does not exist!");
+        }
     }
     
     /*

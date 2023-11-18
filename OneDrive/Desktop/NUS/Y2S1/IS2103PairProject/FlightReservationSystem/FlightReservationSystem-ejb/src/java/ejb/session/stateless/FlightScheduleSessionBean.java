@@ -65,6 +65,8 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         
         if(f != null)
         {
+            f.getFlightSchedulePlan().getFares().size();
+            f.getFlightSchedulePlan().getFlight().getAircraftConfiguration().getCabinClasses().size();
             return f;
         }
         else

@@ -54,7 +54,7 @@ public class FlightSchedule implements Serializable {
     @Temporal(TemporalType.TIME)
     @Column(nullable = false)
     @NotNull
-    private Date departureTime;
+    private Date departureTime; 
     @Temporal(TemporalType.TIME)
     @Column(nullable = false)
     @NotNull

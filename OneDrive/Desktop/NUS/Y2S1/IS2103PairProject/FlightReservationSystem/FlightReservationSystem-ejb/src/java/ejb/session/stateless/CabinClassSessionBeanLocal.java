@@ -8,6 +8,7 @@ import entity.CabinClass;
 import java.util.List;
 import javax.ejb.Local;
 import util.enumeration.CabinClassTypeEnum;
+import util.exception.CabinClassNotFoundException;
 
 /**
  *
@@ -24,6 +25,8 @@ public interface CabinClassSessionBeanLocal {
 
     public List<Integer> calculateNumOfSeats(CabinClass cabinClass);
   */  
+    public CabinClass retrieveCabinClassByID(Long ccid) throws CabinClassNotFoundException;
+
 
     public CabinClass retrievePreferedCabinClassType(List<CabinClass> ccList, CabinClassTypeEnum cabinClassType);
 }

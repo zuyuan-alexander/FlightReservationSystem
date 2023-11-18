@@ -8,6 +8,7 @@ import entity.CabinClass;
 import java.util.List;
 import javax.ejb.Remote;
 import util.enumeration.CabinClassTypeEnum;
+import util.exception.CabinClassNotFoundException;
 
 /**
  *
@@ -26,4 +27,6 @@ public interface CabinClassSessionBeanRemote {
   */  
     
     public CabinClass retrievePreferedCabinClassType(List<CabinClass> ccList, CabinClassTypeEnum cabinClassType);
+
+    public CabinClass retrieveCabinClassByID(Long ccid) throws CabinClassNotFoundException;
 }

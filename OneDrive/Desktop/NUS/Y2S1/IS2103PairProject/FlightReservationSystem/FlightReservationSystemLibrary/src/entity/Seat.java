@@ -32,6 +32,8 @@ public class Seat implements Serializable {
     private Character seatLetter;
     @Column(nullable=false)
     private SeatStatusEnum seatStatus;
+    private boolean reserved;
+    
     
     // relationship 
     @ManyToOne(optional=false)
@@ -52,6 +54,7 @@ public class Seat implements Serializable {
         this.rowNumber = rowNumber;
         this.seatLetter = seatLetter;
         this.seatStatus = seatStatus;
+        this.reserved = false;
     }
 
 
@@ -165,4 +168,18 @@ public class Seat implements Serializable {
         this.cabinClassType = cabinClassType;
     }
     */
+
+    /**
+     * @return the reserved
+     */
+    public boolean isReserved() {
+        return reserved;
+    }
+
+    /**
+     * @param reserved the reserved to set
+     */
+    public void setReserved(boolean reserved) {
+        this.reserved = reserved;
+    }
 }
