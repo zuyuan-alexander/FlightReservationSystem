@@ -15,5 +15,7 @@ import javax.ejb.Local;
 public interface SeatSessionBeanLocal {
 
     public Seat createSeats(Seat seat);
+
+    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber);
     
 }

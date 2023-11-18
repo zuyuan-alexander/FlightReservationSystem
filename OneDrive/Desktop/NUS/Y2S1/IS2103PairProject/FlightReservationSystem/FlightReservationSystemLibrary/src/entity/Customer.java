@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -58,6 +59,8 @@ public class Customer implements Serializable {
     private String password;
 
     // relationship
+    @OneToOne(optional=false)
+    private FlightReservation flightReservation;
 
     public Customer() {
     }
@@ -219,6 +222,20 @@ public class Customer implements Serializable {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * @return the flightReservation
+     */
+    public FlightReservation getFlightReservation() {
+        return flightReservation;
+    }
+
+    /**
+     * @param flightReservation the flightReservation to set
+     */
+    public void setFlightReservation(FlightReservation flightReservation) {
+        this.flightReservation = flightReservation;
     }
     
 }

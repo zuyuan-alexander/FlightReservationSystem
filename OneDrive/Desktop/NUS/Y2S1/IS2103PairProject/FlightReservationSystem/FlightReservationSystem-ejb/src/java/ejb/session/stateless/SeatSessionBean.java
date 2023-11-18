@@ -8,6 +8,7 @@ import entity.Seat;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -26,6 +27,13 @@ public class SeatSessionBean implements SeatSessionBeanRemote, SeatSessionBeanLo
     public Seat createSeats(Seat seat) {
         em.persist(seat);
         return seat;
+    }
+    
+    @Override
+    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber) {
+        Query query = em.createQuery("SELECT s FROM Seat s WHERE s.seatLetter = :inSeatLetter AND s.rowNumber = :inRowNumber");
+        query.setParameter("inSeatLetter", seatLetter).setParameter("inRowNumber", rowNumber);
+        return (Seat) query.getSingleResult();
     }
 
     
