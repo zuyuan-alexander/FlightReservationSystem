@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Fare;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
@@ -25,6 +26,9 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
     @EJB
     private FlightScheduleSessionBeanRemote flightScheduleSessionBean;
+    
+    @EJB
+    private FlightSessionBeanLocal flightSessionBeanLocal;
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
@@ -67,7 +71,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     @Override
     public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan()
     {   
-        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp ORDER BY fsp.flight.flightNumber ASC");
+        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp ORDER BY fsp.flight.flightNumber ASC, fsp.startDate DESC");
         
         return query.getResultList();
   
@@ -84,8 +88,27 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     return query.getResultList();
     }
     
-
-   
+    @Override
+    public FlightSchedulePlan retrieveFlightSchedulePlanByFlightNumber(String flightNumber) {
+        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp WHERE fsp.flight.flightNumber = :inFlightNumber");
+        query.setParameter("inFlightNumber", flightNumber);
+        return (FlightSchedulePlan) query.getSingleResult();
+    }
+    
+    @Override
+    public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException {
+        FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
+        fsp.getFlightschedules().size();
+        fsp.getFares().size();
+        return fsp.getFlightschedules();
+    }
+    
+    @Override
+    public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException {
+        FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
+        fsp.getFares().size();
+        return fsp.getFares();
+    }
 }
 
 

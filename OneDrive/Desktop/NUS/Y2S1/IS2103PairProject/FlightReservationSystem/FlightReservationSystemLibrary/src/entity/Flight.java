@@ -55,8 +55,13 @@ public class Flight implements Serializable {
     @Column(nullable=false)
     private Boolean disabledFlight;
 
+    /*
     @OneToOne(optional=false, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(nullable=false)
+    private FlightRoute flightRoute;
+    */
+    
+    @ManyToOne
     private FlightRoute flightRoute;
     
     @ManyToOne(optional=false)

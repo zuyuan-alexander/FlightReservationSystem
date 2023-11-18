@@ -6,6 +6,7 @@ package ejb.session.stateless;
 
 import entity.CabinClass;
 import entity.FlightSchedule;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.enumeration.CabinClassTypeEnum;
@@ -23,6 +24,8 @@ public interface FlightScheduleSessionBeanRemote {
     public FlightSchedule retrieveFlightScheduleById(Long flightScheduleid) throws FlightScheduleNotFoundException;
     
     public List<FlightSchedule> checkFlightScheduleWithPreferedCabinClass(List<FlightSchedule> fsList, CabinClassTypeEnum cabinClassType);
+    
+    public List<FlightSchedule> retrieveFlightScheduleByDate(Date date);
 
     public List<FlightSchedule> retrieveAllFlightSchedulesWithFSPid(Long fspid);
 }

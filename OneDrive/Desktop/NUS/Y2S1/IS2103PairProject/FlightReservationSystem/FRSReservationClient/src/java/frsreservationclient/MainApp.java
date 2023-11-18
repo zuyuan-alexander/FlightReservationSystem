@@ -185,6 +185,7 @@ public class MainApp {
             System.out.println("3: View My Flight Reservation");
             System.out.println("4: View My Flight Reservation Details");
             System.out.println("5: Logout\n");
+            response = 0;
             
             while(response < 1 || response > 5) {
                 System.out.print("> ");
@@ -235,9 +236,9 @@ public class MainApp {
         System.out.print("Enter departure airport > ");
         String departureAirport = scanner.nextLine();
         System.out.print("Enter destination airport > ");
-        String destinationAirport = scanner.nextLine();
+        String destinationAirport = scanner.nextLine().trim();
         System.out.print("Enter departure date (dd MMM yy) > ");
-        String dateString = scanner.nextLine();
+        String dateString = scanner.nextLine().trim();
         
         Date departureDate = new Date();
         try {
@@ -250,12 +251,12 @@ public class MainApp {
         Date returnDate = new Date();
         if (tripTypeInt == 2) {
             System.out.print("Enter return date (dd MMM yy) > ");
-            dateString = scanner.nextLine();
+            dateString = scanner.nextLine().trim();
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy");
                 returnDate = dateFormat.parse(dateString);
             } catch (ParseException ex) {
-                System.out.println("Invalid date format. Please enter the date in dd/MMM/yy format.");
+                System.out.println("Invalid date format. Please enter the date in dd MMM yy format.");
             }
         }
         

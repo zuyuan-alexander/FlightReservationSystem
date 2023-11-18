@@ -8,11 +8,13 @@ import entity.CabinClass;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import util.enumeration.CabinClassTypeEnum;
 import util.exception.FlightScheduleNotFoundException;
@@ -73,6 +75,13 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         {
             throw new FlightScheduleNotFoundException("Staff ID " + flightScheduleid + " does not exist!");
         }
+    }
+    
+    @Override
+    public List<FlightSchedule> retrieveFlightScheduleByDate(Date date) {
+        Query query = em.createQuery("SELECT fs FROM FlightSchedule fs WHERE fs.departureDate = :inDate ORDER BY fs.flightscheduleid ASC");
+        query.setParameter("inDate", date);
+        return query.getResultList();
     }
     
     @Override
