@@ -8,6 +8,8 @@ import entity.CabinClass;
 import entity.Customer;
 import entity.FlightReservation;
 import entity.FlightSchedule;
+import entity.Passenger;
+import entity.Seat;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
@@ -103,6 +105,24 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         {
             throw new FlightReservationNotFoundException("Flight Reservation with Id " + flightReservationId + " does not exist!");
         }
+    }
+    
+    public Long reserveFlight(Customer customer, FlightSchedule flightSchedule, Passenger passenger, TripTypeEnum tripType) {
+        FlightReservation flightReservation = new FlightReservation(tripType);
+        
+        customer.setFlightReservation(flightReservation);
+        flightReservation.setCustomer(customer);
+        
+        flightReservation.getFlightSchedules().add(flightSchedule);
+        flightSchedule.setFlightReservation(flightReservation);
+        
+        flightSchedule.getPassengers().add(passenger);
+        passenger.setFlightSchedule(flightSchedule);
+        
+        em.persist(flightReservation);
+        em.flush();
+        
+        return flightReservation.getFlightreservationid();
     }
 
     

@@ -65,6 +65,10 @@ public class FlightSchedule implements Serializable {
     
     @OneToMany(mappedBy="flightSchedule")
     private List<Passenger> passengers;
+    
+    @ManyToOne(optional=true)
+    @JoinColumn(nullable=true)
+    private FlightReservation flightReservation;
 
     public FlightSchedule() {
         //this.seats = new ArrayList<>();
@@ -239,8 +243,19 @@ public class FlightSchedule implements Serializable {
         this.passengers = passengers;
     }
 
+    /**
+     * @return the flightReservation
+     */
+    public FlightReservation getFlightReservation() {
+        return flightReservation;
+    }
 
-    
+    /**
+     * @param flightReservation the flightReservation to set
+     */
+    public void setFlightReservation(FlightReservation flightReservation) {
+        this.flightReservation = flightReservation;
+    }
     
     
     

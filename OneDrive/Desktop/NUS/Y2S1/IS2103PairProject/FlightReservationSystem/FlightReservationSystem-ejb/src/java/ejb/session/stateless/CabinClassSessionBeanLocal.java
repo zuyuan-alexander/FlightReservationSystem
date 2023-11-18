@@ -7,6 +7,7 @@ package ejb.session.stateless;
 import entity.CabinClass;
 import java.util.List;
 import javax.ejb.Local;
+import util.enumeration.CabinClassTypeEnum;
 
 /**
  *
@@ -23,4 +24,6 @@ public interface CabinClassSessionBeanLocal {
 
     public List<Integer> calculateNumOfSeats(CabinClass cabinClass);
   */  
+
+    public CabinClass retrievePreferedCabinClassType(List<CabinClass> ccList, CabinClassTypeEnum cabinClassType);
 }

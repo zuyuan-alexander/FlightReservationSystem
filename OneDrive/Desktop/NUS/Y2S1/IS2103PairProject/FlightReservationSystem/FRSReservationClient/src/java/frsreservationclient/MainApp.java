@@ -5,13 +5,18 @@
 
 package frsreservationclient;
 
+import ejb.session.stateless.CabinClassSessionBeanRemote;
 import ejb.session.stateless.CustomerSessionBeanRemote;
 import ejb.session.stateless.FareSessionBeanRemote;
 import ejb.session.stateless.FlightReservationSessionBeanRemote;
+import ejb.session.stateless.FlightScheduleSessionBeanRemote;
+import ejb.session.stateless.SeatSessionBeanRemote;
 import entity.CabinClass;
 import entity.Customer;
 import entity.FlightReservation;
 import entity.FlightSchedule;
+import entity.Passenger;
+import entity.Seat;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,6 +30,7 @@ import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.TripTypeEnum;
 import util.exception.CustomerCredentialExistException;
 import util.exception.FlightReservationNotFoundException;
+import util.exception.FlightScheduleNotFoundException;
 import util.exception.InvalidLoginCredentialException;
 import util.exception.UnknownPersistenceException;
 
@@ -39,15 +45,21 @@ public class MainApp {
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private FlightReservationSessionBeanRemote flightReservationSessionBeanRemote;
     private FareSessionBeanRemote fareSessionBeanRemote;
+    private FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote;
+    private CabinClassSessionBeanRemote cabinClassSessionBeanRemote;
+    private SeatSessionBeanRemote seatSessionBeanRemote;
     private Customer currentCustomer;
     
     public MainApp() {
     }
 
-    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, FlightReservationSessionBeanRemote flightReservationSessionBeanRemote, FareSessionBeanRemote fareSessionBeanRemote) {
+    public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, FlightReservationSessionBeanRemote flightReservationSessionBeanRemote, FareSessionBeanRemote fareSessionBeanRemote, FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote, CabinClassSessionBeanRemote cabinClassSessionBeanRemote, SeatSessionBeanRemote seatSessionBeanRemote) {
         this.customerSessionBeanRemote = customerSessionBeanRemote;
         this.flightReservationSessionBeanRemote = flightReservationSessionBeanRemote;
         this.fareSessionBeanRemote = fareSessionBeanRemote;
+        this.flightScheduleSessionBeanRemote = flightScheduleSessionBeanRemote;
+        this.cabinClassSessionBeanRemote = cabinClassSessionBeanRemote;
+        this.seatSessionBeanRemote = seatSessionBeanRemote;
     }
     
     public void runApp() {
@@ -117,7 +129,7 @@ public class MainApp {
         
         if(username.length() > 0 && password.length() > 0)
         {
-            currentCustomer = customerSessionBeanRemote.customerLogin(username, password); 
+            this.currentCustomer = customerSessionBeanRemote.customerLogin(username, password); 
         }
         else
         {
@@ -175,7 +187,7 @@ public class MainApp {
                 if (response == 1) {
                     doSearchFlight();
                 } else if (response == 2) {
-                    doReserveFlight();
+                    //doReserveFlight();
                 } else if (response == 3) {
                     doViewMyFlightReservations();
                 } else if (response == 4) {
@@ -313,14 +325,14 @@ public class MainApp {
             if (flightPreference) {
                 if (flightSelect == 1) {
                     // direct flight
-                    searchDirectFlight(destinationAirport, departureAirport, departureDate, numOfPassengers, cabinClassType);
+                    searchDirectFlight(destinationAirport, departureAirport, returnDate, numOfPassengers, cabinClassType);
                 } else if (flightSelect == 2) {
                     // connecting flight
-                    searchConnectingFlight(destinationAirport, departureAirport, departureDate, numOfPassengers, cabinClassType);
+                    searchConnectingFlight(destinationAirport, departureAirport, returnDate, numOfPassengers, cabinClassType);
                 }
             } else {
-                searchDirectFlight(destinationAirport, departureAirport, departureDate, numOfPassengers, cabinClassType);
-                searchConnectingFlight(destinationAirport, departureAirport, departureDate, numOfPassengers, cabinClassType);
+                searchDirectFlight(destinationAirport, departureAirport, returnDate, numOfPassengers, cabinClassType);
+                searchConnectingFlight(destinationAirport, departureAirport, returnDate, numOfPassengers, cabinClassType);
             }
         }
     }
@@ -399,9 +411,70 @@ public class MainApp {
         }
     }
     
-    public void doReserveFlight() {
-        System.out.print("Enter flight schedule id > ");
+    public void doReserveFlight(Integer tripTypeInt, Integer flightPreferenceInt, CabinClassTypeEnum cabinClassTypeEnum) {
+        System.out.println("===== Reserve Flight =====");
+        Scanner sc = new Scanner(System.in);
+        
+        // one way
+        Long fsId = null;
+        if (flightPreferenceInt == 1) {
+            System.out.print("Enter flight schedule id to reserve> ");
+            fsId = sc.nextLong();
+            sc.nextLine();
+        } else if (flightPreferenceInt == 2) {
+            System.out.print("Enter first flight schedule id to reserve> ");
+            Long firstFSId = sc.nextLong();
+            sc.nextLine();
+            System.out.print("Enter second flight schedule id to reserve> ");
+            Long secondFSList = sc.nextLong();
+            sc.nextLine();
+        }
+        
+        // round trip
+        if (tripTypeInt == 2) {
+            if (flightPreferenceInt == 1) {
+                System.out.print("Enter return flight schedule id to reserve> ");
+                fsId = sc.nextLong();
+                sc.nextLine();
+            } else if (flightPreferenceInt == 2) {
+                System.out.print("Enter first return flight schedule id to reserve> ");
+                Long firstFSId = sc.nextLong();
+                sc.nextLine();
+                System.out.print("Enter second return flight schedule id to reserve> ");
+                Long secondFSList = sc.nextLong();
+                sc.nextLine();
+            }
+        }
         System.out.print("Enter number of passengers > ");
+        Integer numOfPassengers = sc.nextInt();
+        sc.nextLine();
+        
+        for (int i=1; i<=numOfPassengers; i++) {
+            System.out.print("Enter first name > ");
+            String firstName = sc.nextLine().trim();
+            System.out.print("Enter last name > ");
+            String lastName = sc.nextLine().trim();
+            System.out.print("Enter passport number > ");
+            String passportNumber = sc.nextLine().trim();
+            System.out.print("Enter prefered seat letter > ");
+            Character seatLetter = sc.nextLine().charAt(0);
+            System.out.println("Enter prefered seat row number");
+            Integer seatRowNumber = sc.nextInt();
+            sc.nextLine();
+            Passenger passenger = new Passenger(firstName, lastName, passportNumber);
+            try {
+                FlightSchedule flightSchedule = flightScheduleSessionBeanRemote.retrieveFlightScheduleById(fsId);
+                CabinClass preferedCabinClass = cabinClassSessionBeanRemote.retrievePreferedCabinClassType(flightSchedule.getFlightSchedulePlan().getFlight().getAircraftConfiguration().getCabinClasses(), cabinClassTypeEnum);
+                Seat seat = seatSessionBeanRemote.retrieveSeatBySeatLetterAndRowNumber(seatLetter, seatRowNumber);
+                passenger.setSeat(seat);
+                //Long flightReservationId = flightReservationSessionBeanRemote.reserveFlight(this.currentCustomer, flightSchedule, passenger, tripType);
+                System.out.println("Flight Reservation Id " + " has been created!");
+            } catch (FlightScheduleNotFoundException ex) {
+                System.out.println(ex.getMessage() + "\n");
+            }
+            System.out.println();
+        }
+        
         
     }
     

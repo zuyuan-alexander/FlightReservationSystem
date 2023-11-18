@@ -5,11 +5,14 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import util.enumeration.TripTypeEnum;
 
 /**
@@ -27,6 +30,11 @@ public class FlightReservation implements Serializable {
     private TripTypeEnum tripTypeEnum;
     
     // relationship
+    @OneToMany(mappedBy="flightReservation")
+    private List<FlightSchedule> flightSchedules;
+    
+    @OneToOne(optional=false)
+    private Customer customer;
 
     public FlightReservation() {
     }
@@ -84,5 +92,34 @@ public class FlightReservation implements Serializable {
     public void setTripTypeEnum(TripTypeEnum tripTypeEnum) {
         this.tripTypeEnum = tripTypeEnum;
     }
+
+    /**
+     * @return the flightSchedules
+     */
+    public List<FlightSchedule> getFlightSchedules() {
+        return flightSchedules;
+    }
+
+    /**
+     * @param flightSchedules the flightSchedules to set
+     */
+    public void setFlightSchedules(List<FlightSchedule> flightSchedules) {
+        this.flightSchedules = flightSchedules;
+    }
+
+    /**
+     * @return the customer
+     */
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    /**
+     * @param customer the customer to set
+     */
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+    
     
 }

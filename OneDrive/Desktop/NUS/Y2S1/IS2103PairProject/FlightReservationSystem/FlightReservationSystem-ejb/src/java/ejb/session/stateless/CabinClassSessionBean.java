@@ -12,6 +12,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.SeatStatusEnum;
 
 /**
@@ -65,6 +66,16 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         }
         
         return cabinClass;
+    }
+    
+    @Override
+    public CabinClass retrievePreferedCabinClassType(List<CabinClass> ccList, CabinClassTypeEnum cabinClassType) {
+        for (CabinClass cabinClass : ccList) {
+            if (cabinClass.getCabinClassType().equals(cabinClassType)) {
+                return cabinClass;
+            }
+        }
+        return null;
     }
     
     /*
