@@ -790,7 +790,52 @@ public class MainApp {
         }
     } 
     
+    public void doViewAllFlightSchedulePlans()
+    {
+        System.out.println("\n\n*** View All Flight Schedule Plan *** \n");
+        List<FlightSchedulePlan> fspList = flightSchedulePlanSessionBean.retrieveAllFlightSchedulePlan();
 
+        FlightSchedulePlan currfsp = new FlightSchedulePlan();
+        String fspText = "List of Flight Schedule Plans:\n";
+       
+        for(int i = 1; i < fspList.size() + 1 ; i++) 
+        {
+            currfsp = fspList.get(i-1);
+            if(currfsp.equals(ScheduleTypeEnum.SINGLE))
+            {
+                 fspText += i + ": Single Plan" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            } else if(currfsp.equals(ScheduleTypeEnum.MULTIPLE))
+            {
+                 fspText += i + ": Multiple Plan" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            } else if(currfsp.equals(ScheduleTypeEnum.RECURRENTNDAY))
+            {
+                 fspText += i + ": Recurrent Plan(N-Day)" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            } else if(currfsp.equals(ScheduleTypeEnum.RECURRENTWEEKLY))
+            {
+                 fspText += i + ": Recurrent Plan(Weekly)" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            }
+        }
+        
+        System.out.print(fspText);
+   
+    }
+
+    public boolean checkOverlap(FlightSchedule schedule1, FlightSchedule schedule2) {
+        // Extracting details from schedule1
+        Date departureTime1 = schedule1.getDepartureTime();
+        Date arrivalTime1 = schedule1.getArrivalTime();
+
+        // Extracting details from schedule2
+        Date departureTime2 = schedule2.getDepartureTime();
+        Date arrivalTime2 = schedule2.getArrivalTime();
+
+        // Checking for overlap
+        boolean isOverlap =
+                (departureTime1.after(departureTime2) && departureTime1.before(arrivalTime2)) ||
+                        (arrivalTime1.after(departureTime2) && arrivalTime1.before(arrivalTime2));
+
+        return isOverlap;
+    }
     
     public void doCreateAircraftConfiguration() {
         System.out.println("====== Create Aircraft Configuration =====");
@@ -1017,7 +1062,7 @@ public class MainApp {
                 }
                 
                 for (Passenger passenger : passengers) {
-                    System.out.println("Seat Number: " + passenger.getSeat().toString() + "; Passenger: " + passenger.toString() + "; Fare basis code: ");
+                    //System.out.println("Seat Number: " + passenger.getSeat().toString() + "; Passenger: " + passenger.toString() + "; Fare basis code: ");
                 }
                 System.out.println();
             }

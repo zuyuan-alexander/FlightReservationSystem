@@ -7,10 +7,12 @@ package ejb.session.stateless;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
@@ -42,10 +44,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         em.flush();
         return newFSP.getFlightscheduleplanid();
            
-        //Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newFSP.getFlightscheduleplanid());
-        
-     
-        
+        //Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newFSP.getFlightscheduleplanid());    
         
     }
     
@@ -64,6 +63,14 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
     }
     
+    @Override
+    public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan()
+    {   
+        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp");
+        
+        return query.getResultList();
+  
+    }
    
 }
 
