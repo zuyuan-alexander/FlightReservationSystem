@@ -62,41 +62,48 @@ public class MainApp {
         this.seatSessionBeanRemote = seatSessionBeanRemote;
     }
     
-    public void runApp() {
+    public void runApp()
+    {
         Scanner scanner = new Scanner(System.in);
         Integer response = 0;
         
         while(true)
         {
-            System.out.println("*** Welcome to FRS Mangagement System***\n");
-            System.out.println("1: Login");
-            System.out.println("2: Register As Customer");
-            System.out.println("3: Search Flight");
+            System.out.println("*** Welcome to FRS Reservation System***\n");
+            System.out.println("1: Register");
+            System.out.println("2: Login");
+             System.out.println("3: Search For Flights");
             System.out.println("4: Exit\n");
             response = 0;
             
-            while(response < 1 || response > 2)
+            while(response < 1 || response > 4)
             {
                 System.out.print("> ");
 
                 response = scanner.nextInt();
 
-                if(response == 1)
+                if(response == 2)
                 {
                     try
                     {
                         doLogin();
                         System.out.println("Login successful!\n");
                         mainMenu();
+                        
+                      
                     }
                     catch(InvalidLoginCredentialException ex) 
                     {
                         System.out.println("Invalid login credential: " + ex.getMessage() + "\n");
                     }
-                } else if (response == 2) {
+                } else if (response == 1)
+                {
                     doRegisterAsCustomer();
-                } else if (response == 3) {
+                }
+                else if (response == 3)
+                {
                     doSearchFlight();
+              
                 } else if (response == 4)
                 {
                     break;
@@ -112,9 +119,7 @@ public class MainApp {
                 break;
             }
         }
-        
     }
-    
     private void doLogin() throws InvalidLoginCredentialException
     {
         Scanner scanner = new Scanner(System.in);
@@ -160,7 +165,7 @@ public class MainApp {
         Customer newCustomer = new Customer(firstName, lastName, email, mobilePhoneNumber, address, postalCode, username, password);
         try {
             Long newCustomerId = customerSessionBeanRemote.registerAsCustomer(newCustomer);
-            System.out.println("Customer with Customer Id " + newCustomerId + " has been successfully created!");
+            System.out.println("Customer  " + username + " has been successfully created!");
         } catch (UnknownPersistenceException ex) {
             System.out.println(ex.getMessage() + "\n");
         } catch (CustomerCredentialExistException ex) {
@@ -228,7 +233,7 @@ public class MainApp {
         }
         
         System.out.print("Enter departure airport > ");
-        String departureAirport = scanner.nextLine().trim();
+        String departureAirport = scanner.nextLine();
         System.out.print("Enter destination airport > ");
         String destinationAirport = scanner.nextLine().trim();
         System.out.print("Enter departure date (dd MMM yy) > ");
@@ -258,7 +263,7 @@ public class MainApp {
         Integer numOfPassengers = scanner.nextInt();
         scanner.nextLine();
         System.out.print("Do you have any flight preferences? (Y: Yes, N: No) > ");
-        String flightPreferenceStr = scanner.nextLine().trim();
+        String flightPreferenceStr = scanner.nextLine();
         Boolean flightPreference = Boolean.FALSE;
         Integer flightSelect = 0;
         if (flightPreferenceStr.equalsIgnoreCase("Y")) {
@@ -270,11 +275,11 @@ public class MainApp {
             flightPreference = Boolean.FALSE;
         } else {
             System.out.println("Invalid Input!");
-            return;
+            
         }
         
         System.out.print("Do you have any cabin class preferences? (Y: Yes, N: No) > ");
-        String cabinClassPreferenceStr = scanner.nextLine().trim();
+        String cabinClassPreferenceStr = scanner.nextLine();
         Boolean cabinClassPreference = Boolean.FALSE;
         CabinClassTypeEnum cabinClassType = null;
         if (cabinClassPreferenceStr.equalsIgnoreCase("Y")) {
@@ -296,7 +301,8 @@ public class MainApp {
             cabinClassPreference = Boolean.FALSE;
         } else {
             System.out.println("Invalid Input!");
-            return;
+            
+    
         }
         
         // search direct flight for departure date for ->
@@ -306,6 +312,7 @@ public class MainApp {
         
         // one way
         System.out.println("Flights from " + departureAirport + " to " + destinationAirport);
+         System.out.println("Flights from " + departureAirport + " to " + destinationAirport);
         if (flightPreference) {
             if (flightSelect == 1) {
                 // direct flight
@@ -399,6 +406,10 @@ public class MainApp {
     }
     
     public void displayFlightSchedule(List<FlightSchedule> fsList, Integer numOfPassengers) {
+        if(fsList.isEmpty())
+        {
+            System.out.println("list is empty!");
+        }
         for (FlightSchedule fs : fsList) {
             System.out.println("Flight Schedule Id #" + fs.getFlightscheduleid());
             System.out.println("Flight Number <" + fs.getFlightSchedulePlan().getFlight() + ">");

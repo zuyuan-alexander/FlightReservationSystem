@@ -7,6 +7,7 @@ package ejb.session.stateless;
 import entity.AircraftConfiguration;
 import entity.Flight;
 import entity.FlightRoute;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -81,6 +82,8 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         
         if(flight != null)
         {
+
+            flight.getAircraftConfiguration().getCabinClasses().size();
             return flight;
         }
         else
@@ -150,7 +153,10 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         
         mainFlight.setReturnFlight(Boolean.TRUE);
         mainFlight.setComplimentaryFlight(complementaryFlight);
-            
+        
+        complementaryFlight.setReturnFlight(Boolean.TRUE);
+        complementaryFlight.setComplimentaryFlight(mainFlight);
+
         //updateFlight(mainFlight);
         em.persist(complementaryFlight);
         em.flush();
@@ -160,8 +166,22 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     
     @Override
     public List<Flight> viewAllFlight() {
-        Query query = em.createQuery("SELECT f FROM Flight f ORDER BY f.flightNumber ASC, f.complimentaryFlight DESC");
-        return query.getResultList();
+        //Query query = em.createQuery("SELECT f FROM Flight f ORDER BY f.flightNumber ASC, f.complimentaryFlight DESC");
+        //return query.getResultList();
+        Query query = em.createQuery("SELECT f FROM Flight f ORDER BY f.flightNumber ASC");
+        List<Flight> fList = query.getResultList();
+        List<Flight> answer = new ArrayList<>();
+        for (Flight f : fList) {
+            if (!answer.contains(f)) {
+                answer.add(f);
+                
+                if (f.getReturnFlight()) {
+                    // it has a complementary flight
+                    answer.add(f.getComplimentaryFlight());
+                }
+            }
+        }
+        return answer;
     }
     
     @Override
@@ -207,6 +227,8 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
             if (mainFlight != null) {
                 mainFlight.setReturnFlight(Boolean.FALSE);
                 mainFlight.setComplimentaryFlight(null);
+                mainFlight.getFlightRoute().getFlights().size();
+                mainFlight.getFlightRoute().getFlights().remove(mainFlight);
             }
             
             Flight flight = retrieveFlightByFlightId(flightId);

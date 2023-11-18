@@ -31,8 +31,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -50,6 +48,7 @@ import util.exception.FlightScheduleNotFoundException;
 import util.exception.FlightSchedulePlanNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidLoginCredentialException;
+import util.exception.OverlappingScheduleException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateFlightException;
 import util.exception.UpdateFlightRouteException;
@@ -225,11 +224,11 @@ public class MainApp {
                     doCreateFlightSchedulePlan();
                 } else if(response == 7)
                 {
-                    //doViewAllFlightSchedulePlan();
+                    doViewAllFlightSchedulePlans();
                 } else if(response == 8)
                 {
                     //doViewFlightSchedules();
-                    //doViewFlightSchedulePlanDetails();
+                    doViewFlightSchedulePlanDetails();
                 } else if(response == 9)
                 {
                     //doUpdateFlightSchedulePlan();
@@ -555,6 +554,7 @@ public class MainApp {
     {
         FlightSchedulePlan newFSP = new FlightSchedulePlan();
         FlightSchedule newFS = new FlightSchedule();
+        boolean overlap = false;
         Flight f = new Flight();
         Scanner sc = new Scanner(System.in);
         System.out.println("*** FRS Schedule Manager Menu: Create New Flight Schedule Plan ***\n");
@@ -568,7 +568,34 @@ public class MainApp {
         {
             System.out.println(ex.getMessage());
         }
-
+        
+        List<FlightSchedulePlan> currfsps = flightSchedulePlanSessionBean.retrieveFlightSchedulePlanByFlightID(f.getFlightId());
+        List<FlightSchedule> currfs = new ArrayList();
+        List<FlightSchedule> ongoingfs = new ArrayList();
+        for(FlightSchedulePlan fsp: currfsps)
+        {
+            currfs = flightScheduleSessionBean.retrieveAllFlightSchedulesWithFSPid(fsp.getFlightscheduleplanid());
+            if(currfs.isEmpty())
+            {
+                System.out.println("sad face :(");
+            }else
+            {
+                System.out.println("happy face :)");
+            }
+            for(FlightSchedule fs : currfs)
+            {
+                ongoingfs.add(fs);
+            }
+        }
+        /*
+        FlightSchedule temp = new FlightSchedule();
+        for(int i = 0; i < 5; i++)
+        {
+            temp = ongoingfs.get(i);
+            System.out.println("FlightSchedule " + i + " :" + "with departure time: " + temp.getDepartureTime());
+        }*/
+      
+       
         System.out.println("Select Flight SchedulePlanType (1: Single, 2: Multiple, 3: RecurrentNDay, 4: RecurrentWeekly)> ");
         Integer response = sc.nextInt();
         sc.nextLine();
@@ -614,11 +641,24 @@ public class MainApp {
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
                 
-                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+                 for (FlightSchedule fs : ongoingfs) {
+                    if (checkOverlap(newFS, fs)) {
+                        
+                        throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                    }
+                }
                 
+                Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 while(newFS.getDepartureDate().before(endDate))
                 {
+                    for (FlightSchedule fs : ongoingfs) {
+                        if (checkOverlap(newFS, fs)) {
+                      
+                            throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                        }
+                    }
+
                     
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(newFS.getDepartureDate());
@@ -635,11 +675,14 @@ public class MainApp {
                     BigDecimal fareAmount = sc.nextBigDecimal();
                     sc.nextLine();
                     Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
-                    fareSessionBeanRemote.createNewFare(fare, flightSchedulePlan);
+
+                    fareSessionBeanRemote.createNewFare(fare, newfspid);
                 }
                
                 //em.persist(newFSP)
                 
+            } catch (OverlappingScheduleException ex) {
+                System.out.println(ex.getMessage());
             } catch (ParseException ex)
             {
                 ex.printStackTrace();
@@ -679,12 +722,26 @@ public class MainApp {
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
+                for (FlightSchedule fs : ongoingfs) {
+                    if (checkOverlap(newFS, fs)) {
+                        
+                        throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                    }
+                }
+                
                
                 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 while(newFS.getDepartureDate().before(endDate))
                 {
+                    for (FlightSchedule fs : ongoingfs) {
+                        if (checkOverlap(newFS, fs)) {
+
+                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            
+                        }
+                    } 
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(newFS.getDepartureDate());
                     calendar.add(Calendar.DAY_OF_MONTH, nDay); // Increment by 7 days
@@ -693,9 +750,21 @@ public class MainApp {
                     newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 }
                 
+                for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                    System.out.print("Enter fare basis code > ");
+                    String fareBasisCode = sc.nextLine().trim();
+                    System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
+                    BigDecimal fareAmount = sc.nextBigDecimal();
+                    sc.nextLine();
+                    Fare fare = new Fare(fareBasisCode, fareAmount, cabinClass.getCabinClassType());
+                    fareSessionBeanRemote.createNewFare(fare, newfspid);
+                }
+                
                
                 //em.persist(newFSP)
                 
+            } catch (OverlappingScheduleException ex) {
+                System.out.println(ex.getMessage());
             } catch (ParseException ex)
             {
                 ex.printStackTrace();
@@ -729,6 +798,13 @@ public class MainApp {
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
+                for (FlightSchedule fs : ongoingfs) {
+                        if (checkOverlap(newFS, fs)) {
+
+                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            
+                        }
+                    }
 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
@@ -750,9 +826,26 @@ public class MainApp {
                     newFS.setDepartureTime(departureTime);
                     newFS.setEstimatedFlightDuration(flightDuration);
                     newFS.calculateAndSetArrivalDateTime();
+                    for (FlightSchedule fs : ongoingfs) {
+                        if (checkOverlap(newFS, fs)) {
+
+                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            
+                        }
+                    }
 
                     newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 }
+                
+                for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                    System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
+                    BigDecimal fareAmount = sc.nextBigDecimal();
+                    sc.nextLine();
+                    Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
+                    fareSessionBeanRemote.createNewFare(fare, newfspid);
+                }
+            } catch (OverlappingScheduleException ex) {
+                System.out.println(ex.getMessage());
             } catch (ParseException ex) {
                 ex.printStackTrace();
             }
@@ -781,10 +874,26 @@ public class MainApp {
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
+                for (FlightSchedule fs : ongoingfs) {
+                        if (checkOverlap(newFS, fs)) {
+
+                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            
+                        }
+                    }
 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                    System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
+                    BigDecimal fareAmount = sc.nextBigDecimal();
+                    sc.nextLine();
+                    Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
+                    fareSessionBeanRemote.createNewFare(fare, newfspid);
+                }
              
+            } catch (OverlappingScheduleException ex) {
+                System.out.println(ex.getMessage());
             } catch (ParseException ex) {
                 ex.printStackTrace();
             }
@@ -792,8 +901,101 @@ public class MainApp {
         }
     } 
     
+    public void doViewAllFlightSchedulePlans()
+    {
+        System.out.println("\n\n*** View All Flight Schedule Plan *** \n");
+        List<FlightSchedulePlan> fspList = flightSchedulePlanSessionBean.retrieveAllFlightSchedulePlan();
 
+        FlightSchedulePlan currfsp = new FlightSchedulePlan();
+        String fspText = "List of Flight Schedule Plans:\n";
+   
+        for(int i = 1; i < fspList.size() + 1 ; i++) 
+        {
+            currfsp = fspList.get(i-1);
+            if(currfsp.getScheduleType().equals(ScheduleTypeEnum.SINGLE))
+            {
+                 fspText += i + ": Single Plan" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            } else if(currfsp.getScheduleType().equals(ScheduleTypeEnum.MULTIPLE))
+            {
+                 fspText += i + ": Multiple Plan" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            } else if(currfsp.getScheduleType().equals(ScheduleTypeEnum.RECURRENTNDAY))
+            {
+                 fspText += i + ": Recurrent Plan(N-Day)" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            } else if(currfsp.getScheduleType().equals(ScheduleTypeEnum.RECURRENTWEEKLY))
+            {
+                 fspText += i + ": Recurrent Plan(Weekly)" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+            }
+        }
+        
+        System.out.print(fspText);
+   
+    }
     
+    public void doViewFlightSchedulePlanDetails() {
+        try {
+            System.out.println("\n\n*** View Flight Schedule Plan Details *** \n");
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter flight number > ");
+            String flightNumber = sc.nextLine().trim();
+            FlightSchedulePlan fsp = flightSchedulePlanSessionBean.retrieveFlightSchedulePlanByFlightNumber(flightNumber);
+            List<FlightSchedule> fsList = flightSchedulePlanSessionBean.retrieveFlightScheduleByFSP(fsp.getFlightscheduleplanid());
+            Flight f = flightSessionBean.retrieveFlightByFlightNumber(flightNumber);
+            System.out.println("Flight Schedule Plan Id: " + fsp.getFlightscheduleplanid());
+            System.out.println("FLight Schedule Plan Type: " + fsp.getScheduleType());
+            System.out.println("Flight Aircraft Configuration: " + f.getAircraftConfiguration());
+            System.out.println("Flight Route: " + f.getFlightRoute().getOrigin() + " -> " + f.getFlightRoute().getDestination());
+            System.out.println();
+            
+            for (FlightSchedule fs : fsList) {
+                System.out.println("Flight Schedule Id: " + fs.getFlightscheduleid() + "; Departure Date: " + fs.getDepartureDate() + 
+                        "; Departure Time: " + fs.getDepartureTime() + "; Flight Duration: " + fs.getEstimatedFlightDuration());
+            }
+            System.out.println();
+            // print layout
+            
+            List<Fare> fares = flightSchedulePlanSessionBean.retrieveFareByFSPId(fsp.getFlightscheduleplanid());
+            for (Fare fare : fares) {
+                System.out.println("Cabin Class Type: " + fare.getCabinClassType() + "; Fare basis code: " + fare.getFareBasicCode() + "; Fare Amount: " + fare.getFareAmount());
+            }
+        } catch (FlightSchedulePlanNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch(FlightNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
+    }
+
+    public boolean checkOverlap(FlightSchedule schedule1, FlightSchedule schedule2) {
+        // Combining departure date and time for schedule1
+        Date departureDateTime1 = combineDateTime(schedule1.getDepartureDate(), schedule1.getDepartureTime());
+        Date arrivalDateTime1 = combineDateTime(schedule1.getDepartureDate(), schedule1.getArrivalTime());
+
+        // Combining departure date and time for schedule2
+        Date departureDateTime2 = combineDateTime(schedule2.getDepartureDate(), schedule2.getDepartureTime());
+        Date arrivalDateTime2 = combineDateTime(schedule2.getDepartureDate(), schedule2.getArrivalTime());
+
+        // Checking for overlap
+        boolean isOverlap =
+                (departureDateTime1.before(arrivalDateTime2) && departureDateTime1.after(departureDateTime2)) ||
+                        (arrivalDateTime1.after(departureDateTime2) && arrivalDateTime1.before(arrivalDateTime2));
+
+        return isOverlap;
+    }
+
+    // Helper method to combine date and time
+    private Date combineDateTime(Date date, Date time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        Calendar timeCal = Calendar.getInstance();
+        timeCal.setTime(time);
+
+        cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+
+        return cal.getTime();
+    }
+
     public void doCreateAircraftConfiguration() {
         System.out.println("====== Create Aircraft Configuration =====");
         Scanner scanner = new Scanner(System.in);
@@ -873,7 +1075,7 @@ public class MainApp {
         }
         
         for (AircraftConfiguration ac : aircraftConfigurationList) {
-            System.out.println("Aircraft Configuration Id: " + ac.getAircraftConfigurationId() + "; Name: " + ac.getAircraftConfigurationName());
+            System.out.println("Aircraft Configuration Id: " + ac.getAircraftConfigurationId() + "; Name: " + ac.getAircraftConfigurationName() + "; Aircraft Type: " + ac.getAircraftType());
         }
     }
     
@@ -916,6 +1118,7 @@ public class MainApp {
         
         try {
             Long id = flightRouteSessionBeanRemote.createFlightRoute(flightRoute);
+            System.out.println("Flight Route with Flight Route Id " + (id-1) + " has been successfully created!");
             System.out.println("Flight Route with Flight Route Id " + id + " has been successfully created!");
         } catch (AirportNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");

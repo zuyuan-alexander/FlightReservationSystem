@@ -7,8 +7,11 @@ package ejb.session.stateless;
 import entity.Airport;
 import entity.Flight;
 import entity.FlightRoute;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -73,6 +76,9 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
             returnFlightRoute.getAirports().add(destinationAirport);
             returnFlightRoute.getAirports().add(originAirport);
             
+            returnFlightRoute.setReturnFlightRoute(flightRoute);
+            returnFlightRoute.setReturnFlight(Boolean.TRUE);
+            
             em.persist(returnFlightRoute);
         }
         
@@ -83,36 +89,24 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     
     @Override
     public List<FlightRoute> viewAllFlightRoutes() {
-        Query query = em.createQuery("SELECT fr FROM FlightRoute fr ORDER BY fr.origin ASC, fr.returnFlightRoute.origin ASC");
-        return query.getResultList();
+        Query query = em.createQuery("SELECT fr FROM FlightRoute fr ORDER BY fr.origin ASC, fr.destination ASC");
+        List<FlightRoute> frList = query.getResultList();
+        List<FlightRoute> answer = new ArrayList<>();
+        for (FlightRoute fr : frList) {
+            if (!answer.contains(fr)) {
+                answer.add(fr);
+                
+                if (fr.getReturnFlight()) {
+                    // it has a complementary flight route
+                    answer.add(fr.getReturnFlightRoute());
+                }
+            }
+        }
+        return answer;
     }
     
     @Override
     public void deleteFlightRoute(Long flightRouteId) throws FlightRouteNotFoundException {
-        /*
-        FlightRoute mainRoute = checkReturnFlightRoute(flightRouteId);
-        
-        if (mainRoute != null) {
-            // the flight route we are prompting is actually a complementary return route
-            // we must update the main route before deleting the return route
-            mainRoute.setReturnFlight(Boolean.FALSE);
-            mainRoute.setReturnFlightRoute(null);
-        }
-        
-        FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
-
-        // if flight route has at least a flight, we cannot remove it and have to set disabled to TRUE
-        // if flight route is not used at all, we can remove it directly
-        if (flightRoute.getFlights().isEmpty()) {
-            // flight route is not used at all
-            flightRoute.getAirports().clear();
-
-            em.remove(flightRoute);     
-        } else {
-            // flight route has at least a lfight, we cannot remove it directly
-            flightRoute.setDisabledFlight(Boolean.TRUE);
-        }
-        */
         // the flight id you input is actually a return flight
         try {
             FlightRoute mainFR = checkReturnFlightRoute(flightRouteId);

@@ -13,8 +13,6 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import util.enumeration.CabinClassTypeEnum;
-import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
  *
@@ -33,9 +31,10 @@ public class FareSessionBean implements FareSessionBeanRemote, FareSessionBeanLo
     }
     
     @Override
-    public Long createNewFare(Fare fare, FlightSchedulePlan newFSP) {
+    public Long createNewFare(Fare fare,  Long newFSPid) {
         //FlightSchedulePlan fsp = flightSchedulePlanSessionBeanLocal.retrieveStaffByStaffId(fspId);
-        
+        FlightSchedulePlan newFSP = em.find(FlightSchedulePlan.class, newFSPid);
+    
         fare.setFlightSchedulePlan(newFSP);
         newFSP.getFares().size();
         newFSP.getFares().add(fare);

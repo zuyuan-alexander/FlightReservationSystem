@@ -4,13 +4,17 @@
  */
 package ejb.session.stateless;
 
+import entity.Fare;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
@@ -22,6 +26,9 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
     @EJB
     private FlightScheduleSessionBeanRemote flightScheduleSessionBean;
+    
+    @EJB
+    private FlightSessionBeanLocal flightSessionBeanLocal;
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
@@ -42,10 +49,7 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         em.flush();
         return newFSP.getFlightscheduleplanid();
            
-        //Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newFSP.getFlightscheduleplanid());
-        
-     
-        
+        //Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newFSP.getFlightscheduleplanid());    
         
     }
     
@@ -64,7 +68,47 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         }
     }
     
-   
+    @Override
+    public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan()
+    {   
+        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp ORDER BY fsp.flight.flightNumber ASC, fsp.startDate DESC");
+        
+        return query.getResultList();
+  
+    }
+    
+    @Override
+    public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId)
+    {
+        TypedQuery<FlightSchedulePlan> query = em.createQuery(
+        "SELECT fsp FROM FlightSchedulePlan fsp WHERE fsp.flight.flightId = :flightId",
+        FlightSchedulePlan.class
+    );
+    query.setParameter("flightId", flightId);
+    return query.getResultList();
+    }
+    
+    @Override
+    public FlightSchedulePlan retrieveFlightSchedulePlanByFlightNumber(String flightNumber) {
+        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp WHERE fsp.flight.flightNumber = :inFlightNumber");
+        query.setParameter("inFlightNumber", flightNumber);
+        return (FlightSchedulePlan) query.getSingleResult();
+    }
+    
+    @Override
+    public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException {
+        FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
+        fsp.getFlightschedules().size();
+        fsp.getFares().size();
+        return fsp.getFlightschedules();
+    }
+    
+    @Override
+    public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException {
+        FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
+        fsp.getFares().size();
+        return fsp.getFares();
+    }
 }
 
 

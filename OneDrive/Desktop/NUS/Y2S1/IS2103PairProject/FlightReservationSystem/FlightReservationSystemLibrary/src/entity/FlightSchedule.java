@@ -30,6 +30,20 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class FlightSchedule implements Serializable {
 
+    /**
+     * @return the arrivalTime
+     */
+    public Date getArrivalTime() {
+        return arrivalTime;
+    }
+
+    /**
+     * @param arrivalTime the arrivalTime to set
+     */
+    public void setArrivalTime(Date arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -225,7 +239,7 @@ public class FlightSchedule implements Serializable {
                                 - (arrivalCal.get(Calendar.SECOND) * 1000)
                                 - (arrivalCal.get(Calendar.MILLISECOND)));
         
-        this.arrivalTime = new Time(arrivalDateTime.getTime() - this.arrivalDate.getTime());
+        this.setArrivalTime(new Time(arrivalDateTime.getTime() - this.arrivalDate.getTime()));
     }
 }
 

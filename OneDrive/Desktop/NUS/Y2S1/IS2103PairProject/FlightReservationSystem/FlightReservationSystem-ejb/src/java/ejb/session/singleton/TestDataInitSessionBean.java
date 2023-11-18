@@ -5,7 +5,6 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.AircraftSessionBeanLocal;
-import ejb.session.stateless.DeploymentSessionBeanLocal;
 import ejb.session.stateless.FareSessionBeanLocal;
 import ejb.session.stateless.FlightRouteSessionBeanLocal;
 import ejb.session.stateless.FlightSchedulePlanSessionBeanLocal;
@@ -56,7 +55,7 @@ import util.exception.UpdateFlightRouteException;
  */
 @Singleton
 @LocalBean
-//@Startup
+@Startup
 public class TestDataInitSessionBean {
 
     @EJB
@@ -79,9 +78,6 @@ public class TestDataInitSessionBean {
     
     @EJB
     private FareSessionBeanLocal fareSessionBeanLocal;
-    
-    @EJB
-    private DeploymentSessionBeanLocal deploymentSessionBeanLocal;
     
     
     public TestDataInitSessionBean() {
@@ -376,7 +372,7 @@ public class TestDataInitSessionBean {
             
             for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
                 Fare fare = new Fare("farebc", fareAmountList.get(counter), cabinClass.getCabinClassType());
-                fareSessionBeanLocal.createNewFare(fare, newFSP);
+                //fareSessionBeanLocal.createNewFare(fare, newFSP);
                 counter++;
             }
             

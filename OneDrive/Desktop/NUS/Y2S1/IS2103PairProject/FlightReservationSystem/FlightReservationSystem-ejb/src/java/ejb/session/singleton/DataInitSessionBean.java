@@ -10,8 +10,8 @@ import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.Airport;
 import entity.CabinClass;
+import entity.Customer;
 import entity.Employee;
-import entity.Flight;
 import entity.FlightRoute;
 import entity.Partner;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import util.exception.AirportNotFoundException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class DataInitSessionBean {
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
@@ -90,9 +90,22 @@ public class DataInitSessionBean {
         em.persist(airport);
         em.flush();
         
+
         airport = new Airport("Taoyuan", "TPE", "Taoyuan", "Taipei", "Taiwan R.O.C");
         em.persist(airport);
         em.flush();
+
+        Customer customer = new Customer("Alvin", "Tor", "imalvin2@gmail.com", "97605641", "Eusoff Hall", "123456", "alvintjw","password");
+        em.persist(customer);
+        em.flush();
+        
+        FlightRoute flightRoute = new FlightRoute("SIN", "HKG");
+        flightRoute.setReturnFlight(Boolean.TRUE);
+        try {
+            flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
+        } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
         
         airport = new Airport("Narita", "NRT", "Narita", "Chiba", "Japan");
         em.persist(airport);

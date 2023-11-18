@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,6 +36,7 @@ public class Fare implements Serializable {
     private String fareBasicCode;
     private BigDecimal fareAmount;
     @Column(nullable=false)
+    @Enumerated(EnumType.STRING)
     private CabinClassTypeEnum cabinClassType;
 
     // relationship
