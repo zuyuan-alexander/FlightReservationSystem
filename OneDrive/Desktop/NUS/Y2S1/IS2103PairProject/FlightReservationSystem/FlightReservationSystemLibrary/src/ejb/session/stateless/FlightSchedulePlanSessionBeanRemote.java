@@ -23,5 +23,7 @@ public interface FlightSchedulePlanSessionBeanRemote {
     public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException;
 
     public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan();
+
+    public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId);
     
 }

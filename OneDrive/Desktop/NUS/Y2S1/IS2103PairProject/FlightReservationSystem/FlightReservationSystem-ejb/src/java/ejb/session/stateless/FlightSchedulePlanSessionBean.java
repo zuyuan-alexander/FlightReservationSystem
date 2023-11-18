@@ -13,6 +13,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
@@ -66,11 +67,24 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     @Override
     public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan()
     {   
-        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp");
+        Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp ORDER BY fsp.flight.flightNumber ASC");
         
         return query.getResultList();
   
     }
+    
+    @Override
+    public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId)
+    {
+        TypedQuery<FlightSchedulePlan> query = em.createQuery(
+        "SELECT fsp FROM FlightSchedulePlan fsp WHERE fsp.flight.flightId = :flightId",
+        FlightSchedulePlan.class
+    );
+    query.setParameter("flightId", flightId);
+    return query.getResultList();
+    }
+    
+
    
 }
 

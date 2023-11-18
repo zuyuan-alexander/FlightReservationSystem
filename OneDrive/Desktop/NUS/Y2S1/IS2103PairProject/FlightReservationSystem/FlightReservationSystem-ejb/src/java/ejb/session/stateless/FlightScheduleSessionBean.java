@@ -7,15 +7,14 @@ package ejb.session.stateless;
 import entity.CabinClass;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
-import entity.Seat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import util.enumeration.CabinClassTypeEnum;
-import util.enumeration.SeatStatusEnum;
 import util.exception.FlightScheduleNotFoundException;
 
 /**
@@ -57,6 +56,8 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
         return fs.getFlightscheduleid();
     }
     
+  
+    
     @Override
     public FlightSchedule retrieveFlightScheduleById(Long flightScheduleid) throws FlightScheduleNotFoundException
     {
@@ -85,6 +86,17 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
             }
         }
         return answer;
+    }
+    
+    @Override
+    public List<FlightSchedule> retrieveAllFlightSchedulesWithFSPid(Long fspid)
+    {
+         TypedQuery<FlightSchedule> query = em.createQuery(
+          "SELECT fs FROM FlightSchedule fs WHERE fs.flightSchedulePlan.flightscheduleplanid = :flightSchedulePlanId",
+        FlightSchedule.class
+    );
+    query.setParameter("flightSchedulePlanId", fspid);
+    return query.getResultList();
     }
     
 

@@ -10,8 +10,8 @@ import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.Airport;
 import entity.CabinClass;
+import entity.Customer;
 import entity.Employee;
-import entity.Flight;
 import entity.FlightRoute;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,6 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
-import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.CabinClassTypeEnum;
@@ -67,6 +66,10 @@ public class DataInitSessionBean {
         em.flush();
         airport = new Airport("Hong Kong", "HKG", "Chek Lap Kok", "Hong Kong", "China");
         em.persist(airport);
+        em.flush();
+        
+        Customer customer = new Customer("Alvin", "Tor", "imalvin2@gmail.com", "97605641", "Eusoff Hall", "123456", "alvintjw","password");
+        em.persist(customer);
         em.flush();
         
         FlightRoute flightRoute = new FlightRoute("SIN", "HKG");

@@ -59,7 +59,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
             return query.getResultList();
         } */
         Query query = em.createQuery("SELECT fs FROM FlightSchedule fs WHERE fs.departureDate = :inDepartureDate AND fs.flightSchedulePlan.flight.flightRoute.origin = :inOrigin AND fs.flightSchedulePlan.flight.flightRoute.destination = :inDestination");
-        query.setParameter("inDepartureDate", date).setParameter("inOrigin", departureAirport).setParameter("inDestination", departureAirport);
+        query.setParameter("inDepartureDate", date).setParameter("inOrigin", departureAirport).setParameter("inDestination", destinationAirport);
         List<FlightSchedule> fsList = query.getResultList();
         
         if (cabinClassType == null) {

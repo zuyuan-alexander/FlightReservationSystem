@@ -20,6 +20,7 @@ public interface FlightSchedulePlanSessionBeanLocal {
      public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
      public FlightSchedulePlan retrieveStaffByStaffId(Long fspid) throws FlightSchedulePlanNotFoundException;
      public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan();
+     public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId);
     
     
 }

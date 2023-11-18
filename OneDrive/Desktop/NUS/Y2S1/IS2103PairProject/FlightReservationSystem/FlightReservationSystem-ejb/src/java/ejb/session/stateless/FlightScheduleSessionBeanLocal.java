@@ -18,7 +18,7 @@ import util.exception.FlightScheduleNotFoundException;
 @Local
 public interface FlightScheduleSessionBeanLocal {
     public Long createNewFlightSchedule(FlightSchedule fs, Long newFSPid);
-     public FlightSchedule retrieveFlightScheduleById(Long flightScheduleid) throws FlightScheduleNotFoundException;
-
+    public FlightSchedule retrieveFlightScheduleById(Long flightScheduleid) throws FlightScheduleNotFoundException;
+    public List<FlightSchedule> retrieveAllFlightSchedulesWithFSPid(Long fspid);
     public List<FlightSchedule> checkFlightScheduleWithPreferedCabinClass(List<FlightSchedule> fsList, CabinClassTypeEnum cabinClassType);
 }

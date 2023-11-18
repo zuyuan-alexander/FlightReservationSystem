@@ -374,7 +374,7 @@ public class TestDataInitSessionBean {
             
             for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
                 Fare fare = new Fare("farebc", fareAmountList.get(counter), cabinClass.getCabinClassType());
-                fareSessionBeanLocal.createNewFare(fare, newFSP);
+                //fareSessionBeanLocal.createNewFare(fare, newFSP);
                 counter++;
             }
             

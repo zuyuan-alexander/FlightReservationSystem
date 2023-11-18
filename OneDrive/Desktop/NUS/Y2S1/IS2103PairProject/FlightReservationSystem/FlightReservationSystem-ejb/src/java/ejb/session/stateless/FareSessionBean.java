@@ -31,8 +31,9 @@ public class FareSessionBean implements FareSessionBeanRemote, FareSessionBeanLo
     }
     
     @Override
-    public Long createNewFare(Fare fare, FlightSchedulePlan newFSP) {
+    public Long createNewFare(Fare fare,  Long newFSPid) {
         //FlightSchedulePlan fsp = flightSchedulePlanSessionBeanLocal.retrieveStaffByStaffId(fspId);
+        FlightSchedulePlan newFSP = em.find(FlightSchedulePlan.class, newFSPid);
     
         fare.setFlightSchedulePlan(newFSP);
         newFSP.getFares().add(fare);

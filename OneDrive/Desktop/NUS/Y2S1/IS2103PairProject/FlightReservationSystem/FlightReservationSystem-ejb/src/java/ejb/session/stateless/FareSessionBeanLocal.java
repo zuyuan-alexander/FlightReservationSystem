@@ -18,7 +18,7 @@ import javax.ejb.Local;
 @Local
 public interface FareSessionBeanLocal {
     
-    public Long createNewFare(Fare fare, FlightSchedulePlan fsp);
+    public Long createNewFare(Fare fare,  Long newFSPid);
     
     public BigDecimal retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass);
     

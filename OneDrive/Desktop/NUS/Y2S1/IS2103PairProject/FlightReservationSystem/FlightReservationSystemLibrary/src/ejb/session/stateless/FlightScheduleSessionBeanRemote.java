@@ -23,4 +23,6 @@ public interface FlightScheduleSessionBeanRemote {
     public FlightSchedule retrieveFlightScheduleById(Long flightScheduleid) throws FlightScheduleNotFoundException;
     
     public List<FlightSchedule> checkFlightScheduleWithPreferedCabinClass(List<FlightSchedule> fsList, CabinClassTypeEnum cabinClassType);
+
+    public List<FlightSchedule> retrieveAllFlightSchedulesWithFSPid(Long fspid);
 }
