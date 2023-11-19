@@ -11,6 +11,7 @@ import entity.FlightSchedulePlan;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.FlightSchedulePlanNotFoundException;
+import util.exception.InputDataValidationException;
 
 /**
  *
@@ -18,7 +19,7 @@ import util.exception.FlightSchedulePlanNotFoundException;
  */
 @Local
 public interface FlightSchedulePlanSessionBeanLocal {
-     public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
+     public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException ;
      public FlightSchedulePlan retrieveFSPfByFSPId(Long fspid) throws FlightSchedulePlanNotFoundException;
      public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan();
      public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId);

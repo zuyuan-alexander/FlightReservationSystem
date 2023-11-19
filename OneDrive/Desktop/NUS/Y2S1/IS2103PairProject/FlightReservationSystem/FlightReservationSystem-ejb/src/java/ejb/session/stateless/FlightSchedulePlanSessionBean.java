@@ -4,18 +4,23 @@
  */
 package ejb.session.stateless;
 
-import entity.Fare;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.FlightSchedulePlanNotFoundException;
+import util.exception.InputDataValidationException;
 
 /**
  *
@@ -32,23 +37,45 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
 
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
+    
+     private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public FlightSchedulePlanSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
 
     
 
     @Override
-    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS)    
-    {
+    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException 
+    {   Set<ConstraintViolation<FlightSchedulePlan>>constraintViolations = validator.validate(newFSP);
+        
+        if(constraintViolations.isEmpty())
+        {
+            
+                 newFSP.setFlight(f);
+                em.persist(newFSP);
+
+
+                Flight flight = em.find(Flight.class, f.getFlightId());
+                flight.getFlightscheduleplans().add(newFSP);
+
+                em.flush();
+                return newFSP.getFlightscheduleplanid();
+
+          
+
+        } else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        }
         // Persist the new FlightSchedulePlan
-        newFSP.setFlight(f);
-        em.persist(newFSP);
-        
-      
-        Flight flight = em.find(Flight.class, f.getFlightId());
-        flight.getFlightscheduleplans().add(newFSP);
-        
-        em.flush();
-        return newFSP.getFlightscheduleplanid();
-           
+    
         //Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newFSP.getFlightscheduleplanid());    
         
     }
@@ -95,6 +122,18 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp WHERE fsp.flight.flightNumber = :inFlightNumber");
         query.setParameter("inFlightNumber", flightNumber);
         return (FlightSchedulePlan) query.getSingleResult();
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<FlightSchedulePlan>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
     
     /*

@@ -11,6 +11,7 @@ import entity.FlightSchedulePlan;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.FlightSchedulePlanNotFoundException;
+import util.exception.InputDataValidationException;
 
 /**
  *
@@ -19,7 +20,7 @@ import util.exception.FlightSchedulePlanNotFoundException;
 @Remote
 public interface FlightSchedulePlanSessionBeanRemote {
 
-    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS);
+    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException ;
 
    public FlightSchedulePlan retrieveFSPfByFSPId(Long fspid) throws FlightSchedulePlanNotFoundException;
 

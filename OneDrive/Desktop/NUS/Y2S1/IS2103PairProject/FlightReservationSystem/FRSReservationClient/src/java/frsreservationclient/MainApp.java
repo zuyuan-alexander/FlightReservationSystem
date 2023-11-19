@@ -286,12 +286,13 @@ public class MainApp {
         }
         
         System.out.print("Do you have any cabin class preferences? (Y: Yes, N: No) > ");
-        System.out.println();
+        
         String cabinClassPreferenceStr = scanner.nextLine();
         Boolean cabinClassPreference = Boolean.FALSE;
         CabinClassTypeEnum cabinClassType = null;
         if (cabinClassPreferenceStr.equalsIgnoreCase("Y")) {
             cabinClassPreference = Boolean.TRUE;
+            System.out.println();
             System.out.print("Enter cabin class type (F: First, J: Business, W: Premium Economy, Y: Economy) > ");
             String ccTypeStr = scanner.nextLine().trim();
             
@@ -449,7 +450,7 @@ public class MainApp {
 
         if(fsList.isEmpty())
         {
-            //System.out.println("list is empty!");
+            System.out.println("No Available Flights :(");
         }
         for (FlightSchedule fs : fsList) {
             try
@@ -532,7 +533,7 @@ public class MainApp {
             System.out.println(ex.getMessage() + "\n");
         }
         
-        if(fsId == null)
+        if(fs.getFlightscheduleid() == null)
         {
             System.out.println("fsid is null");
         }
@@ -546,27 +547,30 @@ public class MainApp {
             String passportNumber = sc.nextLine().trim();
             System.out.print("Enter prefered seat letter > ");
             Character seatLetter = sc.nextLine().charAt(0);
-            System.out.println("Enter prefered seat row number");
+            System.out.println("Enter prefered seat row number >");
             Integer seatRowNumber = sc.nextInt();
-            sc.nextLine();
+            //sc.nextLine();
             Passenger newPassenger = new Passenger(firstName, lastName, passportNumber);
             //find the seat in the db.
+            System.out.println("Chosen Seat: " + seatRowNumber + "" + seatLetter);
             Seat chosenseat = new Seat();
+            /*
             try
             {
-                chosenseat = seatSessionBeanRemote.retrieveSeatBySeatLetterAndRowNumber(seatLetter, seatRowNumber);
+                chosenseat = seatSessionBeanRemote.retrieveSeatBySeatLetterAndRowNumber(seatLetter, seatRowNumber); 
             } catch (SeatNotFoundException ex)
             {
                 System.out.println(ex.getMessage());
-            }
+            } */
 
             //i want to check that this passenger has not already booked this fs. i.e 1 seat per passenger
             List<Passenger> passengerlist = fs.getPassengers();
             boolean booked = false;
             for(Passenger p: passengerlist)
             {
-                if(p.getPassportNumber() == passportNumber)
+                if(p.getPassportNumber().equals(passportNumber))
                 {
+                    
                     booked = true;
                     break;
                 }

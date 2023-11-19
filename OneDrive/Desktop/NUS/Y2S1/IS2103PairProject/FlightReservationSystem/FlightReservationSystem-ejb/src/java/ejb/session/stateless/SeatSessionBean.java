@@ -33,12 +33,15 @@ public class SeatSessionBean implements SeatSessionBeanRemote, SeatSessionBeanLo
     }
     
     @Override
-    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber) throws SeatNotFoundException { 
+    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber, Long ccid) throws SeatNotFoundException { 
+        Seat seat = new Seat();
         try
         {
-             Query query = em.createQuery("SELECT s FROM Seat s WHERE s.seatLetter = :inSeatLetter AND s.rowNumber = :inRowNumber");
-             query.setParameter("inSeatLetter", seatLetter).setParameter("inRowNumber", rowNumber);
-             return (Seat) query.getSingleResult();
+             System.out.println("Querying seat " + rowNumber + "" + seatLetter);
+             Query query = em.createQuery("SELECT s FROM Seat s WHERE s.seatLetter = :inSeatLetter AND s.rowNumber = :inRowNumber AND s.cabinClass.id = :inCCid " );
+             query.setParameter("inSeatLetter", seatLetter).setParameter("inRowNumber", rowNumber).setParameter("inCCid ", ccid);
+             seat = (Seat) query.getSingleResult();
+             return seat;
         } catch (NoResultException | NonUniqueResultException ex)
         {
             throw new SeatNotFoundException("Seat " + rowNumber + ""+ seatLetter +" does not exist");

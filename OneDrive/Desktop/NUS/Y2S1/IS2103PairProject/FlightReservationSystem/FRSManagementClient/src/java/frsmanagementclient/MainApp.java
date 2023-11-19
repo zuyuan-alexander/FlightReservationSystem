@@ -51,7 +51,6 @@ import util.exception.InvalidLoginCredentialException;
 import util.exception.OverlappingScheduleException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateFlightException;
-import util.exception.UpdateFlightRouteException;
 
 /**
  *
@@ -148,7 +147,7 @@ public class MainApp {
         String username = "";
         String password = "";
         
-        System.out.println("*** FRS Management System :: Login ***\n");
+        System.out.println("*** FRS Management System: Login ***\n");
         System.out.print("Enter username> ");
         username = scanner.nextLine().trim();
         System.out.print("Enter password> ");
@@ -252,34 +251,7 @@ public class MainApp {
             }
         }
     }
-    /*
-    private void doViewFlightSchedules()
-    {
-        Flight f = new Flight();
-        FlightSchedulePlan fsp1 = new FlightSchedulePlan();
-        FlightSchedulePlan fsp2 = new FlightSchedulePlan();
-        Scanner sc = new Scanner(System.in);
-        System.out.println("*** FRS Schedule Manager Menu: View All Flight Schedule Plan ***\n");
-        System.out.println("Enter Flight Number> ");
-        String flightnumber = sc.nextLine();
-        try
-        {      
-            f = flightSessionBean.retrieveFlightByFlightNumber(flightnumber);
-            f.getFlightscheduleplans().size();
-        } catch (FlightNotFoundException ex)
-        {
-            System.out.println(ex.getMessage());
-        }
-        
-        fsp1 = f.getFlightscheduleplans().get(0);
-        fsp2 = f.getFlightscheduleplans().get(1);
-        System.out.println("fsp1: " + fsp1.getFlightscheduleplanid()+ fsp1.getDayOfWeek());
-        System.out.println("fsp2: " + fsp2.getFlightscheduleplanid()+ fsp2.getDayOfWeek());
-        System.out.println("fsp1: " + fsp1.getFlightscheduleplanid() + fsp1.getFlightschedules().get(0).getFlightscheduleid());
-        System.out.println("fsp2: " + fsp2.getFlightscheduleplanid() + fsp2.getFlightschedules().get(0).getFlightscheduleid());
-                
-    }*/
-    
+   
     
     private void RoutePlannerMenuMain()
     {
@@ -554,6 +526,9 @@ public class MainApp {
     {
         FlightSchedulePlan newFSP = new FlightSchedulePlan();
         FlightSchedule newFS = new FlightSchedule();
+        FlightSchedulePlan compFSP = new FlightSchedulePlan();
+        FlightSchedule compFS = new FlightSchedule();
+         
         boolean overlap = false;
         Flight f = new Flight();
         Scanner sc = new Scanner(System.in);
@@ -568,6 +543,19 @@ public class MainApp {
         } catch (FlightNotFoundException ex)
         {
             System.out.println(ex.getMessage());
+        }
+        Flight compf = new Flight();
+        boolean hasComFlight = (f.getComplimentaryFlight() != null);
+        
+        if(hasComFlight)
+        {
+            try
+            {
+               compf = flightSessionBean.retrieveFlightByFlightNumber(f.getComplimentaryFlight().getFlightNumber());
+            } catch (FlightNotFoundException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
         }
         
         List<FlightSchedulePlan> currfsps = flightSchedulePlanSessionBean.retrieveFlightSchedulePlanByFlightID(f.getFlightId());
@@ -604,7 +592,7 @@ public class MainApp {
         
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
-        SimpleDateFormat departureFormat = new SimpleDateFormat("hh:mm a");
+        SimpleDateFormat departureFormat = new SimpleDateFormat("hh:mm");
         
         if(response == 4)
         {
@@ -619,6 +607,12 @@ public class MainApp {
             String endDateStr = sc.nextLine();
             System.out.println("Enter Flight Duration> HH Hours mm Minutes");
             String flightDurationStr = sc.nextLine();
+            String layoverDurationStr = "";
+            if(hasComFlight)
+            {
+                System.out.println("Enter Layover Duration for " + compf.getFlightNumber() + "> HH Hours mm Minutes");
+                layoverDurationStr = sc.nextLine();
+            }
             
             //set the departureTime and flightDuration of the new FS
            
@@ -632,8 +626,8 @@ public class MainApp {
                 Date endDate = dateFormat.parse(endDateStr);
                 Date flightDuration = timeFormat.parse(flightDurationStr);
                 Date departureTime = departureFormat.parse(departureTimestr);
+                Date layoverDuration = new Date();
 
-                
                 newFSP.setDayOfWeek(dayOfWeek);
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
@@ -643,15 +637,43 @@ public class MainApp {
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
                 
-                 for (FlightSchedule fs : ongoingfs) {
+                for (FlightSchedule fs : ongoingfs) {
                     if (checkOverlap(newFS, fs)) {
                         
-                        throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                        throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
                     }
                 }
                 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                Long compfspid = Long.MAX_VALUE; 
+                Long compfsid = Long.MAX_VALUE;
+                
+                if(hasComFlight)
+                {
+                    layoverDuration = timeFormat.parse(layoverDurationStr);
+                    FlightSchedule temp = new FlightSchedule();
+                    temp.setEstimatedFlightDuration(layoverDuration);
+                    temp.setDepartureDate(newFS.getArrivalDate());
+                    temp.setDepartureTime(newFS.getArrivalTime());
+                    temp.calculateAndSetArrivalDateTime();
+    
+                    compFSP.setScheduleType(ScheduleTypeEnum.RECURRENTWEEKLY);
+                    compFSP.setDayOfWeek(dayOfWeek);
+                    compFSP.setStartDate(startDate);
+                    compFSP.setEndDate(endDate);
+                    compFSP.setNdays(7);
+                    compFS.setDepartureDate(temp.getArrivalDate());
+                    compFS.setDepartureTime(temp.getArrivalTime());
+                    compFS.setEstimatedFlightDuration(flightDuration);
+                    compFS.calculateAndSetArrivalDateTime();
+                    
+                 
+                     compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                     compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
+                    
+                }
+                
                 while(newFS.getDepartureDate().before(endDate))
                 {
                     for (FlightSchedule fs : ongoingfs) {
@@ -661,14 +683,30 @@ public class MainApp {
                         }
                     }
 
-                    
+                    //add the main fs
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(newFS.getDepartureDate());
                     calendar.add(Calendar.DAY_OF_MONTH, 7); // Increment by 7 days
                     newFS.setDepartureDate(calendar.getTime());
                     newFS.calculateAndSetArrivalDateTime(); 
                     newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                    
+                       
+                    //add the returning fs
+                    if(hasComFlight)
+                    {
+                        Calendar calendar2 = Calendar.getInstance();
+                        calendar2.setTime(newFS.getDepartureDate());
+                        calendar2.add(Calendar.DAY_OF_MONTH, 7); // Increment by 7 days
+                        compFS.setDepartureDate(calendar.getTime());
+                        compFS.calculateAndSetArrivalDateTime(); 
+                        compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
+                    
+                    }
+                    
                 }
+                
+                
                 
                 for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
                     FlightSchedulePlan flightSchedulePlan = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(newfspid);
@@ -680,8 +718,6 @@ public class MainApp {
 
                     fareSessionBeanRemote.createNewFare(fare, newfspid);
                 }
-               
-                //em.persist(newFSP)
                 
             } catch (OverlappingScheduleException ex) {
                 System.out.println(ex.getMessage());
@@ -690,7 +726,11 @@ public class MainApp {
                 ex.printStackTrace();
             } catch (FlightSchedulePlanNotFoundException ex) {
                 ex.printStackTrace();
-            }
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage());
+            } 
+            
+             System.out.println(f.getFlightNumber() + ", " + newFSP.getScheduleType().name() + ": was created successfully");
         } else if(response == 3)
         {
             newFSP.setScheduleType(ScheduleTypeEnum.RECURRENTNDAY);
@@ -704,7 +744,17 @@ public class MainApp {
             System.out.println("Enter End Date> dd MMM yy");
             String endDateStr = sc.nextLine();
             System.out.println("Enter Flight Duration> HH Hours mm Minutes");
+           
             String flightDurationStr = sc.nextLine();
+             String layoverDurationStr = "";
+            if(hasComFlight)
+            {
+                System.out.println("Enter Layover Duration for " + compf.getFlightNumber() + "> HH Hours mm Minutes");
+                layoverDurationStr = sc.nextLine();
+            }
+            
+              Long compfspid = Long.MAX_VALUE; 
+                Long compfsid = Long.MAX_VALUE;
 
 
             // Parse dates and FlightDuration
@@ -714,6 +764,7 @@ public class MainApp {
                 Date endDate = dateFormat.parse(endDateStr);
                 Date flightDuration = timeFormat.parse(flightDurationStr);
                 Date departureTime = departureFormat.parse(departureTimestr);
+                Date layoverDuration = new Date();
 
                 
                 //newFSP.setDayOfWeek(dayOfWeek);
@@ -731,16 +782,43 @@ public class MainApp {
                     }
                 }
                 
-               
+                
                 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                
+                if(hasComFlight)
+                {
+                    layoverDuration = timeFormat.parse(layoverDurationStr);
+                    FlightSchedule temp = new FlightSchedule();
+                    temp.setEstimatedFlightDuration(layoverDuration);
+                    temp.setDepartureDate(newFS.getArrivalDate());
+                    temp.setDepartureTime(newFS.getArrivalTime());
+                    temp.calculateAndSetArrivalDateTime();
+    
+                    compFSP.setScheduleType(ScheduleTypeEnum.RECURRENTNDAY);
+                    compFSP.setStartDate(startDate);
+                    compFSP.setEndDate(endDate);
+                    compFSP.setNdays(nDay);
+                    compFS.setDepartureDate(temp.getArrivalDate());
+                    compFS.setDepartureTime(temp.getArrivalTime());
+                    compFS.setEstimatedFlightDuration(flightDuration);
+                    compFS.calculateAndSetArrivalDateTime();
+                    
+                 
+                     compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                     compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
+                    
+                }
+                
+                
+               
                 while(newFS.getDepartureDate().before(endDate))
                 {
                     for (FlightSchedule fs : ongoingfs) {
                         if (checkOverlap(newFS, fs)) {
 
-                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
                             
                         }
                     } 
@@ -750,15 +828,26 @@ public class MainApp {
                     newFS.setDepartureDate(calendar.getTime());
                     newFS.calculateAndSetArrivalDateTime(); 
                     newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                    
+                    
+                    
+                    if(hasComFlight)
+                    {
+                        Calendar calendar2 = Calendar.getInstance();
+                        calendar2.setTime(newFS.getDepartureDate());
+                        calendar2.add(Calendar.DAY_OF_MONTH, nDay); // Increment by 7 days
+                        compFS.setDepartureDate(calendar.getTime());
+                        compFS.calculateAndSetArrivalDateTime(); 
+                        compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
+                    
+                    }
                 }
                 
-                for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
-                    System.out.print("Enter fare basis code > ");
-                    String fareBasisCode = sc.nextLine().trim();
+               for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
                     System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
                     BigDecimal fareAmount = sc.nextBigDecimal();
                     sc.nextLine();
-                    Fare fare = new Fare(fareBasisCode, fareAmount, cabinClass.getCabinClassType());
+                    Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
                     fareSessionBeanRemote.createNewFare(fare, newfspid);
                 }
                 
@@ -770,7 +859,11 @@ public class MainApp {
             } catch (ParseException ex)
             {
                 ex.printStackTrace();
-            }
+            }catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage());
+            } 
+            
+              System.out.println(f.getFlightNumber() + ", " + newFSP.getScheduleType().name() + ": was created successfully");
             
         } else if(response == 2)
         {
@@ -783,6 +876,7 @@ public class MainApp {
                 Date departureDate;
                 Date departureTime;
                 Date flightDuration;
+                Date layoverDuration = new Date();
 
                 // Prompt and create the first flight schedule
                 System.out.println("Enter Departure Date for FlightSchedule 1: (dd MMM yy)");
@@ -790,7 +884,16 @@ public class MainApp {
                 System.out.println("Enter Departure Time for FlightSchedule 1: (eg: 9:00 AM)");
                 String departureTimestr = sc.nextLine();
                 System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
+                 String layoverDurationStr = "";
                 String flightDurationStr = sc.nextLine();
+                if(hasComFlight)
+                {
+                    System.out.println("Enter Layover Duration for " + compf.getFlightNumber() + "> HH Hours mm Minutes");
+                    layoverDurationStr = sc.nextLine();
+                }
+
+                Long compfspid = Long.MAX_VALUE; 
+                Long compfsid = Long.MAX_VALUE;
 
                 departureDate = dateFormat.parse(departuredatestr);
                 departureTime = departureFormat.parse(departureTimestr);
@@ -803,13 +906,34 @@ public class MainApp {
                 for (FlightSchedule fs : ongoingfs) {
                         if (checkOverlap(newFS, fs)) {
 
-                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
                             
                         }
-                    }
+                }
 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                
+                if(hasComFlight)
+                {
+                    layoverDuration = timeFormat.parse(layoverDurationStr);
+                    FlightSchedule temp = new FlightSchedule();
+                    temp.setEstimatedFlightDuration(layoverDuration);
+                    temp.setDepartureDate(newFS.getArrivalDate());
+                    temp.setDepartureTime(newFS.getArrivalTime());
+                    temp.calculateAndSetArrivalDateTime();
+    
+                    compFSP.setScheduleType(ScheduleTypeEnum.MULTIPLE);
+                    compFS.setDepartureDate(temp.getArrivalDate());
+                    compFS.setDepartureTime(temp.getArrivalTime());
+                    compFS.setEstimatedFlightDuration(flightDuration);
+                    compFS.calculateAndSetArrivalDateTime();
+                    
+                 
+                    compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                    compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
+                    
+                }
 
                 // Create additional flight schedules based on user input
                 for (int i = 2; i <= numFS; i++) {
@@ -817,8 +941,7 @@ public class MainApp {
                     departuredatestr = sc.nextLine();
                     System.out.println("Enter Departure Time for FlightSchedule " + i + ": (eg: 9:00 AM)");
                     departureTimestr = sc.nextLine();
-                    System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
-                    flightDurationStr = sc.nextLine();
+                    
 
                     departureDate = dateFormat.parse(departuredatestr);
                     departureTime = departureFormat.parse(departureTimestr);
@@ -831,12 +954,33 @@ public class MainApp {
                     for (FlightSchedule fs : ongoingfs) {
                         if (checkOverlap(newFS, fs)) {
 
-                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
                             
                         }
                     }
 
                     newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                    
+                    if(hasComFlight)
+                    {
+                        layoverDuration = timeFormat.parse(layoverDurationStr);
+                        FlightSchedule temp = new FlightSchedule();
+                        temp.setEstimatedFlightDuration(layoverDuration);
+                        temp.setDepartureDate(newFS.getArrivalDate());
+                        temp.setDepartureTime(newFS.getArrivalTime());
+                        temp.calculateAndSetArrivalDateTime();
+
+                        compFSP.setScheduleType(ScheduleTypeEnum.MULTIPLE);
+                        compFS.setDepartureDate(temp.getArrivalDate());
+                        compFS.setDepartureTime(temp.getArrivalTime());
+                        compFS.setEstimatedFlightDuration(flightDuration);
+                        compFS.calculateAndSetArrivalDateTime();
+
+
+                        //compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                        compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
+
+                    }
                 }
                 
                 for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
@@ -850,7 +994,11 @@ public class MainApp {
                 System.out.println(ex.getMessage());
             } catch (ParseException ex) {
                 ex.printStackTrace();
-            }
+            }catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage());
+            } 
+            
+            System.out.println(f.getFlightNumber() + ", " + newFSP.getScheduleType().name() + ": was created successfully");
             
         } else if(response == 1)
         {
@@ -859,6 +1007,7 @@ public class MainApp {
                 Date departureDate;
                 Date departureTime;
                 Date flightDuration;
+                Date layoverDuration;
 
                 // Prompt and create the first flight schedule
                 System.out.println("Enter Departure Date for FlightSchedule 1: (dd MMM yy)");
@@ -867,6 +1016,15 @@ public class MainApp {
                 String departureTimestr = sc.nextLine();
                 System.out.println("Enter Flight Duration: (HH Hours mm Minutes)");
                 String flightDurationStr = sc.nextLine();
+                String layoverDurationStr = "";
+                if(hasComFlight)
+                {
+                    System.out.println("Enter Layover Duration for " + compf.getFlightNumber() + "> HH Hours mm Minutes");
+                    layoverDurationStr = sc.nextLine();
+                }
+
+                Long compfspid = Long.MAX_VALUE; 
+                Long compfsid = Long.MAX_VALUE;
 
                 departureDate = dateFormat.parse(departuredatestr);
                 departureTime = departureFormat.parse(departureTimestr);
@@ -879,13 +1037,34 @@ public class MainApp {
                 for (FlightSchedule fs : ongoingfs) {
                         if (checkOverlap(newFS, fs)) {
 
-                            throw new OverlappingScheduleException("OOverlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
+                            throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
                             
                         }
                     }
 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                
+                if(hasComFlight)
+                {
+                    layoverDuration = timeFormat.parse(layoverDurationStr);
+                    FlightSchedule temp = new FlightSchedule();
+                    temp.setEstimatedFlightDuration(layoverDuration);
+                    temp.setDepartureDate(newFS.getArrivalDate());
+                    temp.setDepartureTime(newFS.getArrivalTime());
+                    temp.calculateAndSetArrivalDateTime();
+    
+                    compFSP.setScheduleType(ScheduleTypeEnum.SINGLE);
+                    compFS.setDepartureDate(temp.getArrivalDate());
+                    compFS.setDepartureTime(temp.getArrivalTime());
+                    compFS.setEstimatedFlightDuration(flightDuration);
+                    compFS.calculateAndSetArrivalDateTime();
+                    
+                 
+                    compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                    compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
+                    
+                }
                 for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
                     System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
                     BigDecimal fareAmount = sc.nextBigDecimal();
@@ -898,8 +1077,12 @@ public class MainApp {
                 System.out.println(ex.getMessage());
             } catch (ParseException ex) {
                 ex.printStackTrace();
-            }
+            } catch (InputDataValidationException ex) {
+                System.out.println(ex.getMessage());
+            } 
             
+            System.out.println(f.getFlightNumber() + ", " + newFSP.getScheduleType().name() + ": was created successfully");
+      
         }
     } 
     

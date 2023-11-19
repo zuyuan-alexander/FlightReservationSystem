@@ -367,8 +367,15 @@ public class TestDataInitSessionBean {
             fareAmountList.add(BigDecimal.valueOf(3000));
             fareAmountList.add(BigDecimal.valueOf(1000));
             Integer counter = 0;
-            
-            Long newfspid = flightSchedulePlanSessionBeanLocal.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+            Long newfspid = Long.MIN_VALUE;
+            try
+            {
+                newfspid = flightSchedulePlanSessionBeanLocal.createNewRWFlightSchedulePlan(f, newFSP, newFS);
+            } catch(InputDataValidationException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+             
             
             for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
                 Fare fare = new Fare("farebc", fareAmountList.get(counter), cabinClass.getCabinClassType());
