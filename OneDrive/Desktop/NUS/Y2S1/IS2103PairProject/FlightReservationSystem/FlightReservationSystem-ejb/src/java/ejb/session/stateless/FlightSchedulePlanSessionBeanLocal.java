@@ -10,6 +10,7 @@ import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.FlightDisabledException;
 import util.exception.FlightSchedulePlanNotFoundException;
 import util.exception.InputDataValidationException;
 
@@ -19,7 +20,9 @@ import util.exception.InputDataValidationException;
  */
 @Local
 public interface FlightSchedulePlanSessionBeanLocal {
-     public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException ;
+
+     public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException, FlightDisabledException;
+
      public FlightSchedulePlan retrieveFSPfByFSPId(Long fspid) throws FlightSchedulePlanNotFoundException;
      public List<FlightSchedulePlan> retrieveAllFlightSchedulePlan();
      public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId);

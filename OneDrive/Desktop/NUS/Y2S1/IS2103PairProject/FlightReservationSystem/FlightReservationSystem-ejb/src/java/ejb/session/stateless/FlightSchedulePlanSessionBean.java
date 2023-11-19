@@ -19,6 +19,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.FlightDisabledException;
 import util.exception.FlightSchedulePlanNotFoundException;
 import util.exception.InputDataValidationException;
 
@@ -52,9 +53,14 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     
 
     @Override
-    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException 
+    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException, FlightDisabledException
     {   Set<ConstraintViolation<FlightSchedulePlan>>constraintViolations = validator.validate(newFSP);
+
+        if (f.getDisabledFlight()) {
+            throw new FlightDisabledException("Flight has been disabled. Flight Schedule Plan cannot be created!");
+        }
         
+            
         if(constraintViolations.isEmpty())
         {
             

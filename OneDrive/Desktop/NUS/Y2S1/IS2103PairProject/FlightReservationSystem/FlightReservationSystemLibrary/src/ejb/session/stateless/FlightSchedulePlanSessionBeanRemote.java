@@ -4,12 +4,12 @@
  */
 package ejb.session.stateless;
 
-import entity.Fare;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.FlightDisabledException;
 import util.exception.FlightSchedulePlanNotFoundException;
 import util.exception.InputDataValidationException;
 
@@ -20,7 +20,8 @@ import util.exception.InputDataValidationException;
 @Remote
 public interface FlightSchedulePlanSessionBeanRemote {
 
-    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException ;
+
+    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws InputDataValidationException, FlightDisabledException;
 
    public FlightSchedulePlan retrieveFSPfByFSPId(Long fspid) throws FlightSchedulePlanNotFoundException;
 

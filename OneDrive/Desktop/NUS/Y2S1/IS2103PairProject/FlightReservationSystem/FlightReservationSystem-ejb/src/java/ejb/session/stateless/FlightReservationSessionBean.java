@@ -24,7 +24,10 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.TripTypeEnum;
+import util.exception.CustomerNotFoundException;
 import util.exception.FlightReservationNotFoundException;
+import util.exception.FlightScheduleNotFoundException;
+import util.exception.SeatNotFoundException;
 
 /**
  *
@@ -38,8 +41,14 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     
     @EJB
     private FlightScheduleSessionBeanLocal flightScheduleSessionBeanLocal;
+    
+    @EJB
+    private CustomerSessionBeanLocal customerSessionBeanLocal;
+    
+    @EJB
+    private SeatSessionBeanLocal seatSessionBeanLocal;
 
-      private final ValidatorFactory validatorFactory;
+    private final ValidatorFactory validatorFactory;
     private final Validator validator;
     
     
@@ -101,8 +110,9 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     // reserve flight will create a passenger from customer
     
     @Override
-    public List<FlightReservation> viewMyFlightReservations(Customer customer) {
-        Query query = em.createQuery("SELECT fr FROM FlightReservation fr");
+    public List<FlightReservation> viewMyFlightReservations(Long customerId) {
+        Query query = em.createQuery("SELECT fr FROM FlightReservation fr WHERE fr.customer.customerid = :inCustomerId");
+        query.setParameter("inCustomerId", customerId);
         return query.getResultList();
     }
     
@@ -141,6 +151,35 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         flightSchedule.getPassengers().add(passenger);
         passenger.setFlightSchedule(flightSchedule);
         
+        em.persist(flightReservation);
+        em.flush();
+        
+        return flightReservation.getFlightreservationid();
+    }
+    
+    @Override
+    public Long createNewFlightReservation(Long customerId, Long flightScheduleId, Passenger passenger, Long seatId, TripTypeEnum tripType) throws CustomerNotFoundException, FlightScheduleNotFoundException, SeatNotFoundException {
+        Customer customer = customerSessionBeanLocal.retrieveCustomerByCustomerId(customerId);
+        FlightSchedule flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
+        Seat seat = seatSessionBeanLocal.retrieveSeatBySeatId(seatId);
+        
+        FlightReservation flightReservation = new FlightReservation(tripType);
+        
+        flightReservation.setCustomer(customer);
+        customer.getFlightReservations().add(flightReservation);
+        
+        flightReservation.setFlightSchedules(flightSchedule);
+        flightSchedule.getFlightReservation().add(flightReservation);
+        
+        flightReservation.setSeat(seat);
+        
+        passenger.setFlightSchedule(flightSchedule);
+        passenger.setFlightreservation(flightReservation);
+        passenger.setSeat(seat);
+        flightSchedule.getPassengers().add(passenger);
+        flightReservation.setPassenger(passenger);
+        
+        em.persist(passenger);
         em.persist(flightReservation);
         em.flush();
         

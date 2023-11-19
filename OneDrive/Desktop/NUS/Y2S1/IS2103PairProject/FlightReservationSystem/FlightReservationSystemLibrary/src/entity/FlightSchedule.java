@@ -129,7 +129,8 @@ public class FlightSchedule implements Serializable {
 
     @Override
     public String toString() {
-        return "entity.FlightSchedule[ id=" + flightscheduleid + " ]";
+        return ("Flight Schedule Id: " + this.flightscheduleid + "; Departure Date: " + this.departureDate + "; Departure Time: " + this.departureTime
+                + "; Arrival Date: " + this.arrivalDate + "; Arrival Time: " + this.arrivalTime);
     }
 
   

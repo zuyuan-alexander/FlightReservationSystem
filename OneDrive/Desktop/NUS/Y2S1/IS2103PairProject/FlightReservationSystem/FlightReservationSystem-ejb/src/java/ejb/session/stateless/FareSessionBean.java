@@ -46,13 +46,13 @@ public class FareSessionBean implements FareSessionBeanRemote, FareSessionBeanLo
     }
     
     @Override
-    public BigDecimal retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass) {
+    public Fare retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass) {
         for (Fare fare : fares) {
             if (fare.getCabinClassType().equals(cabinClass.getCabinClassType())) {
-                return fare.getFareAmount();
+                return fare;
             }
         }
-        return BigDecimal.ZERO;
+        return null;
     }
     
 }

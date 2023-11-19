@@ -10,6 +10,7 @@ import javax.ejb.Remote;
 import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteDisabledException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
@@ -24,7 +25,7 @@ public interface FlightSessionBeanRemote {
 
     public Flight retrieveFlightByFlightNumber(String flightnumber) throws FlightNotFoundException;
 
-    public Long createNewFlight(Flight newFlight, Long flightRouteId, Long acnId) throws FlightNumberExistsException, UnknownPersistenceException, InputDataValidationException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException;
+    public Long createNewFlight(Flight newFlight, Long flightRouteId, Long acnId) throws FlightNumberExistsException, UnknownPersistenceException, InputDataValidationException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException, FlightRouteDisabledException;
     
     public Flight retrieveFlightByFlightId(Long flightId) throws FlightNotFoundException;
     public List<Flight> viewAllFlight();

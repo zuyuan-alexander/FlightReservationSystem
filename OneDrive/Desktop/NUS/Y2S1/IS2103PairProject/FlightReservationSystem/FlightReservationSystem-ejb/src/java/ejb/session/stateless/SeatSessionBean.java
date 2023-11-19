@@ -33,20 +33,28 @@ public class SeatSessionBean implements SeatSessionBeanRemote, SeatSessionBeanLo
     }
     
     @Override
-    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber, Long ccid) throws SeatNotFoundException { 
-        Seat seat = new Seat();
+    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber, Long cabinClassId) throws SeatNotFoundException { 
         try
         {
-             System.out.println("Querying seat " + rowNumber + "" + seatLetter);
-             Query query = em.createQuery("SELECT s FROM Seat s WHERE s.seatLetter = :inSeatLetter AND s.rowNumber = :inRowNumber AND s.cabinClass.id = :inCCid " );
-             query.setParameter("inSeatLetter", seatLetter).setParameter("inRowNumber", rowNumber).setParameter("inCCid ", ccid);
-             seat = (Seat) query.getSingleResult();
-             return seat;
+             Query query = em.createQuery("SELECT s FROM Seat s WHERE s.seatLetter = :inSeatLetter AND s.rowNumber = :inRowNumber AND s.cabinClass.cabinClassId = :inCabinClassId");
+             query.setParameter("inSeatLetter", seatLetter).setParameter("inRowNumber", rowNumber).setParameter("inCabinClassId", cabinClassId);
+             return (Seat) query.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex)
         {
-            throw new SeatNotFoundException("Seat " + rowNumber + ""+ seatLetter +" does not exist");
+            throw new SeatNotFoundException("Seat " + rowNumber + ""+ (char)seatLetter +" does not exist");
         }
        
+    }
+    
+    @Override
+    public Seat retrieveSeatBySeatId(Long id) throws SeatNotFoundException {
+        Seat seat = em.find(Seat.class, id);
+        
+        if(seat != null) {
+            return seat;
+        } else {
+            throw new SeatNotFoundException("Seat with Seat Id " + id + " does not exist!");
+        }
     }
     
 

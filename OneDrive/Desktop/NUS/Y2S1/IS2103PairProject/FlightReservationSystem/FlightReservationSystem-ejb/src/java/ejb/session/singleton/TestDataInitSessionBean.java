@@ -14,6 +14,7 @@ import entity.AircraftConfiguration;
 import entity.AircraftType;
 import entity.Airport;
 import entity.CabinClass;
+import entity.Customer;
 import entity.Employee;
 import entity.Fare;
 import entity.Flight;
@@ -41,8 +42,10 @@ import util.enumeration.ScheduleTypeEnum;
 import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightDisabledException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteDisabledException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
@@ -93,6 +96,7 @@ public class TestDataInitSessionBean {
         initFlightRoute();
         initFlight();
         initFlightSchedulePlan();
+        initRootCustomer();
     }
     
     public void initEmployee() {
@@ -299,7 +303,9 @@ public class TestDataInitSessionBean {
             System.out.println(ex.getMessage() + "\n");
         } catch (UpdateFlightException ex) {
             System.out.println(ex.getMessage() + "\n");
-        } 
+        } catch (FlightRouteDisabledException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
     }
     
     public void initFlightSchedulePlan() {
@@ -405,6 +411,14 @@ public class TestDataInitSessionBean {
         } catch (ParseException ex)
         {
             ex.printStackTrace();
+        } catch (FlightDisabledException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
+    }
+    
+    public void initRootCustomer() {
+        Customer customer = new Customer("root", "customer", "rootcustomer@gmail.com", "123456789", "nus", "nus", "root", "password");
+        em.persist(customer);
+        em.flush();
     }
 }
