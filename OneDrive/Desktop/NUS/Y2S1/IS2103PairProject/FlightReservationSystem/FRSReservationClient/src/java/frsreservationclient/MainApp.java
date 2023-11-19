@@ -288,11 +288,13 @@ public class MainApp {
         }
         
         System.out.print("Do you have any cabin class preferences? (Y: Yes, N: No) > ");
+        
         String cabinClassPreferenceStr = scanner.nextLine().trim();
         Boolean cabinClassPreference = Boolean.FALSE;
         CabinClassTypeEnum cabinClassType = null;
         if (cabinClassPreferenceStr.equalsIgnoreCase("Y")) {
             cabinClassPreference = Boolean.TRUE;
+            System.out.println();
             System.out.print("Enter cabin class type (F: First, J: Business, W: Premium Economy, Y: Economy) > ");
             String ccTypeStr = scanner.nextLine().trim();
             
@@ -450,7 +452,7 @@ public class MainApp {
 
         if(fsList.isEmpty())
         {
-            //System.out.println("list is empty!");
+            System.out.println("No Available Flights :(");
         }
         for (FlightSchedule fs : fsList) {
             try
@@ -595,7 +597,7 @@ public class MainApp {
     }
     
     public void reserveFlightPassengerInput(CabinClass preferedCabinClass, FlightSchedule flightSchedule, Long flightScheduleId, TripTypeEnum tripType) {
-        Scanner sc = new Scanner(System.in);
+                Scanner sc = new Scanner(System.in);
         System.out.print("Enter first name > ");
         String firstName = sc.nextLine().trim();
         System.out.print("Enter last name > ");
