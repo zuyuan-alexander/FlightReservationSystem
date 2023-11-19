@@ -1408,19 +1408,26 @@ public class MainApp {
             flightRoute.setReturnFlight(Boolean.FALSE);
         }
         
-        try {
+        try 
+        {
             Long id = flightRouteSessionBeanRemote.createFlightRoute(flightRoute);
             System.out.println("Flight Route with Flight Route Id " + (id-1) + " has been successfully created!");
             System.out.println("Flight Route with Flight Route Id " + id + " has been successfully created!");
-        } catch (AirportNotFoundException ex) {
+            
+        } catch (AirportNotFoundException ex)
+        {
             System.out.println(ex.getMessage() + "\n");
-        } catch (FlightRouteAlreadyExistedException ex) {
+        } catch (FlightRouteAlreadyExistedException ex) 
+        {
             System.out.println(ex.getMessage() + "\n");
-        } catch (UnknownPersistenceException ex) {
+        } catch (UnknownPersistenceException ex) 
+        {
             System.out.println(ex.getMessage() + "\n");
-        } catch (InputDataValidationException ex) {
+        } catch (InputDataValidationException ex) 
+        {
             System.out.println(ex.getMessage() + "\n");
         }
+        
     }
     
     public void doViewAllFlightRoutes() {
