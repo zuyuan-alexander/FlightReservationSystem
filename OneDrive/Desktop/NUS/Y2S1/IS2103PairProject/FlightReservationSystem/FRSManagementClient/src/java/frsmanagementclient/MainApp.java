@@ -234,7 +234,7 @@ public class MainApp {
                     doUpdateFlightSchedulePlan();
                 } else if(response == 10)
                 {
-                    //doDeleteFlightSchedulePlan();
+                    doDeleteFlightSchedulePlan();
                 }
                 else if (response == 11)
                 {
@@ -659,7 +659,7 @@ public class MainApp {
                     compFS.calculateAndSetArrivalDateTime();
                     
                  
-                     compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                     compfspid = flightSchedulePlanSessionBean.createCompliMentaryFlightSchedulePlan(compf, compFSP, compFS, newfspid);
                      compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);            
                 }
                 
@@ -797,7 +797,7 @@ public class MainApp {
                     compFS.calculateAndSetArrivalDateTime();
                     
                  
-                     compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                     compfspid = flightSchedulePlanSessionBean.createCompliMentaryFlightSchedulePlan(compf, compFSP, compFS, newfspid);
                      compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
                     
                 }
@@ -924,7 +924,7 @@ public class MainApp {
                     compFS.calculateAndSetArrivalDateTime();
                     
                  
-                    compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                    compfspid = flightSchedulePlanSessionBean.createCompliMentaryFlightSchedulePlan(compf, compFSP, compFS, newfspid);
                     compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
                     
                 }
@@ -1061,7 +1061,7 @@ public class MainApp {
                     compFS.calculateAndSetArrivalDateTime();
                     
                  
-                    compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                    compfspid = flightSchedulePlanSessionBean.createCompliMentaryFlightSchedulePlan(compf, compFSP, compFS, newfspid);
                     compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
                     
                 }
@@ -1107,16 +1107,16 @@ public class MainApp {
             currfsp = fspList.get(i-1);
             if(currfsp.getScheduleType().equals(ScheduleTypeEnum.SINGLE))
             {
-                 fspText += i + ": Single Plan" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+                 fspText += i + ": Single Plan" + " (" + currfsp.getFlight().getFlightNumber() + ") " + "FSP id: " + currfsp.getFlightscheduleplanid() + "\n";
             } else if(currfsp.getScheduleType().equals(ScheduleTypeEnum.MULTIPLE))
             {
-                 fspText += i + ": Multiple Plan" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+                 fspText += i + ": Multiple Plan" + " (" + currfsp.getFlight().getFlightNumber() + ") " + "FSP id: " + currfsp.getFlightscheduleplanid() + "\n";
             } else if(currfsp.getScheduleType().equals(ScheduleTypeEnum.RECURRENTNDAY))
             {
-                 fspText += i + ": Recurrent Plan(N-Day)" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+                 fspText += i + ": Recurrent Plan(N-Day)" + " (" + currfsp.getFlight().getFlightNumber() + ") " + "FSP id: " + currfsp.getFlightscheduleplanid() + "\n";
             } else if(currfsp.getScheduleType().equals(ScheduleTypeEnum.RECURRENTWEEKLY))
             {
-                 fspText += i + ": Recurrent Plan(Weekly)" + " (" + currfsp.getFlight().getFlightNumber() + ")\n";
+                 fspText += i + ": Recurrent Plan(Weekly)" + " (" + currfsp.getFlight().getFlightNumber() + ") " + "FSP id: " + currfsp.getFlightscheduleplanid() + "\n";
             }
         }
         
@@ -1279,6 +1279,7 @@ public class MainApp {
         try
         {
             currfsp = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(flightPlanId);
+            flightSchedulePlanSessionBean.deleteFlightSchedulePlan(flightPlanId);
         } catch (FlightSchedulePlanNotFoundException ex)
         {
             System.out.println(ex.getMessage());
