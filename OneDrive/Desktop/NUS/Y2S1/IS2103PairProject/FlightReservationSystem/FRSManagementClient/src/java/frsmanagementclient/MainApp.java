@@ -44,6 +44,7 @@ import util.exception.AirportNotFoundException;
 import util.exception.FlightDisabledException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteAlreadyExistedException;
 import util.exception.FlightRouteDisabledException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.FlightScheduleNotFoundException;
@@ -1412,6 +1413,12 @@ public class MainApp {
             System.out.println("Flight Route with Flight Route Id " + (id-1) + " has been successfully created!");
             System.out.println("Flight Route with Flight Route Id " + id + " has been successfully created!");
         } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
     }
