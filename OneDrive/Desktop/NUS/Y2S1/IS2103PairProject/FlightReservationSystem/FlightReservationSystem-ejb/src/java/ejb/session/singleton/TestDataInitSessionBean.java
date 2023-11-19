@@ -59,7 +59,7 @@ import util.exception.UpdateFlightRouteException;
  */
 @Singleton
 @LocalBean
-@Startup
+//@Startup
 public class TestDataInitSessionBean {
 
     @EJB
