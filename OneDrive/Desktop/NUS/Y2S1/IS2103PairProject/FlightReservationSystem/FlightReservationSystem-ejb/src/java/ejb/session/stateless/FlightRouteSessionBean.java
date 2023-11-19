@@ -18,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -25,8 +26,10 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightRouteAlreadyExistedException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 import util.exception.UpdateFlightRouteException;
 
 /**
@@ -51,40 +54,68 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
     }
     
     @Override
-    public Long createFlightRoute(FlightRoute flightRoute) throws AirportNotFoundException {
+    public Long createFlightRoute(FlightRoute flightRoute) throws AirportNotFoundException, FlightRouteAlreadyExistedException, UnknownPersistenceException, InputDataValidationException {
+        Set<ConstraintViolation<FlightRoute>>constraintViolations = validator.validate(flightRoute);
         
-        // associate the airports of the origin and destination with the flight route
-        
-        String originIATA = flightRoute.getOrigin();
-        String destinationIATA = flightRoute.getDestination();
-        
-        Airport originAirport = airportSessionBeanLocal.retrieveAirportByIATACode(originIATA);
-        Airport destinationAirport = airportSessionBeanLocal.retrieveAirportByIATACode(destinationIATA);
-        
-        flightRoute.getAirports().add(originAirport);
-        flightRoute.getAirports().add(destinationAirport);
-        
-        em.persist(flightRoute);
-        
-        // if the user wants a complementary return route, create the return route (reverse of the current flight route)
-        if (flightRoute.getReturnFlight()) {
-            // the user wants a return route
-            FlightRoute returnFlightRoute = new FlightRoute(destinationIATA, originIATA);
-            
-            flightRoute.setReturnFlightRoute(returnFlightRoute);
-            
-            returnFlightRoute.getAirports().add(destinationAirport);
-            returnFlightRoute.getAirports().add(originAirport);
-            
-            returnFlightRoute.setReturnFlightRoute(flightRoute);
-            returnFlightRoute.setReturnFlight(Boolean.TRUE);
-            
-            em.persist(returnFlightRoute);
+        if(constraintViolations.isEmpty())
+        {
+            try
+            {
+                // associate the airports of the origin and destination with the flight route
+                String originIATA = flightRoute.getOrigin();
+                String destinationIATA = flightRoute.getDestination();
+
+                Airport originAirport = airportSessionBeanLocal.retrieveAirportByIATACode(originIATA);
+                Airport destinationAirport = airportSessionBeanLocal.retrieveAirportByIATACode(destinationIATA);
+
+                flightRoute.getAirports().add(originAirport);
+                flightRoute.getAirports().add(destinationAirport);
+
+                em.persist(flightRoute);
+
+                // if the user wants a complementary return route, create the return route (reverse of the current flight route)
+                if (flightRoute.getReturnFlight()) {
+                    // the user wants a return route
+                    FlightRoute returnFlightRoute = new FlightRoute(destinationIATA, originIATA);
+
+                    flightRoute.setReturnFlightRoute(returnFlightRoute);
+
+                    returnFlightRoute.getAirports().add(destinationAirport);
+                    returnFlightRoute.getAirports().add(originAirport);
+
+                    returnFlightRoute.setReturnFlightRoute(flightRoute);
+                    returnFlightRoute.setReturnFlight(Boolean.TRUE);
+
+                    em.persist(returnFlightRoute);
+                }
+
+                em.flush();
+
+                return flightRoute.getFlightRouteId();
+            }
+            catch(PersistenceException ex)
+            {
+                if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
+                {
+                    if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
+                    {
+                        throw new FlightRouteAlreadyExistedException("Flight Route already existed!");
+                    }
+                    else
+                    {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
+                }
+                else
+                {
+                    throw new UnknownPersistenceException(ex.getMessage());
+                }
+            }
         }
-        
-        em.flush();
-        
-        return flightRoute.getFlightRouteId();
+        else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        }
     }
     
     @Override

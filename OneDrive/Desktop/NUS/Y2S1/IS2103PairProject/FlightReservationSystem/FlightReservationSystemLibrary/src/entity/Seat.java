@@ -92,7 +92,8 @@ public class Seat implements Serializable {
 
     @Override
     public String toString() {
-        return this.seatLetter + this.rowNumber + "";
+        Character c = this.seatLetter;
+        return  c + "" + this.rowNumber + "";
     }
 
     /**

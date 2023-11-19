@@ -9,8 +9,10 @@ import entity.FlightRoute;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightRouteAlreadyExistedException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 import util.exception.UpdateFlightRouteException;
 
 /**
@@ -20,7 +22,7 @@ import util.exception.UpdateFlightRouteException;
 @Local
 public interface FlightRouteSessionBeanLocal {
     
-    public Long createFlightRoute(FlightRoute flightRoute) throws AirportNotFoundException;
+    public Long createFlightRoute(FlightRoute flightRoute) throws AirportNotFoundException, FlightRouteAlreadyExistedException, UnknownPersistenceException, InputDataValidationException;
     
     public List<FlightRoute> viewAllFlightRoutes();
     

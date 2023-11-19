@@ -45,6 +45,7 @@ import util.exception.AirportNotFoundException;
 import util.exception.FlightDisabledException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteAlreadyExistedException;
 import util.exception.FlightRouteDisabledException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.InputDataValidationException;
@@ -222,6 +223,12 @@ public class TestDataInitSessionBean {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
         
         //SIN-TPE
@@ -230,6 +237,12 @@ public class TestDataInitSessionBean {
         try {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
         
@@ -240,6 +253,12 @@ public class TestDataInitSessionBean {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
         
         //HKG-NRT
@@ -248,6 +267,12 @@ public class TestDataInitSessionBean {
         try {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
         
@@ -258,6 +283,12 @@ public class TestDataInitSessionBean {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
         
         // SIN-SYD
@@ -266,6 +297,12 @@ public class TestDataInitSessionBean {
         try {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
         
@@ -276,7 +313,14 @@ public class TestDataInitSessionBean {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
+        } catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
+            System.out.println(ex.getMessage() + "\n");
         }
+        
     }
     
     public void initFlight() {

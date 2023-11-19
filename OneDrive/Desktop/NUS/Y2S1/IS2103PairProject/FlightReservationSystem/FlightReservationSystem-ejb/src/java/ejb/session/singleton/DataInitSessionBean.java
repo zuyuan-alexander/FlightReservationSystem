@@ -27,6 +27,9 @@ import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.EmployeeTypeEnum;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightRouteAlreadyExistedException;
+import util.exception.InputDataValidationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -104,6 +107,12 @@ public class DataInitSessionBean {
         try {
             flightRouteSessionBeanLocal.createFlightRoute(flightRoute);
         } catch (AirportNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }  catch (FlightRouteAlreadyExistedException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (UnknownPersistenceException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } catch (InputDataValidationException ex) {
             System.out.println(ex.getMessage() + "\n");
         }
         
