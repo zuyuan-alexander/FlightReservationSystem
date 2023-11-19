@@ -28,6 +28,7 @@ public interface FlightSchedulePlanSessionBeanLocal {
      public List<FlightSchedulePlan> retrieveFlightSchedulePlanByFlightID(Long flightId);
 
     public FlightSchedulePlan retrieveFlightSchedulePlanByFlightNumber(String flightNumber);
+     public void updateFlightSchedulePlan(List<Fare> fares, Long fspid) throws FlightDisabledException, FlightSchedulePlanNotFoundException;
 
     //public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException;
 

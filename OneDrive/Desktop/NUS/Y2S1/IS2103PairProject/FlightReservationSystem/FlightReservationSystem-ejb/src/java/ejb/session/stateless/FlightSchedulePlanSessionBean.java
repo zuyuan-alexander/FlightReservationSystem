@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Fare;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
@@ -142,21 +143,26 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         return msg;
     }
     
-    /*
+  
     @Override
-    public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException {
-        FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
-        fsp.getFlightschedules().size();
-        fsp.getFares().size();  
-        return fsp.getFlightschedules();
-    }
+    public void updateFlightSchedulePlan(List<Fare> fares, Long fspid) throws FlightDisabledException, FlightSchedulePlanNotFoundException
+    {
+        FlightSchedulePlan fsp = em.find(FlightSchedulePlan.class, fspid);
+        if(fsp.getFlight().getDisabledFlight()){
+            throw new FlightDisabledException("Flight has been disabled. Flight Schedule Plan cannot be updated!");
+        }
+        
+        //List<Fare> currFares = fsp.getFares();
     
-    @Override
-    public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException {
-        FlightSchedulePlan fsp = retrieveStaffByStaffId(fspId);
-        fsp.getFares().size();
-        return fsp.getFares();
-    }*/
+        // Clear the current fares associated with the FlightSchedulePlan
+        //currFares.clear();
+
+        // Add the new fares provided in the method argument
+        for (Fare fare : fares) {
+            fsp.getFares().remove(fare);
+        }
+       
+    }
 }
 
 

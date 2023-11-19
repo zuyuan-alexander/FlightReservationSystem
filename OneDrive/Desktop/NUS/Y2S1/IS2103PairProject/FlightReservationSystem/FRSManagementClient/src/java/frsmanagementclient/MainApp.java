@@ -228,11 +228,10 @@ public class MainApp {
                     doViewAllFlightSchedulePlans();
                 } else if(response == 8)
                 {
-                    //doViewFlightSchedules();
                     doViewFlightSchedulePlanDetails();
                 } else if(response == 9)
                 {
-                    //doUpdateFlightSchedulePlan();
+                    doUpdateFlightSchedulePlan();
                 } else if(response == 10)
                 {
                     //doDeleteFlightSchedulePlan();
@@ -1217,6 +1216,74 @@ public class MainApp {
         cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
 
         return cal.getTime();
+    }
+    
+    
+    public void doUpdateFlightSchedulePlan() {
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+        Scanner sc = new Scanner(System.in);
+        doViewAllFlightSchedulePlans();
+        FlightSchedulePlan newfsp = new FlightSchedulePlan();
+         FlightSchedulePlan currfsp = new FlightSchedulePlan();
+        System.out.println("\n\n*** Update A Flight Schedule Plan *** \n");
+        System.out.println("Which flight schedule plan ID would you like to update?");
+        Long flightPlanId = sc.nextLong();
+        sc.nextLine();
+        
+        try
+        {
+            currfsp = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(flightPlanId);
+        } catch (FlightSchedulePlanNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+        
+        Flight f = currfsp.getFlight();
+        List<Fare> listOffares = new ArrayList();
+       
+        System.out.println("===== FRS Schedule Manager Menu: Update Flight Schedule Plan =====\n");      
+        for(Fare currfare : currfsp.getFares()) 
+        {
+            System.out.println("Current fare amount for " + currfare.getCabinClassType().name() + " > " + currfare.getFareAmount());            
+        }
+        
+        for(Fare fare : currfsp.getFares()) 
+        {
+            System.out.print("Enter New fare amount for " + fare.getCabinClassType().name() + " > ");
+            BigDecimal fareAmount = sc.nextBigDecimal();
+            sc.nextLine();
+            Fare newfare = new Fare("farebc", fareAmount, fare.getCabinClassType());
+            fareSessionBeanRemote.createNewFare(newfare, currfsp.getFlightscheduleplanid());
+            
+            
+        }
+        
+        try
+        {
+            flightSchedulePlanSessionBean.updateFlightSchedulePlan(currfsp.getFares(), currfsp.getFlightscheduleplanid());
+        } catch(FlightDisabledException | FlightSchedulePlanNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+    }
+    
+    public void doDeleteFlightSchedulePlan()
+    {
+        Scanner sc = new Scanner(System.in);
+        doViewAllFlightSchedulePlans();
+         FlightSchedulePlan currfsp = new FlightSchedulePlan();
+        System.out.println("\n\n*** Delete A Flight Schedule Plan *** \n");
+        System.out.println("Which flight schedule plan ID would you like to delete?");
+        Long flightPlanId = sc.nextLong();
+        sc.nextLine();
+        try
+        {
+            currfsp = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(flightPlanId);
+        } catch (FlightSchedulePlanNotFoundException ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+        
     }
 
     public void doCreateAircraftConfiguration() {

@@ -4,6 +4,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Fare;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
@@ -34,5 +35,7 @@ public interface FlightSchedulePlanSessionBeanRemote {
     //public List<FlightSchedule> retrieveFlightScheduleByFSP(Long fspId) throws FlightSchedulePlanNotFoundException;
     
     //public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException;
+
+    public void updateFlightSchedulePlan(List<Fare> fares, Long fspid) throws FlightDisabledException, FlightSchedulePlanNotFoundException;
     
 }
