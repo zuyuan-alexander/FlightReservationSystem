@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import util.enumeration.TripTypeEnum;
@@ -30,12 +31,19 @@ public class FlightReservation implements Serializable {
     private TripTypeEnum tripTypeEnum;
     
     // relationship
-    @OneToMany(mappedBy="flightReservation")
-    private List<FlightSchedule> flightSchedules;
+    @ManyToOne(optional = false)
+    private FlightSchedule flightSchedules;
+    
+    @ManyToOne(optional=false)
+    private Customer customer;
     
     @OneToOne(optional=false)
-    private Customer customer;
+    private Seat seat;
 
+    
+    @OneToOne(optional=false)
+    private Passenger passenger;
+    
     public FlightReservation() {
     }
 
@@ -96,17 +104,7 @@ public class FlightReservation implements Serializable {
     /**
      * @return the flightSchedules
      */
-    public List<FlightSchedule> getFlightSchedules() {
-        return flightSchedules;
-    }
-
-    /**
-     * @param flightSchedules the flightSchedules to set
-     */
-    public void setFlightSchedules(List<FlightSchedule> flightSchedules) {
-        this.flightSchedules = flightSchedules;
-    }
-
+   
     /**
      * @return the customer
      */
@@ -119,6 +117,34 @@ public class FlightReservation implements Serializable {
      */
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    /**
+     * @return the flightSchedules
+     */
+    public FlightSchedule getFlightSchedules() {
+        return flightSchedules;
+    }
+
+    /**
+     * @param flightSchedules the flightSchedules to set
+     */
+    public void setFlightSchedules(FlightSchedule flightSchedules) {
+        this.flightSchedules = flightSchedules;
+    }
+
+    /**
+     * @return the passenger
+     */
+    public Passenger getPassenger() {
+        return passenger;
+    }
+
+    /**
+     * @param passenger the passenger to set
+     */
+    public void setPassenger(Passenger passenger) {
+        this.passenger = passenger;
     }
     
     

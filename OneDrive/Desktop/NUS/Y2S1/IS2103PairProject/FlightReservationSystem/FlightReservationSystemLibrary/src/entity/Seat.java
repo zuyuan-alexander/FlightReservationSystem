@@ -7,11 +7,14 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.SeatStatusEnum;
 
@@ -22,6 +25,20 @@ import util.enumeration.SeatStatusEnum;
 @Entity
 public class Seat implements Serializable {
 
+    /**
+     * @return the passenger
+     */
+    public Passenger getPassenger() {
+        return passenger;
+    }
+
+    /**
+     * @param passenger the passenger to set
+     */
+    public void setPassenger(Passenger passenger) {
+        this.passenger = passenger;
+    }
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +48,7 @@ public class Seat implements Serializable {
     @Column(nullable=false)
     private Character seatLetter;
     @Column(nullable=false)
+    @Enumerated(EnumType.STRING)
     private SeatStatusEnum seatStatus;
     private boolean reserved;
     
@@ -40,6 +58,11 @@ public class Seat implements Serializable {
     @JoinColumn(nullable=false)
     private CabinClass cabinClass;
     
+    @OneToOne(optional=true)
+    private FlightReservation flightReservation;
+    
+    @OneToOne(optional=true)
+    private Passenger passenger;
     /*
     @ManyToOne(optional=false)
     @JoinColumn(nullable=false)

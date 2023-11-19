@@ -6,6 +6,7 @@ package ejb.session.stateless;
 
 import entity.Seat;
 import javax.ejb.Local;
+import util.exception.SeatNotFoundException;
 
 /**
  *
@@ -16,6 +17,6 @@ public interface SeatSessionBeanLocal {
 
     public Seat createSeats(Seat seat);
 
-    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber);
+    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber)  throws SeatNotFoundException;
     
 }

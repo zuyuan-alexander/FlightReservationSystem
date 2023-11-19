@@ -4,7 +4,12 @@
  */
 package ejb.session.stateless;
 
+import entity.Passenger;
 import javax.ejb.Remote;
+import util.exception.InputDataValidationException;
+import util.exception.PassengerAlreadyExistsException;
+import util.exception.PassengerNotFoundException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -12,5 +17,9 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface PassengerSessionBeanRemote {
+
+    public Passenger retrievePassengerByPassportNumber(String passportnum) throws PassengerNotFoundException;
+
+    public Long createNewPassenger(Passenger newPassenger, Long seatid, Long fsid) throws PassengerAlreadyExistsException, UnknownPersistenceException, InputDataValidationException;
     
 }

@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.Local;
 import util.enumeration.CabinClassTypeEnum;
+import util.enumeration.TripTypeEnum;
 import util.exception.FlightReservationNotFoundException;
 
 /**
@@ -27,6 +28,7 @@ public interface FlightReservationSessionBeanLocal {
     public List<FlightReservation> viewMyFlightReservations(Customer customer);
 
     public FlightReservation retrieveFlightReservationById(Long flightReservationId) throws FlightReservationNotFoundException;
+     public Long reserveFlightMain(Long customerid, Long fsid, Long passengerid, TripTypeEnum tripType);
     
     
 }

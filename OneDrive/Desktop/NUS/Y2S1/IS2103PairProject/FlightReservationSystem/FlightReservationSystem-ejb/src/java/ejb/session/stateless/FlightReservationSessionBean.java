@@ -12,11 +12,16 @@ import entity.Passenger;
 import entity.Seat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.TripTypeEnum;
 import util.exception.FlightReservationNotFoundException;
@@ -34,8 +39,18 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
     @EJB
     private FlightScheduleSessionBeanLocal flightScheduleSessionBeanLocal;
 
-    public FlightReservationSessionBean() {
+      private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public FlightReservationSessionBean()
+    {
+        
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
+   
 
     @Override
     public List<FlightSchedule> searchFlightDirectFlight(String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType) {
@@ -107,14 +122,21 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         }
     }
     
-    public Long reserveFlight(Customer customer, FlightSchedule flightSchedule, Passenger passenger, TripTypeEnum tripType) {
+    @Override
+    public Long reserveFlightMain(Long customerid, Long fsid, Long passengerid, TripTypeEnum tripType) {
         FlightReservation flightReservation = new FlightReservation(tripType);
+        Customer customer = em.find(Customer.class, customerid);
+        FlightSchedule flightSchedule = em.find(FlightSchedule.class, fsid);
+        Passenger passenger = em.find(Passenger.class, passengerid);
         
-        customer.setFlightReservation(flightReservation);
+        customer.getFlightReservations().add(flightReservation);
         flightReservation.setCustomer(customer);
         
-        flightReservation.getFlightSchedules().add(flightSchedule);
-        flightSchedule.setFlightReservation(flightReservation);
+        passenger.setFlightreservation(flightReservation);
+        flightReservation.setPassenger(passenger);
+        
+        flightReservation.setFlightSchedules(flightSchedule);
+        flightSchedule.getFlightReservation().add(flightReservation);
         
         flightSchedule.getPassengers().add(passenger);
         passenger.setFlightSchedule(flightSchedule);
@@ -123,6 +145,19 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         em.flush();
         
         return flightReservation.getFlightreservationid();
+    }
+    
+    
+     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<FlightReservation>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 
     

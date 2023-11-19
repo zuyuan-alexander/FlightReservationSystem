@@ -7,8 +7,11 @@ package ejb.session.stateless;
 import entity.Seat;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import util.exception.SeatNotFoundException;
 
 /**
  *
@@ -30,11 +33,19 @@ public class SeatSessionBean implements SeatSessionBeanRemote, SeatSessionBeanLo
     }
     
     @Override
-    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber) {
-        Query query = em.createQuery("SELECT s FROM Seat s WHERE s.seatLetter = :inSeatLetter AND s.rowNumber = :inRowNumber");
-        query.setParameter("inSeatLetter", seatLetter).setParameter("inRowNumber", rowNumber);
-        return (Seat) query.getSingleResult();
+    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber) throws SeatNotFoundException { 
+        try
+        {
+             Query query = em.createQuery("SELECT s FROM Seat s WHERE s.seatLetter = :inSeatLetter AND s.rowNumber = :inRowNumber");
+             query.setParameter("inSeatLetter", seatLetter).setParameter("inRowNumber", rowNumber);
+             return (Seat) query.getSingleResult();
+        } catch (NoResultException | NonUniqueResultException ex)
+        {
+            throw new SeatNotFoundException("Seat " + rowNumber + ""+ seatLetter +" does not exist");
+        }
+       
     }
+    
 
     
 }

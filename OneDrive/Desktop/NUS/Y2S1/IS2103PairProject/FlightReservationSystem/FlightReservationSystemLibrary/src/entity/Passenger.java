@@ -37,7 +37,7 @@ public class Passenger implements Serializable {
     private String lastName;
     @Column(nullable = false, length = 16)
     @NotNull
-    @Size(min = 16, max = 16)
+    @Size(min = 1, max = 16)
     private String passportNumber;
     
     @ManyToOne(optional=false)
@@ -46,6 +46,9 @@ public class Passenger implements Serializable {
     
     @OneToOne(optional=false)
     private Seat seat;
+    
+    @OneToOne(optional=false)
+    private FlightReservation flightreservation;
 
     public Passenger() {
     }
@@ -165,6 +168,20 @@ public class Passenger implements Serializable {
      */
     public void setSeat(Seat seat) {
         this.seat = seat;
+    }
+
+    /**
+     * @return the flightreservation
+     */
+    public FlightReservation getFlightreservation() {
+        return flightreservation;
+    }
+
+    /**
+     * @param flightreservation the flightreservation to set
+     */
+    public void setFlightreservation(FlightReservation flightreservation) {
+        this.flightreservation = flightreservation;
     }
     
     

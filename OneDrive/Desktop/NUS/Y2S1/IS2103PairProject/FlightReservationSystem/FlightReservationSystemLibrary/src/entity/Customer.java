@@ -5,12 +5,13 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -59,8 +60,8 @@ public class Customer implements Serializable {
     private String password;
 
     // relationship
-    @OneToOne(optional=false)
-    private FlightReservation flightReservation;
+    @OneToMany(mappedBy = "customer")
+    private List<FlightReservation> flightReservations;
 
     public Customer() {
     }
@@ -225,17 +226,22 @@ public class Customer implements Serializable {
     }
 
     /**
-     * @return the flightReservation
+     * @return the flightReservations
      */
-    public FlightReservation getFlightReservation() {
-        return flightReservation;
+    public List<FlightReservation> getFlightReservations() {
+        return flightReservations;
     }
 
     /**
-     * @param flightReservation the flightReservation to set
+     * @param flightReservations the flightReservations to set
      */
-    public void setFlightReservation(FlightReservation flightReservation) {
-        this.flightReservation = flightReservation;
+    public void setFlightReservations(List<FlightReservation> flightReservations) {
+        this.flightReservations = flightReservations;
     }
+
+    /**
+     * @return the flightReservation
+     */
+ 
     
 }
