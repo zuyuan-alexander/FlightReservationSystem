@@ -25,20 +25,6 @@ import util.enumeration.SeatStatusEnum;
 @Entity
 public class Seat implements Serializable {
 
-    /**
-     * @return the passenger
-     */
-    public Passenger getPassenger() {
-        return passenger;
-    }
-
-    /**
-     * @param passenger the passenger to set
-     */
-    public void setPassenger(Passenger passenger) {
-        this.passenger = passenger;
-    }
-
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,11 +44,14 @@ public class Seat implements Serializable {
     @JoinColumn(nullable=false)
     private CabinClass cabinClass;
     
+    /*
     @OneToOne(optional=true)
     private FlightReservation flightReservation;
     
     @OneToOne(optional=true)
     private Passenger passenger;
+    */
+    
     /*
     @ManyToOne(optional=false)
     @JoinColumn(nullable=false)

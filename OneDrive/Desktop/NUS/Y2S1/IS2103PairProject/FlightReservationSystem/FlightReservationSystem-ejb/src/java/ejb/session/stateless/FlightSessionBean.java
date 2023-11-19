@@ -25,6 +25,7 @@ import javax.validation.ValidatorFactory;
 import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteDisabledException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
@@ -94,7 +95,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
     }
     
     @Override
-    public Long createNewFlight(Flight newFlight, Long flightRouteId, Long acnId) throws FlightNumberExistsException, UnknownPersistenceException, InputDataValidationException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException
+    public Long createNewFlight(Flight newFlight, Long flightRouteId, Long acnId) throws FlightNumberExistsException, UnknownPersistenceException, InputDataValidationException, FlightRouteNotFoundException, AircraftConfigurationNotFoundException, FlightRouteDisabledException
     {
         Set<ConstraintViolation<Flight>>constraintViolations = validator.validate(newFlight);
         
@@ -105,6 +106,12 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
                 Flight flight = newFlight;
                 FlightRoute fr = flightRouteSessionBeanLocal.retrieveFlightRouteByFlightRouteId(flightRouteId);
                 AircraftConfiguration ac = aircraftSessionBeanLocal.retrieveAircraftConfigurationById(acnId);
+                
+                if (fr.getDisabledFlight()) {
+                    // flight route disabled cannot create flight
+                    throw new FlightRouteDisabledException("Flight Route has been disabled. Flight cannot be created!");
+                }
+                
                 flight.setFlightRoute(fr);
                 fr.getFlights().add(flight);
                 flight.setAircraftConfiguration(ac);
@@ -136,6 +143,8 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
                 throw new FlightRouteNotFoundException(ex.getMessage());
             } catch (AircraftConfigurationNotFoundException ex) {
                 throw new AircraftConfigurationNotFoundException(ex.getMessage());
+            } catch (FlightRouteDisabledException ex) {
+                throw new FlightRouteDisabledException(ex.getMessage());
             }
         }
         else
@@ -151,6 +160,8 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
         AircraftConfiguration complementaryAircraftConfiguration = aircraftSessionBeanLocal.retrieveAircraftConfigurationByName(aircraftConfigurationName);
         complementaryFlight.setAircraftConfiguration(complementaryAircraftConfiguration);
         complementaryFlight.setFlightRoute(mainFlight.getFlightRoute().getReturnFlightRoute());
+        mainFlight.getFlightRoute().getReturnFlightRoute().getFlights().size();
+        mainFlight.getFlightRoute().getReturnFlightRoute().getFlights().add(mainFlight);
         
         mainFlight.setReturnFlight(Boolean.TRUE);
         mainFlight.setComplimentaryFlight(complementaryFlight);

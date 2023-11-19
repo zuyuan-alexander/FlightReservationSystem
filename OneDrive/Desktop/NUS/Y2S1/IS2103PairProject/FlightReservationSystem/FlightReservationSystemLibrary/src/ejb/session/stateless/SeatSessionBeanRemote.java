@@ -17,5 +17,7 @@ public interface SeatSessionBeanRemote {
     
     public Seat createSeats(Seat seat);
     
-    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber) throws SeatNotFoundException;
+    public Seat retrieveSeatBySeatLetterAndRowNumber(Character seatLetter, Integer rowNumber, Long cabinClassId) throws SeatNotFoundException;
+    
+    public Seat retrieveSeatBySeatId(Long id) throws SeatNotFoundException;
 }

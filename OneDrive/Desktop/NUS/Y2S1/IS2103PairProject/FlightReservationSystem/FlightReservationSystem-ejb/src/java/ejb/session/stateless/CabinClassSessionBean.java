@@ -52,7 +52,7 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
                     break;
                 }
                 
-                char seatLetter = (char) ('A' + (j - 1));
+                Character seatLetter = (char) ('A' + (j - 1));
                 
                 Seat seat = new Seat(i, seatLetter, SeatStatusEnum.AVAILABLE);
                 

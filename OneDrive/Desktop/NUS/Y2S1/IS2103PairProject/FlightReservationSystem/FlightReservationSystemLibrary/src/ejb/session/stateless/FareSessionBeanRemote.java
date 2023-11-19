@@ -20,6 +20,6 @@ public interface FareSessionBeanRemote {
     
     public Long createNewFare(Fare fare,  Long newFSPid);
     
-    public BigDecimal retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass);
+    public Fare retrieveFareAmountByCabinClassType(List<Fare> fares, CabinClass cabinClass);
     
 }

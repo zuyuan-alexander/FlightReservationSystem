@@ -117,7 +117,7 @@ public class FlightRouteSessionBean implements FlightRouteSessionBeanRemote, Fli
             }
             
             FlightRoute flightRoute = retrieveFlightRouteByFlightRouteId(flightRouteId);
-
+            flightRoute.getFlights().size();
             System.out.println("test: " + flightRoute.getFlights().isEmpty());
             if (flightRoute.getFlights().isEmpty()) {
                 // flight route is not used at all

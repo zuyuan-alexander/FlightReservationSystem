@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import util.exception.FlightDisabledException;
 import util.exception.FlightSchedulePlanNotFoundException;
 
 /**
@@ -36,8 +37,12 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     
 
     @Override
-    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS)    
+    public Long createNewRWFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS) throws FlightDisabledException
     {
+        if (f.getDisabledFlight()) {
+            throw new FlightDisabledException("Flight has been disabled. Flight Schedule Plan cannot be created!");
+        }
+        
         // Persist the new FlightSchedulePlan
         newFSP.setFlight(f);
         em.persist(newFSP);

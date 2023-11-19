@@ -41,8 +41,10 @@ import util.enumeration.ScheduleTypeEnum;
 import util.exception.AircraftConfigurationNotFoundException;
 import util.exception.AircraftTypeNotFoundException;
 import util.exception.AirportNotFoundException;
+import util.exception.FlightDisabledException;
 import util.exception.FlightNotFoundException;
 import util.exception.FlightNumberExistsException;
+import util.exception.FlightRouteDisabledException;
 import util.exception.FlightRouteNotFoundException;
 import util.exception.FlightScheduleNotFoundException;
 import util.exception.FlightSchedulePlanNotFoundException;
@@ -467,7 +469,9 @@ public class MainApp {
             System.out.println(ex.getMessage() + "\n");
         } catch (UpdateFlightException ex) {
             System.out.println(ex.getMessage() + "\n");
-        } 
+        } catch (FlightRouteDisabledException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        }
         
     } 
     
@@ -672,11 +676,12 @@ public class MainApp {
                 
                 for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
                     FlightSchedulePlan flightSchedulePlan = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(newfspid);
-                    //System.out.println("FSP id " + newfspid);
+                    System.out.print("Enter fare basis code > ");
+                    String fbc = sc.nextLine().trim();
                     System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
                     BigDecimal fareAmount = sc.nextBigDecimal();
                     sc.nextLine();
-                    Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
+                    Fare fare = new Fare(fbc, fareAmount, cabinClass.getCabinClassType());
 
                     fareSessionBeanRemote.createNewFare(fare, newfspid);
                 }
@@ -690,6 +695,8 @@ public class MainApp {
                 ex.printStackTrace();
             } catch (FlightSchedulePlanNotFoundException ex) {
                 ex.printStackTrace();
+            } catch (FlightDisabledException ex) {
+                System.out.println(ex.getMessage());
             }
         } else if(response == 3)
         {
@@ -770,6 +777,8 @@ public class MainApp {
             } catch (ParseException ex)
             {
                 ex.printStackTrace();
+            } catch (FlightDisabledException ex) {
+                System.out.println(ex.getMessage());
             }
             
         } else if(response == 2)
@@ -840,16 +849,20 @@ public class MainApp {
                 }
                 
                 for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                    System.out.print("Enter fare basis code > ");
+                    String fareBasisCode = sc.nextLine().trim();
                     System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
                     BigDecimal fareAmount = sc.nextBigDecimal();
                     sc.nextLine();
-                    Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
+                    Fare fare = new Fare(fareBasisCode, fareAmount, cabinClass.getCabinClassType());
                     fareSessionBeanRemote.createNewFare(fare, newfspid);
                 }
             } catch (OverlappingScheduleException ex) {
                 System.out.println(ex.getMessage());
             } catch (ParseException ex) {
                 ex.printStackTrace();
+            } catch (FlightDisabledException ex) {
+                System.out.println(ex.getMessage());
             }
             
         } else if(response == 1)
@@ -887,10 +900,12 @@ public class MainApp {
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
                 for(CabinClass cabinClass : f.getAircraftConfiguration().getCabinClasses()) {
+                    System.out.print("Enter fare basis code > ");
+                    String fareBasisCode = sc.nextLine().trim();
                     System.out.print("Enter fare amount for " + cabinClass.getCabinClassType() + " > ");
                     BigDecimal fareAmount = sc.nextBigDecimal();
                     sc.nextLine();
-                    Fare fare = new Fare("farebc", fareAmount, cabinClass.getCabinClassType());
+                    Fare fare = new Fare(fareBasisCode, fareAmount, cabinClass.getCabinClassType());
                     fareSessionBeanRemote.createNewFare(fare, newfspid);
                 }
              
@@ -898,9 +913,13 @@ public class MainApp {
                 System.out.println(ex.getMessage());
             } catch (ParseException ex) {
                 ex.printStackTrace();
+            } catch (FlightDisabledException ex) {
+                System.out.println(ex.getMessage());
             }
             
         }
+        
+        System.out.println("Flight Schedule Plan with Id " + newFSP.getFlightscheduleplanid() + " has been successfully created!");
     } 
     
     public void doViewAllFlightSchedulePlans()
@@ -1277,17 +1296,18 @@ public class MainApp {
                 Flight flight = flightSessionBean.retrieveFlightByFlightNumber(flightNumber);
                 FlightSchedule flightSchedule = flightScheduleSessionBean.retrieveFlightScheduleById(flightScheduleId);
                 List<CabinClass> ccList = flight.getAircraftConfiguration().getCabinClasses();
-
+                FlightSchedulePlan fsp = flightSchedulePlanSessionBean.retrieveFSPfByFSPId(flightSchedule.getFlightSchedulePlan().getFlightscheduleplanid());
                 for (CabinClass cabinClass : ccList) {
                     System.out.println("For Cabin Class: " + cabinClass.getCabinClassType());
                     List<Passenger> passengers = managementSessionBeanRemote.viewSeatsInventory(cabinClass, flightSchedule);
-
+                    Fare fare = fareSessionBeanRemote.retrieveFareAmountByCabinClassType(fsp.getFares(), cabinClass);
+                    
                     if (passengers.size() == 0) {
                         System.out.println("Passenger List is empty!");
                     }
 
                     for (Passenger passenger : passengers) {
-                        System.out.println("Seat Number: " + passenger.getSeat().toString() + "; Passenger: " + passenger.toString() + "; Fare basis code: ");
+                        System.out.println("Seat Number: " + passenger.getSeat().toString() + "; Passenger: " + passenger.toString() + "; Fare basis code: " + fare.getFareBasicCode());
                     }
                     System.out.println();
                 }
@@ -1300,6 +1320,8 @@ public class MainApp {
             System.out.println(ex.getMessage() + "\n");
         } catch (FlightScheduleNotFoundException ex) {
             System.out.println(ex.getMessage() + "\n");
-        }
+        } catch (FlightSchedulePlanNotFoundException ex) {
+            System.out.println(ex.getMessage() + "\n");
+        } 
     }
 }

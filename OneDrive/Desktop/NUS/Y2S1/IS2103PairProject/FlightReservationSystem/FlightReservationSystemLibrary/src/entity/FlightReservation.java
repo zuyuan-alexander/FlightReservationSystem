@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -32,6 +33,7 @@ public class FlightReservation implements Serializable {
     
     // relationship
     @ManyToOne(optional = false)
+    @JoinColumn(nullable=false)
     private FlightSchedule flightSchedules;
     
     @ManyToOne(optional=false)
@@ -145,6 +147,20 @@ public class FlightReservation implements Serializable {
      */
     public void setPassenger(Passenger passenger) {
         this.passenger = passenger;
+    }
+
+    /**
+     * @return the seat
+     */
+    public Seat getSeat() {
+        return seat;
+    }
+
+    /**
+     * @param seat the seat to set
+     */
+    public void setSeat(Seat seat) {
+        this.seat = seat;
     }
     
     
