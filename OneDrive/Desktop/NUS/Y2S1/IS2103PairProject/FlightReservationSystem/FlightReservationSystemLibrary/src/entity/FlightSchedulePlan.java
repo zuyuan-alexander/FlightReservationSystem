@@ -33,6 +33,21 @@ import javax.validation.constraints.Future;
 @Entity
 public class FlightSchedulePlan implements Serializable {
 
+    /**
+     * @return the complimentaryfsp
+     */
+    public FlightSchedulePlan getComplimentaryfsp() {
+        return complimentaryfsp;
+    }
+
+    /**
+     * @param complimentaryfsp the complimentaryfsp to set
+     */
+    public void setComplimentaryfsp(FlightSchedulePlan complimentaryfsp) {
+        this.complimentaryfsp = complimentaryfsp;
+    }
+
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +56,6 @@ public class FlightSchedulePlan implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     private ScheduleTypeEnum scheduleType;
-    
     @Column(nullable = true)
     private Boolean disabled;
     @Column(nullable = true, length = 10)
@@ -56,7 +70,8 @@ public class FlightSchedulePlan implements Serializable {
     @Future(message = "End date must be in the future")
     @Temporal(TemporalType.DATE)
     private Date endDate;   
-    
+    @Column(nullable = true)
+    private Boolean reserved;
     
     
     @OneToMany(mappedBy = "flightSchedulePlan", cascade = CascadeType.REMOVE)
@@ -66,16 +81,22 @@ public class FlightSchedulePlan implements Serializable {
     @JoinColumn(nullable = false)
     private Flight flight;
     
-    @OneToMany(mappedBy="flightSchedulePlan")
+    @OneToMany(mappedBy="flightSchedulePlan", cascade = CascadeType.REMOVE)
     private List<Fare> fares;
+    
+    @OneToOne(optional=true)
+    @JoinColumn(nullable=true)
+    private FlightSchedulePlan complimentaryfsp;
 
     public FlightSchedulePlan() {
         this.disabled = false;
+          this.reserved = false;
     }
 
     public FlightSchedulePlan(ScheduleTypeEnum scheduleType) {
         this.scheduleType = scheduleType;
         this.disabled = false;
+        this.reserved = false;
     }
     
     
@@ -237,6 +258,20 @@ public class FlightSchedulePlan implements Serializable {
     public void setFares(List<Fare> fares) {
         this.fares = fares;
     }
+        /**
+     * @return the reserved
+     */
+    public Boolean getReserved() {
+        return reserved;
+    }
+
+    /**
+     * @param reserved the reserved to set
+     */
+    public void setReserved(Boolean reserved) {
+        this.reserved = reserved;
+    }
+
 
     
 }

@@ -4,10 +4,10 @@
  */
 package ejb.session.stateless;
 
-import entity.CabinClass;
 import entity.Customer;
 import entity.FlightReservation;
 import entity.FlightSchedule;
+import entity.FlightSchedulePlan;
 import entity.Passenger;
 import entity.Seat;
 import java.util.Date;
@@ -162,7 +162,7 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         Customer customer = customerSessionBeanLocal.retrieveCustomerByCustomerId(customerId);
         FlightSchedule flightSchedule = flightScheduleSessionBeanLocal.retrieveFlightScheduleById(flightScheduleId);
         Seat seat = seatSessionBeanLocal.retrieveSeatBySeatId(seatId);
-        
+        FlightSchedulePlan fsp = em.find(FlightSchedulePlan.class, flightSchedule.getFlightSchedulePlan().getFlightscheduleplanid());
         FlightReservation flightReservation = new FlightReservation(tripType);
         
         flightReservation.setCustomer(customer);
@@ -179,6 +179,9 @@ public class FlightReservationSessionBean implements FlightReservationSessionBea
         flightSchedule.getPassengers().add(passenger);
         flightReservation.setPassenger(passenger);
         
+        fsp.setReserved(Boolean.TRUE);
+        
+        em.persist(fsp);
         em.persist(passenger);
         em.persist(flightReservation);
         em.flush();

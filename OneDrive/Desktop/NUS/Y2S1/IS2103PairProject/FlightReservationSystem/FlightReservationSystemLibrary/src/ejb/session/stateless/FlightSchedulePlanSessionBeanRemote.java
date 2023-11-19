@@ -37,5 +37,9 @@ public interface FlightSchedulePlanSessionBeanRemote {
     //public List<Fare> retrieveFareByFSPId(Long fspId) throws FlightSchedulePlanNotFoundException;
 
     public void updateFlightSchedulePlan(List<Fare> fares, Long fspid) throws FlightDisabledException, FlightSchedulePlanNotFoundException;
+
+    public void deleteFlightSchedulePlan(Long fspid) throws FlightSchedulePlanNotFoundException;
+
+    public Long createCompliMentaryFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS, Long mainfspid) throws InputDataValidationException, FlightDisabledException;
     
 }

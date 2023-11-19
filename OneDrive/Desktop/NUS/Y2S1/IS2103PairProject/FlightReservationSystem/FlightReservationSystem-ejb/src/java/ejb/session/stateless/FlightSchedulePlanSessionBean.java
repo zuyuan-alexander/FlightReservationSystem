@@ -8,6 +8,7 @@ import entity.Fare;
 import entity.Flight;
 import entity.FlightSchedule;
 import entity.FlightSchedulePlan;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.EJB;
@@ -49,6 +50,51 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
+    }
+    
+    @Override
+    public Long createCompliMentaryFlightSchedulePlan(Flight f, FlightSchedulePlan newFSP, FlightSchedule newFS, Long mainfspid) throws InputDataValidationException, FlightDisabledException
+    {   Set<ConstraintViolation<FlightSchedulePlan>>constraintViolations = validator.validate(newFSP);
+
+        if (f.getDisabledFlight()) {
+            throw new FlightDisabledException("Flight has been disabled. Flight Schedule Plan cannot be created!");
+        }
+        
+            
+        if(constraintViolations.isEmpty())
+        {
+            FlightSchedulePlan mainfsp = new FlightSchedulePlan();
+            try 
+            {
+                mainfsp = retrieveFSPfByFSPId(mainfspid);
+            } catch (FlightSchedulePlanNotFoundException ex)
+            {
+                System.out.println(ex.getMessage());
+            }
+                newFSP.setFlight(f);
+                newFSP.setComplimentaryfsp(mainfsp);
+                mainfsp.setComplimentaryfsp(newFSP);
+                em.persist(newFSP);
+
+
+                Flight flight = em.find(Flight.class, f.getFlightId());
+                flight.getFlightscheduleplans().add(newFSP);
+                
+                
+
+                em.flush();
+                return newFSP.getFlightscheduleplanid();
+
+          
+
+        } else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        }
+        // Persist the new FlightSchedulePlan
+    
+        //Long newFlightScheduleid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newFSP.getFlightscheduleplanid());    
+        
     }
 
     
@@ -109,7 +155,20 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     {   
         Query query = em.createQuery("SELECT fsp FROM FlightSchedulePlan fsp ORDER BY fsp.flight.flightNumber ASC, fsp.startDate DESC");
         
-        return query.getResultList();
+        List<FlightSchedulePlan> fsplist = query.getResultList();
+        List<FlightSchedulePlan> answer = new ArrayList<>();
+        for(FlightSchedulePlan fsp : fsplist)
+        {
+            if(!answer.contains(fsp))
+            {
+                answer.add(fsp);
+                if(fsp.getComplimentaryfsp() != null)
+                {
+                    answer.add(fsp.getComplimentaryfsp());
+                }
+            }
+        }
+        return answer;
   
     }
     
@@ -147,7 +206,12 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
     @Override
     public void updateFlightSchedulePlan(List<Fare> fares, Long fspid) throws FlightDisabledException, FlightSchedulePlanNotFoundException
     {
+        
         FlightSchedulePlan fsp = em.find(FlightSchedulePlan.class, fspid);
+        if(fsp == null)
+        {
+            throw new FlightSchedulePlanNotFoundException("FlightSchedulePlan with id: " + fspid + " does not exist");
+        }
         if(fsp.getFlight().getDisabledFlight()){
             throw new FlightDisabledException("Flight has been disabled. Flight Schedule Plan cannot be updated!");
         }
@@ -160,9 +224,29 @@ public class FlightSchedulePlanSessionBean implements FlightSchedulePlanSessionB
         // Add the new fares provided in the method argument
         for (Fare fare : fares) {
             fsp.getFares().remove(fare);
-        }
-       
+        }     
     }
+    
+    @Override
+    public void deleteFlightSchedulePlan(Long fspid) throws FlightSchedulePlanNotFoundException
+    {   
+        FlightSchedulePlan fsp = em.find(FlightSchedulePlan.class, fspid);
+        Flight f = em.find(Flight.class, fsp.getFlight().getFlightId());
+        if(fsp == null)
+        {
+            throw new FlightSchedulePlanNotFoundException("FlightSchedulePlan with id: " + fspid + " does not exist");
+        }
+        
+        //fsp is reserved. cannot delete. just set to disabled
+        if(fsp.getReserved())
+        {
+            fsp.setDisabled(true);
+        } else {
+            f.getFlightscheduleplans().remove(fsp);
+            em.remove(fsp);
+        }
+    }
+    
 }
 
 
