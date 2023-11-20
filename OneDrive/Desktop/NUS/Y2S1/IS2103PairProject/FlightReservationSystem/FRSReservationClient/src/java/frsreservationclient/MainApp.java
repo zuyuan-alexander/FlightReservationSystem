@@ -27,6 +27,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Scanner;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.TripTypeEnum;
 import util.exception.CabinClassNotFoundException;
@@ -48,6 +51,10 @@ import util.exception.UnknownPersistenceException;
 
 
 public class MainApp {
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
 
     private CustomerSessionBeanRemote customerSessionBeanRemote;
     private FlightReservationSessionBeanRemote flightReservationSessionBeanRemote;
@@ -60,9 +67,12 @@ public class MainApp {
     
     
     public MainApp() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     public MainApp(CustomerSessionBeanRemote customerSessionBeanRemote, FlightReservationSessionBeanRemote flightReservationSessionBeanRemote, FareSessionBeanRemote fareSessionBeanRemote, FlightScheduleSessionBeanRemote flightScheduleSessionBeanRemote, CabinClassSessionBeanRemote cabinClassSessionBeanRemote, SeatSessionBeanRemote seatSessionBeanRemote) {
+        this();
         this.customerSessionBeanRemote = customerSessionBeanRemote;
         this.flightReservationSessionBeanRemote = flightReservationSessionBeanRemote;
         this.fareSessionBeanRemote = fareSessionBeanRemote;

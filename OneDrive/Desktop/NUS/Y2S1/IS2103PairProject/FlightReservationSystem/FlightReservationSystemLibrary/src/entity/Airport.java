@@ -25,24 +25,24 @@ public class Airport implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long airportId;
     @Column(nullable=false, length=64, unique=true)
-    //@NotNull
-    //@Size(max=64)
+    @NotNull
+    @Size(max=64)
     private String airportName;
     @Column(nullable=false, length=64, unique=true)
-    //@NotNull
-    //@Size(max=64)
+    @NotNull
+    @Size(max=64)
     private String iataAirportCode;
     @Column(nullable=false, length=64)
-    //@NotNull
-    //@Size(max=64)
+    @NotNull
+    @Size(max=64)
     private String city;
     @Column(nullable=false, length=64)
-    //@NotNull
-    //@Size(max=64)
+    @NotNull
+    @Size(max=64)
     private String stateprovince;
     @Column(nullable=false, length=64)
-    //@NotNull
-    //@Size(max=64)
+    @NotNull
+    @Size(max=64)
     private String country;
 
     // relationship

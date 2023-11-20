@@ -71,6 +71,7 @@ public class PassengerSessionBean implements PassengerSessionBeanRemote, Passeng
             try
             {
                 Seat chosenseat = em.find(Seat.class, seatid);
+                
                 FlightSchedule chosenfs = em.find(FlightSchedule.class, fsid);
                 newPassenger.setFlightSchedule(chosenfs);
                 chosenfs.getPassengers().add(newPassenger);
