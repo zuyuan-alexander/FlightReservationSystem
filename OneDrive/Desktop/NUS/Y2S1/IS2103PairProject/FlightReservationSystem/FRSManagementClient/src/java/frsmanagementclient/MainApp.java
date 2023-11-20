@@ -576,10 +576,23 @@ public class MainApp {
             }
         }
        
+        Integer response = 0;
+        while(true)
+        {
+             System.out.println("Select Flight SchedulePlanType (1: Single, 2: Multiple, 3: RecurrentNDay, 4: RecurrentWeekly)> ");
+             response = sc.nextInt();
+             sc.nextLine();
+             if(response>=1 && response <=4)
+             {
+                 break;
+             } else
+             {
+                System.out.println("Invalid option, please try again!\n");
+             }
+        }
        
-        System.out.println("Select Flight SchedulePlanType (1: Single, 2: Multiple, 3: RecurrentNDay, 4: RecurrentWeekly)> ");
-        Integer response = sc.nextInt();
-        sc.nextLine();
+       
+        
         
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH 'Hours' mm 'Minute'");
@@ -618,6 +631,12 @@ public class MainApp {
                 Date flightDuration = timeFormat.parse(flightDurationStr);
                 Date departureTime = departureFormat.parse(departureTimestr);
                 Date layoverDuration = new Date();
+                
+                if(endDate.before(startDate))
+                {
+                    System.out.println("Input data validation error!: endDate must be after start Date");
+                    return;
+                }
 
                 newFSP.setDayOfWeek(dayOfWeek);
                 newFSP.setStartDate(startDate);
@@ -628,6 +647,14 @@ public class MainApp {
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
                 
+                Set<ConstraintViolation<FlightSchedulePlan>> constraintViolations = validator.validate(newFSP);
+                if(!constraintViolations.isEmpty())
+                {
+                    showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                    return;
+                } 
+        
+                
                 for (FlightSchedule fs : ongoingfs) 
                 {
                     if (checkOverlap(newFS, fs)) 
@@ -635,6 +662,8 @@ public class MainApp {
                         throw new OverlappingScheduleException("Overlap found on the " + newFS.getDepartureDate() + " Cannot create new Flight Schedule Plan.");
                     }
                 }
+                
+               
                 
                 Long newfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(f, newFSP, newFS);
                 Long newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
@@ -659,6 +688,13 @@ public class MainApp {
                     compFS.setDepartureTime(temp.getArrivalTime());
                     compFS.setEstimatedFlightDuration(flightDuration);
                     compFS.calculateAndSetArrivalDateTime();
+                    
+                    constraintViolations = validator.validate(compFSP);
+                    if(!constraintViolations.isEmpty())
+                    {
+                        showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                        return;
+                    } 
                     
                  
                      compfspid = flightSchedulePlanSessionBean.createCompliMentaryFlightSchedulePlan(compf, compFSP, compFS, newfspid);
@@ -723,7 +759,7 @@ public class MainApp {
                
             catch (FlightDisabledException ex) {
                 System.out.println(ex.getMessage());
-            }
+            } 
             
             System.out.println(f.getFlightNumber() + ", " + newFSP.getScheduleType().name() + ": was created successfully");
         } else if(response == 3)
@@ -770,6 +806,14 @@ public class MainApp {
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
+                
+                Set<ConstraintViolation<FlightSchedulePlan>> constraintViolations = validator.validate(newFSP);
+                if(!constraintViolations.isEmpty())
+                {
+                    showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                    return;
+                } 
+        
                 for (FlightSchedule fs : ongoingfs) {
                     if (checkOverlap(newFS, fs)) {
                         
@@ -800,6 +844,12 @@ public class MainApp {
                     compFS.setEstimatedFlightDuration(flightDuration);
                     compFS.calculateAndSetArrivalDateTime();
                     
+                    constraintViolations = validator.validate(compFSP);
+                    if(!constraintViolations.isEmpty())
+                    {
+                        showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                        return;
+                    } 
                  
                      compfspid = flightSchedulePlanSessionBean.createCompliMentaryFlightSchedulePlan(compf, compFSP, compFS, newfspid);
                      compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
@@ -901,6 +951,14 @@ public class MainApp {
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
+                
+                Set<ConstraintViolation<FlightSchedulePlan>> constraintViolations = validator.validate(newFSP);
+                if(!constraintViolations.isEmpty())
+                {
+                    showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                    return;
+                } 
+        
                 for (FlightSchedule fs : ongoingfs) 
                 {
                     if (checkOverlap(newFS, fs)) 
@@ -978,9 +1036,17 @@ public class MainApp {
                         compFS.setDepartureTime(temp.getArrivalTime());
                         compFS.setEstimatedFlightDuration(flightDuration);
                         compFS.calculateAndSetArrivalDateTime();
+                        
+                        
+                        constraintViolations = validator.validate(compFSP);
+                        if(!constraintViolations.isEmpty())
+                        {
+                            showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                            return;
+                        } 
 
 
-                        //compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
+                        compfspid = flightSchedulePlanSessionBean.createNewRWFlightSchedulePlan(compf, compFSP, compFS);
                         compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
 
                     }
@@ -1470,18 +1536,7 @@ public class MainApp {
         }
     }
     
-    private void showInputDataValidationErrorsForFlight(Set<ConstraintViolation<Flight>>constraintViolations)
-    {
-        System.out.println("\nInput data validation error!:");
-            
-        for(ConstraintViolation constraintViolation:constraintViolations)
-        {
-            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
-        }
 
-        System.out.println("\nPlease try again......\n");
-    }
-    
     public void doViewSeatsInventory() {
         try {
             Scanner sc = new Scanner(System.in);
@@ -1765,4 +1820,42 @@ public class MainApp {
             System.out.println(ex.getMessage());
         }
     }
+    
+    
+    private void showInputDataValidationErrorsForFlight(Set<ConstraintViolation<Flight>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+     private void showInputDataValidationErrorsForFlightSchedulePlan(Set<ConstraintViolation<FlightSchedulePlan>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+     
+       private void showInputDataValidationErrorsForFlightSchedule(Set<ConstraintViolation<FlightSchedule>>constraintViolations)
+    {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
 }

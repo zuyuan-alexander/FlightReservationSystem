@@ -4,13 +4,20 @@
  */
 package ejb.session.stateless;
 
+import entity.Passenger;
 import entity.Seat;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.exception.InputDataValidationException;
 import util.exception.SeatNotFoundException;
 
 /**
@@ -23,13 +30,34 @@ public class SeatSessionBean implements SeatSessionBeanRemote, SeatSessionBeanLo
     @PersistenceContext(unitName = "FlightReservationSystem-ejbPU")
     private EntityManager em;
 
-    public SeatSessionBean() {
+   
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public SeatSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     @Override
-    public Seat createSeats(Seat seat) {
-        em.persist(seat);
-        return seat;
+    public Seat createSeats(Seat seat) throws InputDataValidationException {
+        Set<ConstraintViolation<Seat>>constraintViolations = validator.validate(seat);
+        
+        if(constraintViolations.isEmpty())
+        {
+
+             em.persist(seat);
+             return seat;
+            
+        } else
+        {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+
+        }
     }
     
     @Override
@@ -57,6 +85,17 @@ public class SeatSessionBean implements SeatSessionBeanRemote, SeatSessionBeanLo
         }
     }
     
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Seat>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
+    }
 
     
 }

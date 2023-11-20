@@ -28,13 +28,13 @@ public class AircraftType implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long aircraftTypeId;
-    @Column(nullable=false)
-    //@NotNull
+    @Column(nullable=false, unique = true)
+    @NotNull
     private String aircraftTypeName;
     @Column(nullable=false)
-    //@NotNull
-    //@Positive
-    //@Min(1)
+    @NotNull
+    @Positive
+    @Min(1)
     private Integer maxPassengerSeatCapacity;
 
     // relationship

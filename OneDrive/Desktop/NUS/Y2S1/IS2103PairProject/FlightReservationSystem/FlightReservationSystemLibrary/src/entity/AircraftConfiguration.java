@@ -14,6 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -27,16 +32,17 @@ public class AircraftConfiguration implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long aircraftConfigurationId;
     @Column(nullable=false, length=64, unique=true)
-    //@NotNull
-    //@Size(max=64)
+    @NotNull
+    @Size(max=64)
     private String aircraftConfigurationName;
     @Column(nullable=false)
-    //@NotNull
-    //@Positive
-    //@Min(1)
-    //@Max(4)
+    @NotNull
+    @Positive
+    @Min(1)
+    @Max(4)
     private Integer numOfCabinClass;
     @Column(nullable=false)
+    @NotNull
     private Integer maximumCapacity;
 
     // relationship

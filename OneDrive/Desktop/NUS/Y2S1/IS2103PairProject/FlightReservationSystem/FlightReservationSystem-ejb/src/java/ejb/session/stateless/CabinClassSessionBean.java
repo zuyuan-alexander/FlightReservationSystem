@@ -14,6 +14,7 @@ import javax.persistence.PersistenceContext;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.SeatStatusEnum;
 import util.exception.CabinClassNotFoundException;
+import util.exception.InputDataValidationException;
 
 /**
  *
@@ -56,7 +57,14 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
                 
                 Seat seat = new Seat(i, seatLetter, SeatStatusEnum.AVAILABLE);
                 
-                seatSessionBeanLocal.createSeats(seat);
+                try
+                {
+                    seatSessionBeanLocal.createSeats(seat);
+                } catch(InputDataValidationException ex)
+                {
+                    System.out.println(ex.getMessage());
+                }
+                
                 
                 cabinClass.getSeats().add(seat);
                 seat.setCabinClass(cabinClass);
