@@ -17,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -29,15 +30,20 @@ public class FlightRoute implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long flightRouteId;
+    @NotNull
     @Column(nullable=false, length=64)
     private String origin;
     @Column(nullable=false, length=64)
+    @NotNull
     private String destination;
     @Column(nullable=false, length=64, unique=true)
+    @NotNull
     private String originToDestination;
     @Column(nullable=false)
+    @NotNull
     private Boolean returnFlight;
     @Column(nullable=false)
+    @NotNull
     private Boolean disabledFlight;
 
     @ManyToMany

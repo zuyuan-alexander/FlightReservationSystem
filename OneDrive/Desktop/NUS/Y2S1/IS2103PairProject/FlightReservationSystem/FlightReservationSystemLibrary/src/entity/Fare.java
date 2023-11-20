@@ -15,7 +15,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import util.enumeration.CabinClassTypeEnum;
 
@@ -30,10 +32,14 @@ public class Fare implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fareid;
-    @Column(nullable = false, length = 8)
+    @Column(nullable = false, length = 8, unique = true)
     @NotNull
     @Size(min = 3, max = 7)
     private String fareBasicCode;
+    @Column(nullable = false)
+    @Positive
+    @NotNull
+    @Min(1)
     private BigDecimal fareAmount;
     @Column(nullable=false)
     @Enumerated(EnumType.STRING)

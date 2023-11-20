@@ -26,6 +26,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Future;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 /**
  *
  * @author alvintjw
@@ -61,6 +63,8 @@ public class FlightSchedulePlan implements Serializable {
     @Column(nullable = true, length = 10)
     private String dayOfWeek;
     @Column(nullable = true)
+    @Positive
+    @Min(1)
     private int Ndays;
     @Column(nullable = true)
     @Temporal(TemporalType.DATE)

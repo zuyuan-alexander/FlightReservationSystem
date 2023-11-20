@@ -40,7 +40,7 @@ public class Customer implements Serializable {
     private String email;
     @Column(nullable = false, length = 16, unique = true)
     @NotNull
-    @Size(min = 8, max = 16)
+    @Size(min = 4, max = 16)
     private String mobilePhoneNumber;
     @Column(nullable = false, length = 128)
     @NotNull
@@ -56,7 +56,7 @@ public class Customer implements Serializable {
     private String username;
     @Column(nullable = false, length = 64)
     @NotNull
-    @Size(min = 8, max = 64)// Adjust the length as needed
+    @Size(min = 5, max = 64)// Adjust the length as needed
     private String password;
 
     // relationship
