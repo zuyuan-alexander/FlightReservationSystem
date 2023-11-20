@@ -27,7 +27,7 @@ public interface FlightReservationSessionBeanLocal {
 
     public List<FlightSchedule> searchFlightDirectFlight(String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType);
 
-    public List<FlightSchedule> searchFlightConnectingFlight(String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType);
+    public List<Object[]> searchFlightConnectingFlightFirst(String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType);
 
     public List<FlightReservation> viewMyFlightReservations(Long customerId);
 
@@ -35,6 +35,8 @@ public interface FlightReservationSessionBeanLocal {
     public Long reserveFlightMain(Long customerid, Long fsid, Long passengerid, TripTypeEnum tripType);
 
     public Long createNewFlightReservation(Long customerId, Long flightScheduleId, Passenger passenger, Long seatId, TripTypeEnum tripType) throws CustomerNotFoundException, FlightScheduleNotFoundException, SeatNotFoundException;
+
+    public List<FlightSchedule> searchFlightConnectingFlightSecond(String departureAirport, String destinationAirport, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType);
     
     
 }

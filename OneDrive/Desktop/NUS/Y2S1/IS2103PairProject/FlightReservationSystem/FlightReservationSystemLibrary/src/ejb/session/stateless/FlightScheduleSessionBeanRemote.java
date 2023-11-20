@@ -25,7 +25,7 @@ public interface FlightScheduleSessionBeanRemote {
     
     public List<FlightSchedule> checkFlightScheduleWithPreferedCabinClass(List<FlightSchedule> fsList, CabinClassTypeEnum cabinClassType);
     
-    public List<FlightSchedule> retrieveFlightScheduleByDate(Date date);
+    public List<FlightSchedule> retrieveFlightScheduleByDate(Date date, String flightNumber);
 
     public List<FlightSchedule> retrieveAllFlightSchedulesWithFSPid(Long fspid);
 }

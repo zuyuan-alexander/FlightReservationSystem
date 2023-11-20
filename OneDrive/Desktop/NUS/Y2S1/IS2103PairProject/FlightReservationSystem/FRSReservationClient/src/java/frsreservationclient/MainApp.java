@@ -421,36 +421,118 @@ public class MainApp {
     public void searchConnectingFlight(String origin, String destination, Date date, Integer numOfPassengers, CabinClassTypeEnum cabinClassType) {
         // three days before departure date
         for (int i=3; i>=1; i--) {
+            System.out.println("*** On Departure Date -" + i + " ***");
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.setTime(date);
             calendar.add(GregorianCalendar.DAY_OF_MONTH, -i);
 
             Date newDate = calendar.getTime();
             
-            List<FlightSchedule> fsList = flightReservationSessionBeanRemote.searchFlightConnectingFlight(origin, destination, newDate, numOfPassengers, cabinClassType);
-              if(!fsList.isEmpty())
+            //List<FlightSchedule> fsFirstList = flightReservationSessionBeanRemote.searchFlightConnectingFlightFirst(origin, destination, newDate, numOfPassengers, cabinClassType);
+            //List<FlightSchedule> fsSecondList = flightReservationSessionBeanRemote.searchFlightConnectingFlightSecond(origin, destination, newDate, numOfPassengers, cabinClassType);
+            List<Object[]> fsFirstList = flightReservationSessionBeanRemote.searchFlightConnectingFlightFirst(origin, destination, newDate, numOfPassengers, cabinClassType);
+            if(!fsFirstList.isEmpty())
             {
-                displayFlightSchedule(fsList, numOfPassengers);
+                //displayFlightSchedule(fsFirstList, numOfPassengers);
+                //displayFlightSchedule(fsSecondList, numOfPassengers);
+                displayConnectingFlightSchedule(fsFirstList, numOfPassengers);
             }
         }
         
         // on the departure date
-        List<FlightSchedule> currentFSList = flightReservationSessionBeanRemote.searchFlightConnectingFlight(origin, destination, date, numOfPassengers, cabinClassType);
-        displayFlightSchedule(currentFSList, numOfPassengers);
+        System.out.println("*** On Departure Date ***");
+        List<Object[]> currentFSFirstList = flightReservationSessionBeanRemote.searchFlightConnectingFlightFirst(origin, destination, date, numOfPassengers, cabinClassType);
+        displayConnectingFlightSchedule(currentFSFirstList, numOfPassengers);
+        //List<FlightSchedule> currentFSFirstList = flightReservationSessionBeanRemote.searchFlightConnectingFlightFirst(origin, destination, date, numOfPassengers, cabinClassType);
+        //List<FlightSchedule> currentFSSecondList = flightReservationSessionBeanRemote.searchFlightConnectingFlightSecond(origin, destination, date, numOfPassengers, cabinClassType);
+        //displayFlightSchedule(currentFSFirstList, numOfPassengers);
+        //displayFlightSchedule(currentFSSecondList, numOfPassengers);
         
         // three days after departure date
         for (int i=1; i<=3; i++) {
+            System.out.println("*** On Departure Date +" + i + " ***");
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.setTime(date);
             calendar.add(GregorianCalendar.DAY_OF_MONTH, i);
 
             Date newDate = calendar.getTime();
             
-            List<FlightSchedule> fsList = flightReservationSessionBeanRemote.searchFlightConnectingFlight(origin, destination, newDate, numOfPassengers, cabinClassType);
-            if(!fsList.isEmpty())
+            //List<FlightSchedule> fsFirstList = flightReservationSessionBeanRemote.searchFlightConnectingFlightFirst(origin, destination, newDate, numOfPassengers, cabinClassType);
+            //List<FlightSchedule> fsSecondList = flightReservationSessionBeanRemote.searchFlightConnectingFlightSecond(origin, destination, newDate, numOfPassengers, cabinClassType);
+            List<Object[]> fsFirstList = flightReservationSessionBeanRemote.searchFlightConnectingFlightFirst(origin, destination, newDate, numOfPassengers, cabinClassType);
+            if(!fsFirstList.isEmpty())
             {
-                displayFlightSchedule(fsList, numOfPassengers);
+                //displayFlightSchedule(fsFirstList, numOfPassengers);
+                //displayFlightSchedule(fsSecondList, numOfPassengers);
+                displayConnectingFlightSchedule(fsFirstList, numOfPassengers);
             }
+        }
+    }
+    
+    public void displayConnectingFlightSchedule(List<Object[]> fsList, Integer numOfPassengers) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        FlightSchedule currFirstFS = new FlightSchedule();
+        FlightSchedule currSecondFS = new FlightSchedule();
+
+
+        if(fsList.isEmpty())
+        {
+            System.out.println("No Available Flights");
+        }
+        for (Object[] obj : fsList) {
+            FlightSchedule firstFS = (FlightSchedule) obj[0];
+            FlightSchedule secondFS = (FlightSchedule) obj[1];
+            try
+            {
+                currFirstFS = flightScheduleSessionBeanRemote.retrieveFlightScheduleById(firstFS.getFlightscheduleid());
+                currSecondFS = flightScheduleSessionBeanRemote.retrieveFlightScheduleById(secondFS.getFlightscheduleid());
+            } catch (FlightScheduleNotFoundException ex)
+            {
+                System.out.println(ex.getMessage());
+            } 
+            
+            System.out.println("Flight Schedule ID #" + currFirstFS.getFlightscheduleid());
+            System.out.println("Flight Number <" + currFirstFS.getFlightSchedulePlan().getFlight().getFlightNumber() + ">");
+            System.out.println("Flight from " + currFirstFS.getFlightSchedulePlan().getFlight().getFlightRoute().getOrigin() + " -> " + currFirstFS.getFlightSchedulePlan().getFlight().getFlightRoute().getDestination());
+            System.out.println("Departs at " + dateFormat.format(currFirstFS.getDepartureDate()) + " " +
+                   timeFormat.format(currFirstFS.getDepartureTime()) + 
+                   "; Arrives at " + dateFormat.format(currFirstFS.getArrivalDate()) +
+                   " " + timeFormat.format(currFirstFS.getArrivalTime()));
+            for (Fare fare  : currFirstFS.getFlightSchedulePlan().getFares()) {
+                BigDecimal fareamount = BigDecimal.ZERO;
+                fareamount = fare.getFareAmount();
+                String cabinclasstype = fare.getCabinClassType().toString();
+                  System.out.println("Fare Price per Passenger for " + cabinclasstype + ": " + 
+                        fareamount + "; Total Price for " + numOfPassengers + " Passengers: " + fareamount.multiply(BigDecimal.valueOf(numOfPassengers)));
+                
+                /*
+                BigDecimal fareAmount = fareSessionBeanRemote.retrieveFareAmountByCabinClassType(fs.getFlightSchedulePlan().getFares(), cabinClass);
+                System.out.println("Fare Price per Passenger for " + cabinClass.getCabinClassType() + ": " + 
+                        fareAmount + "; Total Price for " + numOfPassengers + " Passengers: " + fareAmount.multiply(BigDecimal.valueOf(numOfPassengers))); */
+            }
+            System.out.println();
+            
+            System.out.println("Flight Schedule ID #" + currSecondFS.getFlightscheduleid());
+            System.out.println("Flight Number <" + currSecondFS.getFlightSchedulePlan().getFlight().getFlightNumber() + ">");
+            System.out.println("Flight from " + currSecondFS.getFlightSchedulePlan().getFlight().getFlightRoute().getOrigin() + " -> " + currSecondFS.getFlightSchedulePlan().getFlight().getFlightRoute().getDestination());
+            System.out.println("Departs at " + dateFormat.format(currSecondFS.getDepartureDate()) + " " +
+                   timeFormat.format(currSecondFS.getDepartureTime()) + 
+                   "; Arrives at " + dateFormat.format(currSecondFS.getArrivalDate()) +
+                   " " + timeFormat.format(currFirstFS.getArrivalTime()));
+            for (Fare fare  : currSecondFS.getFlightSchedulePlan().getFares()) {
+                BigDecimal fareamount = BigDecimal.ZERO;
+                fareamount = fare.getFareAmount();
+                String cabinclasstype = fare.getCabinClassType().toString();
+                  System.out.println("Fare Price per Passenger for " + cabinclasstype + ": " + 
+                        fareamount + "; Total Price for " + numOfPassengers + " Passengers: " + fareamount.multiply(BigDecimal.valueOf(numOfPassengers)));
+                
+                /*
+                BigDecimal fareAmount = fareSessionBeanRemote.retrieveFareAmountByCabinClassType(fs.getFlightSchedulePlan().getFares(), cabinClass);
+                System.out.println("Fare Price per Passenger for " + cabinClass.getCabinClassType() + ": " + 
+                        fareAmount + "; Total Price for " + numOfPassengers + " Passengers: " + fareAmount.multiply(BigDecimal.valueOf(numOfPassengers))); */
+            }
+            System.out.println();
         }
     }
     
@@ -462,7 +544,7 @@ public class MainApp {
 
         if(fsList.isEmpty())
         {
-            //System.out.println("No Available Flights :(");
+            System.out.println("No Available Flights");
         }
         for (FlightSchedule fs : fsList) {
             try
@@ -475,6 +557,7 @@ public class MainApp {
             
             System.out.println("Flight Schedule ID #" + currfs.getFlightscheduleid());
             System.out.println("Flight Number <" + currfs.getFlightSchedulePlan().getFlight().getFlightNumber() + ">");
+            System.out.println("Flight from " + currfs.getFlightSchedulePlan().getFlight().getFlightRoute().getOrigin() + " -> " + currfs.getFlightSchedulePlan().getFlight().getFlightRoute().getDestination());
             System.out.println("Departs at " + dateFormat.format(currfs.getDepartureDate()) + " " +
                    timeFormat.format(currfs.getDepartureTime()) + 
                    "; Arrives at " + dateFormat.format(currfs.getArrivalDate()) +

@@ -68,9 +68,14 @@ public class FlightScheduleSessionBean implements FlightScheduleSessionBeanRemot
     }
     
     @Override
-    public List<FlightSchedule> retrieveFlightScheduleByDate(Date date) {
+    public List<FlightSchedule> retrieveFlightScheduleByDate(Date date, String flightNumber) {
+        /*
         Query query = em.createQuery("SELECT fs FROM FlightSchedule fs WHERE fs.departureDate = :inDate ORDER BY fs.flightscheduleid ASC");
         query.setParameter("inDate", date);
+        return query.getResultList();
+        */
+        Query query = em.createQuery("SELECT fs FROM FlightSchedule fs WHERE fs.departureDate = :inDate AND fs.flightSchedulePlan.flight.flightNumber = :inFLightNumber ORDER BY fs.flightscheduleid ASC");
+        query.setParameter("inDate", date).setParameter("inFLightNumber", flightNumber);
         return query.getResultList();
     }
     
