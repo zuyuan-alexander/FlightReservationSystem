@@ -5,12 +5,18 @@
 package ejb.session.stateless;
 
 import entity.CabinClass;
+import entity.FlightSchedulePlan;
 import entity.Seat;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.enumeration.CabinClassTypeEnum;
 import util.enumeration.SeatStatusEnum;
 import util.exception.CabinClassNotFoundException;
@@ -29,7 +35,15 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
     @EJB
     private SeatSessionBeanLocal seatSessionBeanLocal;
 
-    public CabinClassSessionBean() {
+     private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public CabinClassSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
     
     @Override
@@ -99,6 +113,18 @@ public class CabinClassSessionBean implements CabinClassSessionBeanRemote, Cabin
         {
             throw new CabinClassNotFoundException("Cabin Class ID " + ccid + " does not exist!");
         }
+    }
+    
+     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<CabinClass>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
     
     /*

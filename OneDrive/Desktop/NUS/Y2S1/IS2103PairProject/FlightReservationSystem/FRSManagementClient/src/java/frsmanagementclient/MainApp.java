@@ -637,12 +637,24 @@ public class MainApp {
                     System.out.println("Input data validation error!: endDate must be after start Date");
                     return;
                 }
+                
+                 Calendar cal = Calendar.getInstance();
+                cal.setTime(startDate);
+
+                // Find the next occurrence of the specified day of the week
+                int desiredDayOfWeek = convertToCalendarDayOfWeek(dayOfWeek);
+                int currentDayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+                int daysToAdd = (desiredDayOfWeek - currentDayOfWeek + 7) % 7;
+
+                // Increment the start date to the next occurrence of the desired day of the week
+                cal.add(Calendar.DAY_OF_YEAR, daysToAdd);
+                Date departureDate = cal.getTime();
 
                 newFSP.setDayOfWeek(dayOfWeek);
                 newFSP.setStartDate(startDate);
                 newFSP.setEndDate(endDate);
                 newFSP.setNdays(7);
-                newFS.setDepartureDate(startDate);
+                newFS.setDepartureDate(departureDate);
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
@@ -718,7 +730,14 @@ public class MainApp {
                     calendar.add(Calendar.DAY_OF_MONTH, 7); // Increment by 7 days
                     newFS.setDepartureDate(calendar.getTime());
                     newFS.calculateAndSetArrivalDateTime(); 
+                    
+                    if(newFS.getDepartureDate().after(endDate))
+                    {
+                        break;
+                    }
+                    
                     newfsid = flightScheduleSessionBean.createNewFlightSchedule(newFS, newfspid);
+                    
                     
                        
                     //add the returning fs
@@ -1108,6 +1127,15 @@ public class MainApp {
                 newFS.setDepartureTime(departureTime);
                 newFS.setEstimatedFlightDuration(flightDuration);
                 newFS.calculateAndSetArrivalDateTime();
+                
+                Set<ConstraintViolation<FlightSchedulePlan>> constraintViolations = validator.validate(newFSP);
+                if(!constraintViolations.isEmpty())
+                {
+                    showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                    return;
+                }
+                
+                
                 for (FlightSchedule fs : ongoingfs) {
                         if (checkOverlap(newFS, fs)) {
 
@@ -1134,6 +1162,12 @@ public class MainApp {
                     compFS.setEstimatedFlightDuration(flightDuration);
                     compFS.calculateAndSetArrivalDateTime();
                     
+                   constraintViolations = validator.validate(compFSP);
+                    if(!constraintViolations.isEmpty())
+                    {
+                        showInputDataValidationErrorsForFlightSchedulePlan(constraintViolations);
+                        return;
+                    } 
                  
                     compfspid = flightSchedulePlanSessionBean.createCompliMentaryFlightSchedulePlan(compf, compFSP, compFS, newfspid);
                     compfsid = flightScheduleSessionBean.createNewFlightSchedule(compFS, compfspid);
@@ -1294,6 +1328,28 @@ public class MainApp {
         return cal.getTime();
     }
     
+    private int convertToCalendarDayOfWeek(String dayOfWeek) {
+        switch (dayOfWeek.toLowerCase()) {
+            case "sunday":
+                return Calendar.SUNDAY;
+            case "monday":
+                return Calendar.MONDAY;
+            case "tuesday":
+                return Calendar.TUESDAY;
+            case "wednesday":
+                return Calendar.WEDNESDAY;
+            case "thursday":
+                return Calendar.THURSDAY;
+            case "friday":
+                return Calendar.FRIDAY;
+            case "saturday":
+                return Calendar.SATURDAY;
+            default:
+                throw new IllegalArgumentException("Invalid day of week input");
+        }
+    }
+
+
     
     public void doUpdateFlightSchedulePlan() {
         //SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy");
