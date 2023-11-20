@@ -96,7 +96,11 @@ public class DataInitSessionBean {
         initAircraftConfiguration();
         initFlightRoute();
         initFlight();
-        //initFlightSchedulePlan();
+        initFlightSchedulePlan();
+        
+        Customer customer = new Customer("root", "customer", "rootcustomer@gmail.com", "abcdefghi", "nus", "nus", "root", "password");
+        em.persist(customer);
+        em.flush();
     }
     
     public void initEmployee() {

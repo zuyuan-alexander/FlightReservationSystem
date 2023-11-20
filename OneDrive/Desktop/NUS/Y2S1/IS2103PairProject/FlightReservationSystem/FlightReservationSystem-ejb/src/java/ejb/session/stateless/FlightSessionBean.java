@@ -127,7 +127,7 @@ public class FlightSessionBean implements FlightSessionBeanRemote, FlightSession
                 {
                     if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException"))
                     {
-                        throw new FlightNumberExistsException();
+                        throw new FlightNumberExistsException("Flight already existed!");
                     }
                     else
                     {
